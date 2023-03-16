@@ -222,15 +222,23 @@ def MathCalculations(data,k,init):
 	Volum = []
     
 	for k in range(len(data.Tid)):
+		Flow_k = data.Lys[k] - data.Lys[0]
+		Flow.append(Flow_k) 
+
 		# Initialverdier og beregninger 
 		if k == 0:
 			# Initialverdier
 			data.Ts.append(0.005)  	# nominell verdi
+			Volum_k = Volum.append(0)
 		
 		else:
 			# Beregninger av Ts og variable som avhenger av initialverdi
 			data.Ts.append(data.Tid[k]-data.Tid[k-1])
+			Volum_k = Volum[k-1] + Flow_k * data.Ts[k]
 
+		Volum.append(Volum_k)
+
+	return (Flow, Volum[:-1])
     # Andre beregninger uavhengig av initialverdi
 
     # Pådragsberegninger
