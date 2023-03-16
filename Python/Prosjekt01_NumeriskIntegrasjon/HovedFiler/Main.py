@@ -158,7 +158,7 @@ def addMeasurements(data,robot,init,k):
 		data.Tid.append(timer.tic())		# starter "stoppeklokken" på 0
 	else:
 
-		# lagrer "målinger" av tid
+		# lagrer "målinger" av
 		data.Tid.append(timer.toc())
 	
 	# lagrer målinger av lys
