@@ -156,7 +156,7 @@ def addMeasurements(data,robot,init,k):
 		# Definer initielle målinger inn i init variabelen.
         # Initialverdiene kan brukes i MathCalculations()
 		init.Lys0 = robot.ColorSensor.reflection() 	# lagrer første lysmåling
-		init.Volum_k = 0
+		
 		data.Tid.append(timer.tic())		# starter "stoppeklokken" på 0
 	else:
 
@@ -228,13 +228,14 @@ def MathCalculations(data,k,init):
 	if k == 0:
 		# Initialverdier
 		data.Ts.append(0.005)  	# nominell verdi
+		init.Volum_k = 0
 		
 	else:
 		# Beregninger av Ts og variable som avhenger av initialverdi
 		data.Ts.append(data.Tid[k]-data.Tid[k-1])
-		Volum_k = data.Volum[-1] + Flow_k * data.Ts[-1]
+		init.Volum_k = data.Volum[-1] + Flow_k * data.Ts[-1]
 
-	data.Volum.append(Volum_k)
+	data.Volum.append(init.Volum_k)
 
 	# return (data.Flow, data.Volum[:-1])
     # Andre beregninger uavhengig av initialverdi
