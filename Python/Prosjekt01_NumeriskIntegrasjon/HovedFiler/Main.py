@@ -228,7 +228,7 @@ def MathCalculations(data,k,init):
 	if k == 0:
 		# Initialverdier
 		data.Ts.append(0.005)  	# nominell verdi
-		init.Volum_k = 0
+		Volum_k = 0
 		
 	else:
 		# Beregninger av Ts og variable som avhenger av initialverdi
