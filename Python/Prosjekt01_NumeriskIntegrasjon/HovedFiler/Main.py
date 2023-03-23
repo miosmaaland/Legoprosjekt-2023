@@ -153,7 +153,7 @@ data.PowerD = []         # berenging av motorpådrag D
 
 def addMeasurements(data,robot,init,k):
 	if k==0:
-		# Definer initielle lmålinger inn i init variabelen.
+		# Definer initielle målinger inn i init variabelen.
         # Initialverdiene kan brukes i MathCalculations()
 		init.Lys0 = robot.ColorSensor.reflection() 	# lagrer første lysmåling
 
@@ -221,9 +221,6 @@ def MathCalculations(data,k,init):
 	a = 0.7
 
     # Tilordne målinger til variable
-
-    
-	
 	Flow_k = (data.Lys[k] - data.Lys[0])
 	data.Flow.append(Flow_k) 
 
@@ -231,7 +228,7 @@ def MathCalculations(data,k,init):
 	if k == 0:
 		# Initialverdier
 		data.Ts.append(0.005)  	# nominell verdi
-		Volum_k = 0
+		init.Volum_k = 0
 		
 	else:
 		# Beregninger av Ts og variable som avhenger av initialverdi
