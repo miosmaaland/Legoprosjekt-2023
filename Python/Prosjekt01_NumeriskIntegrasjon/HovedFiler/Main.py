@@ -43,10 +43,10 @@ timer = clock()				# timerobjekt med tic toc funksjoner
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #                            1) KONFIGURASJON
 #
-Configs.EV3_IP = "169.254.7.251"	# Avles IP-adressen på EV3-skjermen
+Configs.EV3_IP = "169.254.119.149"	# Avles IP-adressen på EV3-skjermen
 Configs.Online = False	# Online = True  --> programmet kjører på robot  
 						# Online = False --> programmet kjører på datamaskin
-Configs.livePlot = True 	# livePlot = True  --> Live plot, typisk stor Ts
+Configs.livePlot = False 	# livePlot = True  --> Live plot, typisk stor Ts
 							# livePlot = False --> Ingen plot, liten Ts
 Configs.avgTs = 0.005	# livePlot = False --> spesifiser ønsket Ts
 						# Lav avgTs -> høy samplingsfrekvens og mye data.
@@ -84,6 +84,8 @@ data.Lys = []            	# måling av reflektert lys fra ColorSensor
 
 # beregninger
 data.Ts = []			  	# beregning av tidsskritt
+data.Flow = []
+data.Volum = []
 
 """
 # Utvalg av målinger
@@ -163,6 +165,7 @@ def addMeasurements(data,robot,init,k):
 	
 	# lagrer målinger av lys
 	data.Lys.append(robot.ColorSensor.reflection())
+	
 
 	"""
 	data.LysDirekte.append(robot.ColorSensor.ambient())
@@ -218,27 +221,26 @@ def MathCalculations(data,k,init):
 	a = 0.7
 
     # Tilordne målinger til variable
-	Flow = []
-	Volum = []
+
     
-	for k in range(len(data.Tid)):
-		Flow_k = data.Lys[k] - data.Lys[0]
-		Flow.append(Flow_k) 
+	
+	Flow_k = (data.Lys[k] - data.Lys[0])
+	data.Flow.append(Flow_k) 
 
 		# Initialverdier og beregninger 
-		if k == 0:
-			# Initialverdier
-			data.Ts.append(0.005)  	# nominell verdi
-			Volum_k = Volum.append(0)
+	if k == 0:
+		# Initialverdier
+		data.Ts.append(0.005)  	# nominell verdi
+		Volum_k = 0
 		
-		else:
-			# Beregninger av Ts og variable som avhenger av initialverdi
-			data.Ts.append(data.Tid[k]-data.Tid[k-1])
-			Volum_k = Volum[k-1] + Flow_k * data.Ts[k]
+	else:
+		# Beregninger av Ts og variable som avhenger av initialverdi
+		data.Ts.append(data.Tid[k]-data.Tid[k-1])
+		Volum_k = data.Volum[-1] + Flow_k * data.Ts[-1]
 
-		Volum.append(Volum_k)
+	data.Volum.append(Volum_k)
 
-	return (Flow, Volum[:-1])
+	# return (data.Flow, data.Volum[:-1])
     # Andre beregninger uavhengig av initialverdi
 
     # Pådragsberegninger
