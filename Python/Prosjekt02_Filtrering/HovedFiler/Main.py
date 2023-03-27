@@ -51,10 +51,10 @@ Configs.livePlot = True 	# livePlot = True  --> Live plot, typisk stor Ts
 Configs.avgTs = 0.005	# livePlot = False --> spesifiser ønsket Ts
 						# Lav avgTs -> høy samplingsfrekvens og mye data.
 						# --> Du må vente veldig lenge for å lagre filen.
-Configs.filename = "P0X_BeskrivendeTekst_Y.txt"	
+Configs.filename = "P02_Filtrering_01.txt"	
 						# Målinger/beregninger i Online lagres til denne 
 						# .txt-filen. Upload til Data-mappen.
-Configs.filenameOffline = "Offline_P0X_BeskrivendeTekst_Y.txt"	
+Configs.filenameOffline = "Offline_P02_Filtrering_01.txt"	
 						# I Offline brukes den opplastede datafilen 
 						# og alt lagres til denne .txt-filen.
 Configs.plotMethod = 2	# verdier: 1 eller 2, hvor hver plottemetode 
