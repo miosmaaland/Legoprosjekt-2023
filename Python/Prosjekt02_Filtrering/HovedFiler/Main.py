@@ -227,7 +227,6 @@ def MathCalculations(data,k,init):
     
 	# Tilordne målinger til variable
 	data.Temp[k] = data.Lys[k]
-	data.Tid.append(k)
     
     # Initialverdier og beregninger 
 	if k == 0:
