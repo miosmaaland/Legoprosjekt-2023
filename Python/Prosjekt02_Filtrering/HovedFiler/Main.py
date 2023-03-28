@@ -219,8 +219,8 @@ def MathCalculations(data,k,init):
 
 	# Parametre
 	init.alfa = 0.5
-	init.a = -init.alfa
-	init.b = 1-init.alfa
+	a = -init.alfa
+	b = 1-init.alfa
 	M = 2
 	if k < M:
 		M = k
@@ -237,7 +237,7 @@ def MathCalculations(data,k,init):
 	else:
         # Beregninger av variabler som avhenger av initialverdi
 		data.Temp_FIR.append(sum(data.Temp[k-M : k]) * 1/M)
-		data.Temp_IIR.append(init.b*data.Temp[k] + init.a*data.Temp_IIR[k-1])
+		data.Temp_IIR.append(b*data.Temp[k] + a*data.Temp_IIR[k-1])
 
     # Andre beregninger uavhengig av initialverdi
 
