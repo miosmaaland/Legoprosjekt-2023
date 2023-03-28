@@ -83,7 +83,7 @@ data.Tid = []            	# måling av tidspunkt
 data.Lys = []            	# måling av reflektert lys fra ColorSensor
 
 # beregninger
-data.Ts = []			  	# beregning av tidsskritt
+# data.Ts = []			  	# beregning av tidsskritt
 data.Temp = []				# beregning av temperatur
 data.Temp_FIR = []			# beregning av temperatur gjennom et Finite Impulse Response filter
 data.Temp_IIR = []			# beregning av temperatur
@@ -221,7 +221,7 @@ def MathCalculations(data,k,init):
 	init.alfa = 0.5
 	a = -init.alfa
 	b = 1-init.alfa
-	M = 2
+	M = 3
 	if k < M:
 		M = k
     
