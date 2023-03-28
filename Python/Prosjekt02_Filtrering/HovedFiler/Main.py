@@ -84,6 +84,9 @@ data.Lys = []            	# måling av reflektert lys fra ColorSensor
 
 # beregninger
 data.Ts = []			  	# beregning av tidsskritt
+data.Temp = []				# beregning av temperatur
+data.Temp_FIR = []			# beregning av temperatur gjennom et Finite Impulse Response filter
+data.Temp_IIR = []			# beregning av temperatur
 
 """
 # Utvalg av målinger
