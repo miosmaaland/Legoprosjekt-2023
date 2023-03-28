@@ -218,18 +218,27 @@ def MathCalculations(data,k,init):
 				# bruk i offline.
 
 	# Parametre
-	a = 0.7
-
-    # Tilordne målinger til variable
+	alfa = 0.5
+	init.a = -alfa
+	init.b = 1-alfa
+	M = 2
+	if k < M:
+		M = k
+    
+	# Tilordne målinger til variable
+	data.Temp[k] = data.Lys[k]
+	data.Tid.append(k)
     
     # Initialverdier og beregninger 
 	if k == 0:
 		# Initialverdier
-		data.Ts.append(0.005)  	# nominell verdi
+		data.Temp_FIR.append(data.Temp[0])
+		data.Temp_IIR.append(data.Temp[0])
 	
 	else:
-        # Beregninger av Ts og variable som avhenger av initialverdi
-		data.Ts.append(data.Tid[k]-data.Tid[k-1])
+        # Beregninger av variabler som avhenger av initialverdi
+		data.Temp_FIR.append(sum(data.Temp[k-M : k]) * 1/M)
+		data.Temp_IIR.append(init.b*data.Temp[k] + init.a*data.Temp_IIR[k-1])
 
     # Andre beregninger uavhengig av initialverdi
 
