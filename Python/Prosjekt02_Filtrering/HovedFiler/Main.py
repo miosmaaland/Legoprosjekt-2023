@@ -218,9 +218,9 @@ def MathCalculations(data,k,init):
 				# bruk i offline.
 
 	# Parametre
-	alfa = 0.5
-	init.a = -alfa
-	init.b = 1-alfa
+	init.alfa = 0.5
+	init.a = -init.alfa
+	init.b = 1-init.alfa
 	M = 2
 	if k < M:
 		M = k
