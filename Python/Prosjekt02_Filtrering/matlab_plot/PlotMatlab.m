@@ -15,34 +15,15 @@ set(0,'defaultTextInterpreter','latex');
 set(0,'defaultAxesFontSize',14)
 set(gcf,'Position',[100 200 800 700])
 
-subplot(2,2,1);
-plot(data.Tid,data.Temp,'LineWidth',1)
-grid on
+subplot(1,1,1);
+plot(data.Tid,data.Temp,'r','LineWidth',1)
 hold on
+plot(data.Tid,data.Temp_FIR,'g','LineWidth',1)
+plot(data.Tid,data.Temp_IIR,'b','LineWidth',1)
 title('Målt temperatur')
 xlabel('Tid [sek]')
 ylabel('Temperatur [C]')
 % axis([XMIN XMAX YMIN YMAX])
 
-
-subplot(2,2,2);
-plot(data.Tid,data.Temp_FIR,'g','LineWidth',1)
-grid on
-hold on
-title('Temp_FIR')
-xlabel('Tid [sek]')
-legend('$u$','$y_1$','$y_2$','interpreter','latex')
-%axis([XMIN XMAX YMIN YMAX])
-
-
-
-subplot(2,2,3);
-plot(data.Tid,data.Temp_IIR,'b','LineWidth',1)
-grid on
-hold on
-title('Temp_IIR')
-xlabel('Tid [sek]')
-ylabel('[\%]')
-% axis([XMIN XMAX YMIN YMAX])
 
 

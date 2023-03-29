@@ -81,12 +81,12 @@ Configs.ConnectJoystickToPC = False # True  --> joystick direkte på datamaskin
 # målinger
 data.Tid = []            	# måling av tidspunkt
 data.Lys = []            	# måling av reflektert lys fra ColorSensor
+data.Temp = []				# måling av temperatur
 
 # beregninger
 data.Ts = []			  	# beregning av tidsskritt
-data.Temp = []				# beregning av temperatur
 data.Temp_FIR = []			# beregning av temperatur gjennom et Finite Impulse Response filter
-data.Temp_IIR = []			# beregning av temperatur
+data.Temp_IIR = []			# beregning av temperatur	gjennom et Infinite Impulse Response filter
 
 """
 # Utvalg av målinger
@@ -218,10 +218,10 @@ def MathCalculations(data,k,init):
 				# bruk i offline.
 
 	# Parametre
-	alfa = 0.6
-	a = -alfa
+	alfa = 0.05
+	a = alfa
 	b = 1-alfa
-	M = 3
+	M = 10
 	if k < M:
 		M = k
     
@@ -239,7 +239,7 @@ def MathCalculations(data,k,init):
         # Beregninger av Ts og variable som avhenger av initialverdi
 		data.Ts.append(data.Tid[k]-data.Tid[k-1])
 		data.Temp_FIR.append(sum(data.Temp[k-M : k]) * 1/M)
-		data.Temp_IIR.append(b*data.Temp[k] + a*data.Temp_IIR[k-1])
+		data.Temp_IIR.append(a*data.Temp[k] + b*data.Temp_IIR[k-1])
 
     # Andre beregninger uavhengig av initialverdi
 
