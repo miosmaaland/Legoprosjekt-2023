@@ -43,7 +43,7 @@ timer = clock()				# timerobjekt med tic toc funksjoner
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #                            1) KONFIGURASJON
 #
-Configs.EV3_IP = "169.254.165.191"	# Avles IP-adressen på EV3-skjermen
+Configs.EV3_IP = "169.254.124.214"	# Avles IP-adressen på EV3-skjermen
 Configs.Online = False	# Online = True  --> programmet kjører på robot  
 						# Online = False --> programmet kjører på datamaskin
 Configs.livePlot = False 	# livePlot = True  --> Live plot, typisk stor Ts
@@ -155,7 +155,7 @@ data.PowerD = []         # berenging av motorpådrag D
 def addMeasurements(data,robot,init,k):
 	if k==0:
 		# Definer initielle lmålinger inn i init variabelen.
-        # Initialverdiene kan brukes i MathCalculations()
+		# Initialverdiene kan brukes i MathCalculations()
 		init.Lys0 = robot.ColorSensor.reflection() 	# lagrer første lysmåling
 
 		data.Tid.append(timer.tic())		# starter "stoppeklokken" på 0
@@ -219,16 +219,16 @@ def MathCalculations(data,k,init):
 
 	# Parametre
 	alfa = 0.05
-	a = alfa
-	b = 1-alfa
+	a = 1-alfa
+	b = alfa
 	M = 10
 	if k < M:
 		M = k
-    
+	
 	# Tilordne målinger til variable
-	data.Temp = data.Lys
-    
-    # Initialverdier og beregninger 
+	data.Temp.append(data.Lys[k])
+	
+	# Initialverdier og beregninger 
 	if k == 0:
 		# Initialverdier
 		data.Ts.append(0.005)
@@ -236,14 +236,14 @@ def MathCalculations(data,k,init):
 		data.Temp_IIR.append(data.Temp[0])
 	
 	else:
-        # Beregninger av Ts og variable som avhenger av initialverdi
+		# Beregninger av Ts og variable som avhenger av initialverdi
 		data.Ts.append(data.Tid[k]-data.Tid[k-1])
 		data.Temp_FIR.append(sum(data.Temp[k-M : k]) * 1/M)
-		data.Temp_IIR.append(a*data.Temp[k] + b*data.Temp_IIR[k-1])
+		data.Temp_IIR.append(a*data.Temp_IIR[k-1] + b*data.Temp[k])
 
-    # Andre beregninger uavhengig av initialverdi
+	# Andre beregninger uavhengig av initialverdi
 
-    # Pådragsberegninger
+	# Pådragsberegninger
 #_____________________________________________________________________________
 
 
@@ -292,9 +292,9 @@ def lagPlot(plt):
 	ax,fig = plt.ax, plt.fig
 
 	# Legger inn titler og aksenavn (valgfritt) for hvert subplot,  
-    # sammen med argumenter til plt.plot() funksjonen. 
-    # Ved flere subplot over hverandre så er det lurt å legge 
-    # informasjon om x-label på de nederste subplotene (sharex = True)
+	# sammen med argumenter til plt.plot() funksjonen. 
+	# Ved flere subplot over hverandre så er det lurt å legge 
+	# informasjon om x-label på de nederste subplotene (sharex = True)
 
 	fig.suptitle('Her kan du bruke en tittel for hele figuren')
 
