@@ -43,10 +43,10 @@ timer = clock()				# timerobjekt med tic toc funksjoner
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #                            1) KONFIGURASJON
 #
-Configs.EV3_IP = "169.254.7.251"	# Avles IP-adressen på EV3-skjermen
-Configs.Online = True	# Online = True  --> programmet kjører på robot  
+Configs.EV3_IP = "169.254.165.191"	# Avles IP-adressen på EV3-skjermen
+Configs.Online = False	# Online = True  --> programmet kjører på robot  
 						# Online = False --> programmet kjører på datamaskin
-Configs.livePlot = True 	# livePlot = True  --> Live plot, typisk stor Ts
+Configs.livePlot = False 	# livePlot = True  --> Live plot, typisk stor Ts
 							# livePlot = False --> Ingen plot, liten Ts
 Configs.avgTs = 0.005	# livePlot = False --> spesifiser ønsket Ts
 						# Lav avgTs -> høy samplingsfrekvens og mye data.
@@ -83,7 +83,7 @@ data.Tid = []            	# måling av tidspunkt
 data.Lys = []            	# måling av reflektert lys fra ColorSensor
 
 # beregninger
-# data.Ts = []			  	# beregning av tidsskritt
+data.Ts = []			  	# beregning av tidsskritt
 data.Temp = []				# beregning av temperatur
 data.Temp_FIR = []			# beregning av temperatur gjennom et Finite Impulse Response filter
 data.Temp_IIR = []			# beregning av temperatur
@@ -218,24 +218,26 @@ def MathCalculations(data,k,init):
 				# bruk i offline.
 
 	# Parametre
-	init.alfa = 0.5
-	a = -init.alfa
-	b = 1-init.alfa
+	alfa = 0.6
+	a = -alfa
+	b = 1-alfa
 	M = 3
 	if k < M:
 		M = k
     
 	# Tilordne målinger til variable
-	data.Temp[k] = data.Lys[k]
+	data.Temp = data.Lys
     
     # Initialverdier og beregninger 
 	if k == 0:
 		# Initialverdier
+		data.Ts.append(0.005)
 		data.Temp_FIR.append(data.Temp[0])
 		data.Temp_IIR.append(data.Temp[0])
 	
 	else:
-        # Beregninger av variabler som avhenger av initialverdi
+        # Beregninger av Ts og variable som avhenger av initialverdi
+		data.Ts.append(data.Tid[k]-data.Tid[k-1])
 		data.Temp_FIR.append(sum(data.Temp[k-M : k]) * 1/M)
 		data.Temp_IIR.append(b*data.Temp[k] + a*data.Temp_IIR[k-1])
 

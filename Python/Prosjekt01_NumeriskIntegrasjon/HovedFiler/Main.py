@@ -221,8 +221,8 @@ def MathCalculations(data,k,init):
 	a = 0.7
 
     # Tilordne målinger til variable
-	init.Flow_k = (data.Lys[k] - data.Lys[0])
-	data.Flow.append(init.Flow_k) 
+	Flow_k = (data.Lys[k] - data.Lys[0])
+	data.Flow.append(Flow_k) 
 
 		# Initialverdier og beregninger 
 	if k == 0:
@@ -233,7 +233,7 @@ def MathCalculations(data,k,init):
 	else:
 		# Beregninger av Ts og variable som avhenger av initialverdi
 		data.Ts.append(data.Tid[k]-data.Tid[k-1])
-		init.Volum_k = data.Volum[-1] + init.Flow_k * data.Ts[-1]
+		init.Volum_k = data.Volum[-1] + Flow_k * data.Ts[-1]
 
 	data.Volum.append(init.Volum_k)
 

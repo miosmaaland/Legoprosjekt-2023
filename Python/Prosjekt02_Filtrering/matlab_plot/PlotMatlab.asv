@@ -16,7 +16,7 @@ set(0,'defaultAxesFontSize',14)
 set(gcf,'Position',[100 200 800 700])
 
 subplot(2,2,1);
-plot(data.Tid,data.Temp,'LineWidth',1)
+plot(data.Tid,data.Temp,'r--o','LineWidth',1)
 grid on
 hold on
 title('Målt temperatur')
@@ -26,7 +26,7 @@ ylabel('Temperatur [C]')
 
 
 subplot(2,2,2);
-plot(data.Tid,data.Temp_FIR,'g','LineWidth',1)
+plot(data.Tid,data.Temp_FIR,'g','Marker','.','LineWidth',1)
 grid on
 hold on
 title('Temp_FIR')
@@ -39,7 +39,6 @@ legend('$u$','$y_1$','$y_2$','interpreter','latex')
 subplot(2,2,3);
 plot(data.Tid,data.Temp_IIR,'b','LineWidth',1)
 grid on
-hold on
 title('Temp_IIR')
 xlabel('Tid [sek]')
 ylabel('[\%]')
