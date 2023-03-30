@@ -5,7 +5,7 @@ close all
 %% Navn: datafil (offline eller online)
 % Du kan laste inn flere .txt-filer og sammenligne.
 % Bruk i så fall filename1, filename2 og data1, data2
-filename = 'P00_matplotlib.txt';
+filename = 'P01_NumeriskIntegrasjon.txt';
 data = ParseData(filename);
 
 
@@ -16,41 +16,22 @@ set(0,'defaultAxesFontSize',14)
 set(gcf,'Position',[100 200 800 700])
 
 subplot(2,2,1);
-plot(data.Tid,data.Lys,'r--o','LineWidth',1)
+plot(data.Tid,data.Flow,'r--o','LineWidth',1)
 grid on
 hold on
-title('Reflektert lys')
+title('Flow')
 xlabel('Tid [sek]')
-ylabel('Lys')
+ylabel('[cl/s]')
 % axis([XMIN XMAX YMIN YMAX])
 
 
 subplot(2,2,2);
-plot(data.Tid,data.u,'g','Marker','.','LineWidth',1)
+plot(data.Tid,data.Volum,'g','Marker','.','LineWidth',1)
 grid on
 hold on
-title('Signalene $u(k)$, $y_1(k)$ og $y_2(k)$')
+title('Volum')
 xlabel('Tid [sek]')
-plot(data.Tid,data.y1,'r:','LineWidth',1)
-plot(data.Tid,data.y1,'b--','LineWidth',1)
-legend('$u$','$y_1$','$y_2$','interpreter','latex')
+ylabel('[cl]')
 %axis([XMIN XMAX YMIN YMAX])
 
-
-
-subplot(2,2,3);
-plot(data.Tid,data.PowerA,'b','LineWidth',1)
-grid on
-title('Beregning av motorp{\aa}drag')
-xlabel('Tid [sek]')
-ylabel('[\%]')
-% axis([XMIN XMAX YMIN YMAX])
-
-subplot(2,2,4);
-plot(data.Tid,data.Ts,'b--','LineWidth',1)
-grid on
-title('Tidsskritt $T_s$')
-xlabel('Tid [sek]')
-ylabel('[sek]')
-% axis([XMIN XMAX YMIN YMAX])
 
