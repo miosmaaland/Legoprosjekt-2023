@@ -84,8 +84,8 @@ data.Lys = []            	# måling av reflektert lys fra ColorSensor
 
 # beregninger
 data.Ts = []			  	# beregning av tidsskritt
-data.Flow = []
-data.Volum = []
+data.Flow = []				# beregning av flow
+data.Volum = []				# beregning av volum
 
 """
 # Utvalg av målinger
@@ -221,21 +221,18 @@ def MathCalculations(data,k,init):
 	a = 0.7
 
     # Tilordne målinger til variable
-	Flow_k = (data.Lys[k] - data.Lys[0])
-	data.Flow.append(Flow_k) 
+	data.Flow.append(data.Lys[k] - data.Lys[0]) 
 
 		# Initialverdier og beregninger 
 	if k == 0:
 		# Initialverdier
 		data.Ts.append(0.005)  	# nominell verdi
-		init.Volum_k = 0
+		data.Volum.append(0)
 		
 	else:
 		# Beregninger av Ts og variable som avhenger av initialverdi
 		data.Ts.append(data.Tid[k]-data.Tid[k-1])
-		init.Volum_k = data.Volum[-1] + Flow_k * data.Ts[-1]
-
-	data.Volum.append(init.Volum_k)
+		data.Volum.append(data.Volum[-1] + data.Flow[-1] * data.Ts[-1])
 
     # Andre beregninger uavhengig av initialverdi
 
@@ -292,16 +289,16 @@ def lagPlot(plt):
     # Ved flere subplot over hverandre så er det lurt å legge 
     # informasjon om x-label på de nederste subplotene (sharex = True)
 
-	fig.suptitle('Her kan du bruke en tittel for hele figuren')
+	fig.suptitle('Bergning av Flow, Volum og Tidsskritt')
 
 	# plotting av lys
-	ax[0].set_title('Reflektert lys')  
+	ax[0].set_title('Beregning av Flow')  
 	ax[0].set_xlabel("Tid [sek]")	 
-	ax[0].set_ylabel("Lys")
+	ax[0].set_ylabel("Flow")
 	plt.plot(
 		subplot = ax[0],  	# Definer hvilken delfigur som skal plottes
 		x = "Tid", 			# navn på x-verdien (fra data-objektet)
-		y = "Lys",			# navn på y-verdien (fra data-objektet)
+		y = "Flow",			# navn på y-verdien (fra data-objektet)
 
 		# VALGFRITT
 		color = "b",		# fargen på kurven som plottes (default: blå)
@@ -311,13 +308,13 @@ def lagPlot(plt):
 	)
 
 	# plotting av lys (minimumsversjon)
-	ax[1].set_title('Lys')  
+	ax[1].set_title('Beregning av Volum')  
 	ax[1].set_xlabel("Tid [sek]")
-	ax[1].set_ylabel("Lys")
+	ax[1].set_ylabel("Volum")
 	plt.plot(
 		subplot = ax[1],    
 		x = "Tid",	# navn på x-verdien (fra data-objektet)  
-		y = "Lys",	# navn på y-verdien (fra data-objektet)  
+		y = "Volum",	# navn på y-verdien (fra data-objektet)  
 	)
 
 	# plotting av Ts (benytter utvalg av listene)
