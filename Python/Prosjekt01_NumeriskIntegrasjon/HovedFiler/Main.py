@@ -291,7 +291,7 @@ def lagPlot(plt):
 
 	fig.suptitle('Bergning av Flow, Volum og Tidsskritt')
 
-	# plotting av lys
+	# plotting av Flow
 	ax[0].set_title('Beregning av Flow')  
 	ax[0].set_xlabel("Tid [sek]")	 
 	ax[0].set_ylabel("Flow")
@@ -307,7 +307,7 @@ def lagPlot(plt):
 		marker = "",       	# legg til markør på hvert punkt
 	)
 
-	# plotting av lys (minimumsversjon)
+	# plotting av Volum
 	ax[1].set_title('Beregning av Volum')  
 	ax[1].set_xlabel("Tid [sek]")
 	ax[1].set_ylabel("Volum")
