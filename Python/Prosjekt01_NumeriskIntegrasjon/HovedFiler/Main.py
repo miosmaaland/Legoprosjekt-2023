@@ -219,18 +219,20 @@ def MathCalculations(data,k,init):
 
 	# Parametre
 	a = 0.7
+	init.nullflow = data.Lys[0]
 
 	# Tilordne målinger til variable
-	data.Flow.append(data.Lys[k] - data.Lys[0]) 
 
 		# Initialverdier og beregninger 
 	if k == 0:
 		# Initialverdier
 		data.Ts.append(0.005)  	# nominell verdi
 		data.Volum.append(0)
+		data.Flow.appned(0)
 		
 	else:
 		# Beregninger av Ts og variable som avhenger av initialverdi
+		data.Flow.append(data.Lys[k] - init.nullflow) 
 		data.Ts.append(data.Tid[k]-data.Tid[k-1])
 		data.Volum.append(data.Volum[-1] + data.Flow[-1] * data.Ts[-1])
 
