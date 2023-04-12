@@ -332,4 +332,16 @@ def lagPlot(plt):
 		color = "b",
 		linestyle = "dashed",
 	)
+
+	# plotting av Ts (benytter utvalg av listene)
+	ax[3].set_title('Beregning av Ts')  
+	ax[3].set_xlabel("Tid [sek]")
+	ax[3].set_ylabel("tidsskritt")
+	plt.plot(
+		subplot = ax[2],    
+		x = "Tid[:-1]",       
+		y = "Ts[:-1]",
+		color = "b",
+		linestyle = "dashed",
+	)
 #____________________________________________________________________________
