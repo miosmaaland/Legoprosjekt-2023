@@ -237,7 +237,6 @@ def MathCalculations(data,k,init):
 
 	data.Volum.append(init.Volum_k)
 
-	# return (data.Flow, data.Volum[:-1])
     # Andre beregninger uavhengig av initialverdi
 
     # Pådragsberegninger
