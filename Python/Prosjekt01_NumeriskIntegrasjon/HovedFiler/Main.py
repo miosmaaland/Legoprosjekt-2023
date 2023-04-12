@@ -294,7 +294,7 @@ def lagPlot(plt):
 	# plotting av Flow
 	ax[0].set_title('Beregning av Flow')  
 	ax[0].set_xlabel("Tid [sek]")	 
-	ax[0].set_ylabel("Flow")
+	ax[0].set_ylabel("Flow [cl/s]")
 	plt.plot(
 		subplot = ax[0],  	# Definer hvilken delfigur som skal plottes
 		x = "Tid", 			# navn på x-verdien (fra data-objektet)
@@ -310,7 +310,7 @@ def lagPlot(plt):
 	# plotting av Volum
 	ax[1].set_title('Beregning av Volum')  
 	ax[1].set_xlabel("Tid [sek]")
-	ax[1].set_ylabel("Volum")
+	ax[1].set_ylabel("Volum [cl]")
 	plt.plot(
 		subplot = ax[1],    
 		x = "Tid",	# navn på x-verdien (fra data-objektet)  
