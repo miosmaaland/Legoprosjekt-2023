@@ -219,9 +219,10 @@ def MathCalculations(data,k,init):
 
 	# Parametre
 	a = 0.7
+	nullflow = 0.5
 
 	# Tilordne målinger til variable
-	data.Flow.append(data.Lys[k] - data.Lys[0]) 
+	data.Flow.append(data.Lys[k] - nullflow) 
 
 		# Initialverdier og beregninger 
 	if k == 0:
