@@ -43,18 +43,18 @@ timer = clock()				# timerobjekt med tic toc funksjoner
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #                            1) KONFIGURASJON
 #
-Configs.EV3_IP = "169.254.124.214"	# Avles IP-adressen på EV3-skjermen
-Configs.Online = False	# Online = True  --> programmet kjører på robot  
+Configs.EV3_IP = "169.254.206.224"	# Avles IP-adressen på EV3-skjermen
+Configs.Online = True	# Online = True  --> programmet kjører på robot  
 						# Online = False --> programmet kjører på datamaskin
 Configs.livePlot = False 	# livePlot = True  --> Live plot, typisk stor Ts
 							# livePlot = False --> Ingen plot, liten Ts
 Configs.avgTs = 0.005	# livePlot = False --> spesifiser ønsket Ts
 						# Lav avgTs -> høy samplingsfrekvens og mye data.
 						# --> Du må vente veldig lenge for å lagre filen.
-Configs.filename = "P02_Filtrering_01.txt"	
+Configs.filename = "P03_NumeriskDerivasjon.txt"	
 						# Målinger/beregninger i Online lagres til denne 
 						# .txt-filen. Upload til Data-mappen.
-Configs.filenameOffline = "Offline_P02_Filtrering_01.txt"	
+Configs.filenameOffline = "Offline_P03_NumeriskDerivasjon.txt"	
 						# I Offline brukes den opplastede datafilen 
 						# og alt lagres til denne .txt-filen.
 Configs.plotMethod = 2	# verdier: 1 eller 2, hvor hver plottemetode 
@@ -80,13 +80,15 @@ Configs.ConnectJoystickToPC = False # True  --> joystick direkte på datamaskin
 
 # målinger
 data.Tid = []            	# måling av tidspunkt
-data.Lys = []            	# måling av reflektert lys fra ColorSensor
-data.Temp = []				# måling av temperatur
+data.Lys = []            	# måling av reflektert lys fra ColorSensor		
 
 # beregninger
 data.Ts = []			  	# beregning av tidsskritt
-data.Temp_FIR = []			# beregning av temperatur gjennom et Finite Impulse Response filter
-data.Temp_IIR = []			# beregning av temperatur	gjennom et Infinite Impulse Response filter
+data.Avstand = []
+data.Avstand_IIR = []
+data.Fart = []
+data.Fart_IIR = []
+
 
 """
 # Utvalg av målinger
@@ -155,7 +157,7 @@ data.PowerD = []         # berenging av motorpådrag D
 def addMeasurements(data,robot,init,k):
 	if k==0:
 		# Definer initielle lmålinger inn i init variabelen.
-		# Initialverdiene kan brukes i MathCalculations()
+        # Initialverdiene kan brukes i MathCalculations()
 		init.Lys0 = robot.ColorSensor.reflection() 	# lagrer første lysmåling
 
 		data.Tid.append(timer.tic())		# starter "stoppeklokken" på 0
@@ -219,31 +221,26 @@ def MathCalculations(data,k,init):
 
 	# Parametre
 	alfa = 0.05
-	a = 1-alfa
-	b = alfa
-	M = 10
-	if k < M:
-		M = k
-	
-	# Tilordne målinger til variable
-	data.Temp.append(data.Lys[k])
-	
-	# Initialverdier og beregninger 
+
+    # Tilordne målinger til variable
+	data.Avstand.append(data.Lys[k])
+    
+    # Initialverdier og beregninger 
 	if k == 0:
 		# Initialverdier
-		data.Ts.append(0.005)
-		data.Temp_FIR.append(data.Temp[0])
-		data.Temp_IIR.append(data.Temp[0])
+		data.Ts.append(0.005)  	# nominell verdi
+		data.Avstand_IIR.append(data.Avstand[0])
 	
 	else:
-		# Beregninger av Ts og variable som avhenger av initialverdi
-		data.Ts.append(data.Tid[k]-data.Tid[k-1])
-		data.Temp_FIR.append(sum(data.Temp[k-M : k]) * 1/M)
-		data.Temp_IIR.append(a*data.Temp_IIR[k-1] + b*data.Temp[k])
+        # Beregninger av Ts og variable som avhenger av initialverdi
+		data.Ts.append(data.Tid[k] - data.Tid[k-1])
+		data.Fart.append((data.Avstand[k] - data.Avstand[k-1])/ data.Ts[k])
+		data.Avstand_IIR.append(IIR_Filter(data.Avstand_IIR[k-1], data.Avstand[k], alfa))
+		data.Fart_IIR.append((data.Avstand_IIR[k] - data.Avstand_IIR[k-1]) / data.Ts[k])
 
-	# Andre beregninger uavhengig av initialverdi
+    # Andre beregninger uavhengig av initialverdi
 
-	# Pådragsberegninger
+    # Pådragsberegninger
 #_____________________________________________________________________________
 
 
@@ -292,9 +289,9 @@ def lagPlot(plt):
 	ax,fig = plt.ax, plt.fig
 
 	# Legger inn titler og aksenavn (valgfritt) for hvert subplot,  
-	# sammen med argumenter til plt.plot() funksjonen. 
-	# Ved flere subplot over hverandre så er det lurt å legge 
-	# informasjon om x-label på de nederste subplotene (sharex = True)
+    # sammen med argumenter til plt.plot() funksjonen. 
+    # Ved flere subplot over hverandre så er det lurt å legge 
+    # informasjon om x-label på de nederste subplotene (sharex = True)
 
 	fig.suptitle('Her kan du bruke en tittel for hele figuren')
 

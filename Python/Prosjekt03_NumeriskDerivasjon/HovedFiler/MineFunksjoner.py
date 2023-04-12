@@ -1,3 +1,5 @@
+# Her skriver du funksjoner som skal brukes i MathCalculations
+# Etter å ha skrevet dem her kan du kalle på dem i Main.py filen (De blir automatisk importert)
 def FIR_Filter(Measurements, M):
 	Filtered_FIR = []
 	for k in range(len(Measurements)):
@@ -18,9 +20,7 @@ def IIR_Filter(FilteredValue, Measurement, alfa):
 	# Parameters
 	a = 1 - alfa
 	b = alfa
-	
-	Filtered_IIR = []
-	Filtered_IIR.append(a * FilteredValue+ b * Measurement)
+	Filtered_IIR = a * FilteredValue+ b * Measurement
 		
 	return Filtered_IIR
 
