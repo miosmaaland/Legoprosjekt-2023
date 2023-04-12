@@ -224,14 +224,14 @@ def MathCalculations(data,k,init):
 		# Initialverdier og beregninger 
 	if k == 0:
 		# Initialverdier
-		data.Ts.append(0.005)  	# nominell verdi
 		data.Flow.append(init.nullflow)
+		data.Ts.append(0.005)  	# nominell verdi
 		data.Volum.append(0)
 		
 	else:
 		# Beregninger av Ts og variable som avhenger av initialverdi
-		data.Ts.append(data.Tid[k]-data.Tid[k-1])
 		data.Flow.append(data.Lys[k] - init.nullflow)
+		data.Ts.append(data.Tid[k]-data.Tid[k-1])
 		data.Volum.append(data.Volum[-1] + data.Flow[-1] * data.Ts[-1])
 
 	# Andre beregninger uavhengig av initialverdi
