@@ -154,7 +154,7 @@ data.PowerD = []         # berenging av motorpådrag D
 def addMeasurements(data,robot,init,k):
 	if k==0:
 		# Definer initielle målinger inn i init variabelen.
-        # Initialverdiene kan brukes i MathCalculations()
+		# Initialverdiene kan brukes i MathCalculations()
 		init.Lys0 = robot.ColorSensor.reflection() 	# lagrer første lysmåling
 		
 		data.Tid.append(timer.tic())		# starter "stoppeklokken" på 0
@@ -220,7 +220,7 @@ def MathCalculations(data,k,init):
 	# Parametre
 	a = 0.7
 
-    # Tilordne målinger til variable
+	# Tilordne målinger til variable
 	data.Flow.append(data.Lys[k] - data.Lys[0]) 
 
 		# Initialverdier og beregninger 
@@ -234,9 +234,9 @@ def MathCalculations(data,k,init):
 		data.Ts.append(data.Tid[k]-data.Tid[k-1])
 		data.Volum.append(data.Volum[-1] + data.Flow[-1] * data.Ts[-1])
 
-    # Andre beregninger uavhengig av initialverdi
+	# Andre beregninger uavhengig av initialverdi
 
-    # Pådragsberegninger
+	# Pådragsberegninger
 #_____________________________________________________________________________
 
 
@@ -285,9 +285,9 @@ def lagPlot(plt):
 	ax,fig = plt.ax, plt.fig
 
 	# Legger inn titler og aksenavn (valgfritt) for hvert subplot,  
-    # sammen med argumenter til plt.plot() funksjonen. 
-    # Ved flere subplot over hverandre så er det lurt å legge 
-    # informasjon om x-label på de nederste subplotene (sharex = True)
+	# sammen med argumenter til plt.plot() funksjonen. 
+	# Ved flere subplot over hverandre så er det lurt å legge 
+	# informasjon om x-label på de nederste subplotene (sharex = True)
 
 	fig.suptitle('Bergning av Flow, Volum og Tidsskritt')
 
