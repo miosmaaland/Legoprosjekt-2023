@@ -43,10 +43,7 @@ timer = clock()				# timerobjekt med tic toc funksjoner
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #                            1) KONFIGURASJON
 #
-Configs.EV3_IP = "169.254.142.167"	# Avles IP-adressen på EV3-skjermen
-
 Configs.EV3_IP = "169.254.138.82"	# Avles IP-adressen på EV3-skjermen
-
 Configs.Online = False	# Online = True  --> programmet kjører på robot  
 						# Online = False --> programmet kjører på datamaskin
 Configs.livePlot = False 	# livePlot = True  --> Live plot, typisk stor Ts
@@ -54,11 +51,6 @@ Configs.livePlot = False 	# livePlot = True  --> Live plot, typisk stor Ts
 Configs.avgTs = 0.005	# livePlot = False --> spesifiser ønsket Ts
 						# Lav avgTs -> høy samplingsfrekvens og mye data.
 						# --> Du må vente veldig lenge for å lagre filen.
-Configs.filename = "P01_NumeriskIntegrasjon.txt"	
-						# Målinger/beregninger i Online lagres til denne 
-						# .txt-filen. Upload til Data-mappen.
-Configs.filenameOffline = "Offline_P01_NumeriskIntegrasjon.txt"	
-
 Configs.filename = "P01_NumeriskIntegrasjon_02.txt"	
 						# Målinger/beregninger i Online lagres til denne 
 						# .txt-filen. Upload til Data-mappen.
@@ -227,10 +219,9 @@ def MathCalculations(data,k,init):
 
 	# Parametre
 	a = 0.7
-	nullflow = 0.5
 
 	# Tilordne målinger til variable
-	data.Flow.append(data.Lys[k] - nullflow) 
+	data.Flow.append(data.Lys[k] - data.Lys[0]) 
 
 		# Initialverdier og beregninger 
 	if k == 0:
