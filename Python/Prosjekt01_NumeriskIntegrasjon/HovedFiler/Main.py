@@ -224,9 +224,9 @@ def MathCalculations(data,k,init):
 		# Initialverdier og beregninger 
 	if k == 0:
 		# Initialverdier
-		data.Flow.append(init.nullflow)
+		data.Flow.append(0)		# flow starter i 0
 		data.Ts.append(0.005)  	# nominell verdi
-		data.Volum.append(0)
+		data.Volum.append(0)	# volum starter i 0
 		
 	else:
 		# Beregninger av Ts og variable som avhenger av initialverdi
