@@ -31,6 +31,7 @@ if sys.implementation.name.lower().find("micropython") != -1:
 	from EV3AndJoystick import *
 from MineFunksjoner import *
 from funksjoner import *
+import random
 data = Bunch()				# dataobjektet ditt (punktum notasjon)
 Configs = Bunch()			# konfiguarsjonene dine
 init = Bunch()				# initalverdier (brukes i addmeasurement og mathcalculations)
@@ -43,7 +44,7 @@ timer = clock()				# timerobjekt med tic toc funksjoner
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #                            1) KONFIGURASJON
 #
-Configs.EV3_IP = "169.254.124.214"	# Avles IP-adressen på EV3-skjermen
+Configs.EV3_IP = "169.254.201.184"	# Avles IP-adressen på EV3-skjermen
 Configs.Online = False	# Online = True  --> programmet kjører på robot  
 						# Online = False --> programmet kjører på datamaskin
 Configs.livePlot = False 	# livePlot = True  --> Live plot, typisk stor Ts
@@ -51,10 +52,10 @@ Configs.livePlot = False 	# livePlot = True  --> Live plot, typisk stor Ts
 Configs.avgTs = 0.005	# livePlot = False --> spesifiser ønsket Ts
 						# Lav avgTs -> høy samplingsfrekvens og mye data.
 						# --> Du må vente veldig lenge for å lagre filen.
-Configs.filename = "P02_Filtrering_01.txt"	
+Configs.filename = "P02_Filtrering_Random.txt"	
 						# Målinger/beregninger i Online lagres til denne 
 						# .txt-filen. Upload til Data-mappen.
-Configs.filenameOffline = "Offline_P02_Filtrering_01.txt"	
+Configs.filenameOffline = "Offline_P02_Filtrering_Random.txt"	
 						# I Offline brukes den opplastede datafilen 
 						# og alt lagres til denne .txt-filen.
 Configs.plotMethod = 2	# verdier: 1 eller 2, hvor hver plottemetode 
@@ -218,15 +219,15 @@ def MathCalculations(data,k,init):
 				# bruk i offline.
 
 	# Parametre
-	alfa = 0.05
+	alfa = 0.6
 	a = 1-alfa
 	b = alfa
-	M = 10
+	M = 3
 	if k < M:
 		M = k
 	
 	# Tilordne målinger til variable
-	data.Temp.append(data.Lys[k])
+	data.Temp.append(data.Lys[k] + random.random())
 	
 	# Initialverdier og beregninger 
 	if k == 0:
@@ -285,7 +286,7 @@ def stopMotors(robot):
 # Dersom enten nrows = 1 eller ncols = 1, så benyttes "ax[0]", "ax[1]", osv.
 # Dersom både nrows > 1 og ncols > 1, så benyttes "ax[0,0]", "ax[1,0]", osv
 def lagPlot(plt):
-	nrows = 3
+	nrows = 4
 	ncols = 1
 	sharex = True
 	plt.create(nrows,ncols,sharex)
@@ -296,16 +297,16 @@ def lagPlot(plt):
 	# Ved flere subplot over hverandre så er det lurt å legge 
 	# informasjon om x-label på de nederste subplotene (sharex = True)
 
-	fig.suptitle('Her kan du bruke en tittel for hele figuren')
+	fig.suptitle('Temperaturen til en kaffekopp')
 
 	# plotting av lys
-	ax[0].set_title('Reflektert lys')  
+	ax[0].set_title('Temperatur')  
 	ax[0].set_xlabel("Tid [sek]")	 
-	ax[0].set_ylabel("Lys")
+	ax[0].set_ylabel("Temperatur [C]")
 	plt.plot(
 		subplot = ax[0],  	# Definer hvilken delfigur som skal plottes
 		x = "Tid", 			# navn på x-verdien (fra data-objektet)
-		y = "Lys",			# navn på y-verdien (fra data-objektet)
+		y = "Temp",			# navn på y-verdien (fra data-objektet)
 
 		# VALGFRITT
 		color = "b",		# fargen på kurven som plottes (default: blå)
@@ -315,21 +316,35 @@ def lagPlot(plt):
 	)
 
 	# plotting av lys (minimumsversjon)
-	ax[1].set_title('Lys')  
+	ax[1].set_title('Temperatur gjennom et FIR filter')  
 	ax[1].set_xlabel("Tid [sek]")
-	ax[1].set_ylabel("Lys")
+	ax[1].set_ylabel("Temp_FIR")
 	plt.plot(
 		subplot = ax[1],    
 		x = "Tid",	# navn på x-verdien (fra data-objektet)  
-		y = "Lys",	# navn på y-verdien (fra data-objektet)  
+		y = "Temp_FIR",	# navn på y-verdien (fra data-objektet)
+		
+		color = "r"
+	)
+
+	# plotting av lys (minimumsversjon)
+	ax[2].set_title('Temperatur gjennom et IIR filter')  
+	ax[2].set_xlabel("Tid [sek]")
+	ax[2].set_ylabel("Temp_IIR")
+	plt.plot(
+		subplot = ax[2],    
+		x = "Tid",	# navn på x-verdien (fra data-objektet)  
+		y = "Temp_IIR",	# navn på y-verdien (fra data-objektet)  
+
+		color = "g"
 	)
 
 	# plotting av Ts (benytter utvalg av listene)
-	ax[2].set_title('Beregning av Ts')  
-	ax[2].set_xlabel("Tid [sek]")
-	ax[2].set_ylabel("tidsskritt")
+	ax[3].set_title('Beregning av Ts')  
+	ax[3].set_xlabel("Tid [sek]")
+	ax[3].set_ylabel("tidsskritt")
 	plt.plot(
-		subplot = ax[2],    
+		subplot = ax[3],    
 		x = "Tid[:-1]",       
 		y = "Ts[:-1]",
 		color = "b",
