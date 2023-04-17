@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 
-def CalculateFowAndVolume(tid, lys, Ts):
+def CalculateFlowAndVolume(tid, lys, Ts):
     Flow = []
     Volum = []
     
