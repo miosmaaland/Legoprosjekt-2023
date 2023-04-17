@@ -24,3 +24,7 @@ def IIR_Filter(FilteredValue, Measurement, alfa):
 		
 	return Filtered_IIR
 
+
+def Derivation(FunctionValue, TimeStep):
+	derivation = (FunctionValue[-1] - FunctionValue[-2]) / TimeStep
+	return derivation
