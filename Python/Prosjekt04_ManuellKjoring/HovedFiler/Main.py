@@ -84,6 +84,9 @@ data.Lys = []            	# måling av reflektert lys fra ColorSensor
 
 # beregninger
 data.Ts = []			  	# beregning av tidsskritt
+data.PowerA = []         # berenging av motorpådrag A
+data.PowerD = []         # berenging av motorpådrag D
+data.E = []
 
 """
 # Utvalg av målinger
@@ -123,10 +126,10 @@ data.joy11 = []              # måling av knapp 11
 data.joy12 = []              # måling av knapp 12
 
 # Utvalg av beregninger
-data.PowerA = []         # berenging av motorpådrag A
+
 data.PowerB = []         # berenging av motorpådrag B
 data.PowerC = []         # berenging av motorpådrag C
-data.PowerD = []         # berenging av motorpådrag D
+
 """
 #____________________________________________________________________________________________
 
@@ -164,6 +167,9 @@ def addMeasurements(data,robot,init,k):
 	# lagrer målinger av lys
 	data.Lys.append(robot.ColorSensor.reflection())
 
+	data.joyForward.append(config.joyForwardInstance)
+	data.joySide.append(config.joySideInstance)
+
 	"""
 	data.LysDirekte.append(robot.ColorSensor.ambient())
 	data.Bryter.append(robot.TouchSensor.pressed())
@@ -180,8 +186,8 @@ def addMeasurements(data,robot,init,k):
 	data.VinkelPosMotorD.append(robot.motorD.angle())
 	data.HastighetMotorD.append(robot.motorD.speed())
 
-	data.joyForward.append(config.joyForwardInstance)
-	data.joySide.append(config.joySideInstance)
+	
+	
 	data.joyTwist.append(config.joyTwistInstance)
 	data.joyPotMeter.append(config.joyPotMeterInstance)
 	data.joyPOVForward.append(config.joyPOVForwardInstance)
@@ -215,9 +221,17 @@ def MathCalculations(data,k,init):
 				# bruk i offline.
 
 	# Parametre
-	a = 0.7
+	a = 0.4
+	b = 0.35
+	c = -0.35
+
+	init.Referanse = data.Lys[0]
+
 
     # Tilordne målinger til variable
+	data.PowerA.append(a*data.JoyForward[k] + b*data.JoySide[k])
+	data.PowerB.append(a*data.JoyForward[k] + c*data.JoySide[k])
+	data.E.append(init.Referanse - data.Lys[k])
     
     # Initialverdier og beregninger 
 	if k == 0:
@@ -243,10 +257,10 @@ def MathCalculations(data,k,init):
 # Motorene oppdateres for hver iterasjon etter mathcalculations
 #
 def setMotorPower(data,robot):
-	return # fjern denne om motor(er) brukes
+	# return # fjern denne om motor(er) brukes
+	# robot.motorB.dc(data.PowerB[-1])
+	# robot.motorC.dc(data.PowerC[-1])
 	robot.motorA.dc(data.PowerA[-1])
-	robot.motorB.dc(data.PowerB[-1])
-	robot.motorC.dc(data.PowerC[-1])
 	robot.motorD.dc(data.PowerD[-1])
 
 # Når programmet slutter, spesifiser hvordan du vil at motoren(e) skal stoppe.
@@ -255,10 +269,11 @@ def setMotorPower(data,robot):
 # - brake() ruller videre, men bruker strømmen generert av rotasjonen til brems
 # - hold() bråstopper umiddelbart og holder posisjonen
 def stopMotors(robot):
-	return # fjern denne om motor(er) brukes
-	robot.motorA.stop()
-	robot.motorB.brake()
-	robot.motorC.hold()
+	# return # fjern denne om motor(er) brukes
+	# robot.motorA.stop()
+	# robot.motorB.brake()
+	# robot.motorC.hold()
+	robot.motorA.hold()
 	robot.motorD.hold()
 #______________________________________________________________________________
 
