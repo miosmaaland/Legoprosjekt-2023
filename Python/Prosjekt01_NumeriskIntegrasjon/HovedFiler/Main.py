@@ -44,7 +44,7 @@ timer = clock()				# timerobjekt med tic toc funksjoner
 #                            1) KONFIGURASJON
 #
 Configs.EV3_IP = "169.254.78.7"	# Avles IP-adressen på EV3-skjermen
-Configs.Online = True	# Online = True  --> programmet kjører på robot  
+Configs.Online = False	# Online = True  --> programmet kjører på robot  
 						# Online = False --> programmet kjører på datamaskin
 Configs.livePlot = False 	# livePlot = True  --> Live plot, typisk stor Ts
 							# livePlot = False --> Ingen plot, liten Ts
