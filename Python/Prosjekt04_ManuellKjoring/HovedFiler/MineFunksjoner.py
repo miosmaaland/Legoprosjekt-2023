@@ -3,24 +3,26 @@
 # Her skriver du funksjoner som skal brukes i MathCalculations
 # Etter å ha skrevet dem her kan du kalle på dem i Main.py filen (De blir automatisk importert)
 def EulerForward(IntValue, FunctionValue, TimeStep):
-    NewIntValue = IntValue + (FunctionValue * TimeStep)
-    return NewIntValue
+	if len(IntValue) == 1:
+		IntValue.append(0)
+	else:
+		IntValue.append(IntValue[-1] + TimeStep[-1]*FunctionValue[-1])
 
 
 def FIR_Filter(Measurements, M):
-	Filtered_FIR = []
-	for k in range(len(Measurements)):
-		if k == 0:
-			# Initial values
-			Filtered_FIR = [Measurements[0]]
-		else:
-			# FIR filter calculation
-			if k < M:
-				M = k
+	k = len(Measurements)
+	
+	if k == 0:
+		# Initial values
+		Filtered_FIR = [Measurements[0]]
+	else:
+		# FIR filter calculation
+		if k < M:
+			M = k
 
-			Filtered_FIR.append(sum(Measurements[k-M+1:k]) / M)
-		
-		return Filtered_FIR
+		Filtered_FIR = sum(Measurements[k-M+1:k]) / M
+	
+	return Filtered_FIR
 
 
 def IIR_Filter(FilteredValue, Measurement, alfa):
@@ -33,8 +35,12 @@ def IIR_Filter(FilteredValue, Measurement, alfa):
 
 
 def Derivation(FunctionValues, TimeStep):
-    derivative = []
-    for i in range(len(FunctionValues)-1):
-        derivative = (FunctionValues[i+1] - FunctionValues[i]) / TimeStep
-    return derivative
+	k = len(FunctionValues)
 
+	if k == 0:
+		derivative = 0
+	else:
+		derivative = (FunctionValues[-1] - FunctionValues[-2]) / TimeStep
+	
+	return derivative
+		
