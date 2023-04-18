@@ -1,9 +1,9 @@
 # coding=utf-8
 
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# P0X_BeskrivendeTekst
+# P01_NumeriskIntegrasjon
 #
-# Hensikten med programmet er å ................
+# Hensikten med programmet er å drepe meg selv
 #
 # Følgende sensorer brukes:
 # - Lyssensor
@@ -51,10 +51,10 @@ Configs.livePlot = False 	# livePlot = True  --> Live plot, typisk stor Ts
 Configs.avgTs = 0.005	# livePlot = False --> spesifiser ønsket Ts
 						# Lav avgTs -> høy samplingsfrekvens og mye data.
 						# --> Du må vente veldig lenge for å lagre filen.
-Configs.filename = "P01_NumeriskIntegrasjon_04.txt"	
+Configs.filename = "P01_NumeriskIntegrasjon_Chirp.txt"	
 						# Målinger/beregninger i Online lagres til denne 
 						# .txt-filen. Upload til Data-mappen.
-Configs.filenameOffline = "Offline_P01_NumeriskIntegrasjon_04.txt"	
+Configs.filenameOffline = "Offline_P01_NumeriskIntegrasjon_Chirp.txt"	
 						# I Offline brukes den opplastede datafilen 
 						# og alt lagres til denne .txt-filen.
 Configs.plotMethod = 2	# verdier: 1 eller 2, hvor hver plottemetode 
@@ -218,21 +218,21 @@ def MathCalculations(data,k,init):
 				# bruk i offline.
 
 	# Parametre
-	a = 0.7
-	init.nullflow = data.Lys[0]
+	init.nullflow = data.Lys[0]	# Setter nullflow til første verdi i data.Lys
 
 		# Initialverdier og beregninger 
 	if k == 0:
 		# Initialverdier
-		data.Flow.append(0)		# flow starter i 0
-		data.Ts.append(0.005)  	# nominell verdi
-		data.Volum.append(0)	# volum starter i 0
+		data.Ts.append(0.005)  	# Nominell verdi
+		data.Flow.append(0)		# Flow starter i 0
+		data.Volum.append(0)	# Volum starter i 0
 		
 	else:
 		# Beregninger av Ts og variable som avhenger av initialverdi
-		data.Flow.append(data.Lys[k] - init.nullflow)
-		data.Ts.append(data.Tid[k]-data.Tid[k-1])
-		data.Volum.append(data.Volum[k-1] + data.Flow[k] * data.Ts[k])
+		data.Ts.append(data.Tid[k]-data.Tid[k-1])						# Flow beregnes som forskjellen mellom data.Lys[k] og nullflow
+		data.Flow.append(data.Lys[k] - init.nullflow)					# Ts beregnes som tidsdifferansen mellom tidspunktene k og k-1 i data.Tid
+		data.Volum.append(data.Volum[k-1] + data.Flow[k] * data.Ts[k])	# Volum beregnes ved å legge til den siste volumverdien med produktet av Flow[k] og Ts[k]
+
 
 	# Andre beregninger uavhengig av initialverdi
 
