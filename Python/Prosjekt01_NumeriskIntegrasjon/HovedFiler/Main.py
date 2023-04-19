@@ -43,7 +43,7 @@ timer = clock()				# timerobjekt med tic toc funksjoner
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #                            1) KONFIGURASJON
 #
-Configs.EV3_IP = "169.254.78.7"	# Avles IP-adressen på EV3-skjermen
+Configs.EV3_IP = "169.254.2.201"	# Avles IP-adressen på EV3-skjermen
 Configs.Online = False	# Online = True  --> programmet kjører på robot  
 						# Online = False --> programmet kjører på datamaskin
 Configs.livePlot = False 	# livePlot = True  --> Live plot, typisk stor Ts
@@ -51,10 +51,10 @@ Configs.livePlot = False 	# livePlot = True  --> Live plot, typisk stor Ts
 Configs.avgTs = 0.005	# livePlot = False --> spesifiser ønsket Ts
 						# Lav avgTs -> høy samplingsfrekvens og mye data.
 						# --> Du må vente veldig lenge for å lagre filen.
-Configs.filename = "P01_NumeriskIntegrasjon_Chirp.txt"	
+Configs.filename = "P01_NumeriskIntegrasjon_Kopp.txt"	
 						# Målinger/beregninger i Online lagres til denne 
 						# .txt-filen. Upload til Data-mappen.
-Configs.filenameOffline = "Offline_P01_NumeriskIntegrasjon_Chirp.txt"	
+Configs.filenameOffline = "Offline_P01_NumeriskIntegrasjon_Kopp.txt"	
 						# I Offline brukes den opplastede datafilen 
 						# og alt lagres til denne .txt-filen.
 Configs.plotMethod = 2	# verdier: 1 eller 2, hvor hver plottemetode 
@@ -227,7 +227,7 @@ def MathCalculations(data,k,init):
 		# Beregninger av Ts og variable som avhenger av initialverdi
 		data.Ts.append(data.Tid[k]-data.Tid[k-1])						# Tidsdifferansen mellom tidspunktene k og k-1 i data.Tid
 		data.Flow.append(data.Lys[k] - init.nullflow)					# Flow beregnes som forskjellen mellom data.Lys[k] og nullflow
-		data.Volum.append(data.Volum[k-1] + data.Flow[k] * data.Ts[k])	# Volum beregnes ved å legge til den siste volumverdien med produktet av Flow[k-1] og Ts[k-1]
+		data.Volum.append(data.Volum[k-1] + data.Flow[k-1] * data.Ts[k])	# Volum beregnes med Eulers forovermetoden
 #_____________________________________________________________________________
 
 
