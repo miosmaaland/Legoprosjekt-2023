@@ -5,7 +5,7 @@ close all
 %% Navn: datafil (offline eller online)
 % Du kan laste inn flere .txt-filer og sammenligne.
 % Bruk i så fall filename1, filename2 og data1, data2
-filename = 'P01_NumeriskIntegrasjon.txt';
+filename = 'Offline_P01_NumeriskIntegrasjon_Kopp.txt';
 data = ParseData(filename);
 
 
@@ -16,7 +16,7 @@ set(0,'defaultAxesFontSize',14)
 set(gcf,'Position',[100 200 800 700])
 
 subplot(2,2,1);
-plot(data.Tid,data.Flow,'r--o','LineWidth',1)
+plot(data.Tid,data.Flow, 'b', 'Marker','.', 'LineWidth',1)
 grid on
 hold on
 title('Flow')
@@ -26,7 +26,7 @@ ylabel('[cl/s]')
 
 
 subplot(2,2,2);
-plot(data.Tid,data.Volum,'g','Marker','.','LineWidth',1)
+plot(data.Tid,data.Volum, 'b', 'Marker','.', 'LineWidth',1)
 grid on
 hold on
 title('Volum')
