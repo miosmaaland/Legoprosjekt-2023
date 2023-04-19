@@ -44,7 +44,7 @@ timer = clock()				# timerobjekt med tic toc funksjoner
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #                            1) KONFIGURASJON
 #
-Configs.EV3_IP = "169.254.201.184"	# Avles IP-adressen på EV3-skjermen
+Configs.EV3_IP = "169.254.135.82"	# Avles IP-adressen på EV3-skjermen
 Configs.Online = False	# Online = True  --> programmet kjører på robot  
 						# Online = False --> programmet kjører på datamaskin
 Configs.livePlot = False 	# livePlot = True  --> Live plot, typisk stor Ts
@@ -316,38 +316,14 @@ def lagPlot(plt):
 	)
 
 	# plotting av lys (minimumsversjon)
-	ax[1].set_title('Temperatur gjennom et FIR filter')  
+	ax[1].set_title('Temperatur gjennom et IIR filter')  
 	ax[1].set_xlabel("Tid [sek]")
-	ax[1].set_ylabel("Temp_FIR")
+	ax[1].set_ylabel("Temp_IIR")
 	plt.plot(
 		subplot = ax[1],    
-		x = "Tid",	# navn på x-verdien (fra data-objektet)  
-		y = "Temp_FIR",	# navn på y-verdien (fra data-objektet)
-		
-		color = "r"
-	)
-
-	# plotting av lys (minimumsversjon)
-	ax[2].set_title('Temperatur gjennom et IIR filter')  
-	ax[2].set_xlabel("Tid [sek]")
-	ax[2].set_ylabel("Temp_IIR")
-	plt.plot(
-		subplot = ax[2],    
 		x = "Tid",	# navn på x-verdien (fra data-objektet)  
 		y = "Temp_IIR",	# navn på y-verdien (fra data-objektet)  
 
 		color = "g"
-	)
-
-	# plotting av Ts (benytter utvalg av listene)
-	ax[3].set_title('Beregning av Ts')  
-	ax[3].set_xlabel("Tid [sek]")
-	ax[3].set_ylabel("tidsskritt")
-	plt.plot(
-		subplot = ax[3],    
-		x = "Tid[:-1]",       
-		y = "Ts[:-1]",
-		color = "b",
-		linestyle = "dashed",
 	)
 #____________________________________________________________________________
