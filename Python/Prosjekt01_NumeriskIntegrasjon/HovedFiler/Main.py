@@ -213,10 +213,6 @@ def addMeasurements(data,robot,init,k):
 # Funksjonen brukes både i online og offline.
 #
 def MathCalculations(data,k,init):
-	# return  	# Bruk denne dersom ingen beregninger gjøres,
-				# som for eksempel ved innhentning av kun data for 
-				# bruk i offline.
-
 	# Parametre
 	init.nullflow = data.Lys[0]	# Setter nullflow til første verdi i data.Lys
 
@@ -229,14 +225,9 @@ def MathCalculations(data,k,init):
 		
 	else:
 		# Beregninger av Ts og variable som avhenger av initialverdi
-		data.Ts.append(data.Tid[k]-data.Tid[k-1])						# Flow beregnes som forskjellen mellom data.Lys[k] og nullflow
-		data.Flow.append(data.Lys[k] - init.nullflow)					# Ts beregnes som tidsdifferansen mellom tidspunktene k og k-1 i data.Tid
-		data.Volum.append(data.Volum[k-1] + data.Flow[k] * data.Ts[k])	# Volum beregnes ved å legge til den siste volumverdien med produktet av Flow[k] og Ts[k]
-
-
-	# Andre beregninger uavhengig av initialverdi
-
-	# Pådragsberegninger
+		data.Ts.append(data.Tid[k]-data.Tid[k-1])						# Tidsdifferansen mellom tidspunktene k og k-1 i data.Tid
+		data.Flow.append(data.Lys[k] - init.nullflow)					# Flow beregnes som forskjellen mellom data.Lys[k] og nullflow
+		data.Volum.append(data.Volum[k-1] + data.Flow[k] * data.Ts[k])	# Volum beregnes ved å legge til den siste volumverdien med produktet av Flow[k-1] og Ts[k-1]
 #_____________________________________________________________________________
 
 
