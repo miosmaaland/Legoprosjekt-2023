@@ -98,12 +98,11 @@ data.joy3 = []               # måling av knapp 3
 # beregninger
 data.Ts = []			  	# beregning av tidsskritt
 
+data.PowerA = []         # berenging av motorpådrag A
+data.PowerD = []         # berenging av motorpådrag D
 
 data.PowerA_abs = []         # berenging av motorpådrag A
 data.PowerD_abs = []         # berenging av motorpådrag D
-
-data.PowerA = []         # berenging av motorpådrag A
-data.PowerD = []         # berenging av motorpådrag D
 
 data.avvik = []
 data.abs_avik = []
@@ -261,8 +260,8 @@ def MathCalculations(data,k,init):
 		data.Ts.append(0.005)  	# nominell verdi
 		data.IAEList.append(0)
 		data.MAEList.append(0)
-		data.TvA.append(data.PowerA)
-		data.TvD.append(data.PowerB)
+		data.TvA.append(abs(data.PowerA[0]))
+		data.TvD.append(abs(data.PowerB[0]))
 	else:
 		# Beregninger av Ts og variable som avhenger av initialverdi
 		data.Ts.append(data.Tid[k]-data.Tid[k-1])
