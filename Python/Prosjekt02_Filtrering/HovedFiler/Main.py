@@ -219,7 +219,7 @@ def MathCalculations(data,k,init):
 				# bruk i offline.
 
 	# Parametre
-	alfa = 0.6
+	alfa = 0.01
 	a = 1-alfa
 	b = alfa
 	M = 3
@@ -286,7 +286,7 @@ def stopMotors(robot):
 # Dersom enten nrows = 1 eller ncols = 1, så benyttes "ax[0]", "ax[1]", osv.
 # Dersom både nrows > 1 og ncols > 1, så benyttes "ax[0,0]", "ax[1,0]", osv
 def lagPlot(plt):
-	nrows = 4
+	nrows = 2
 	ncols = 1
 	sharex = True
 	plt.create(nrows,ncols,sharex)
@@ -316,14 +316,12 @@ def lagPlot(plt):
 	)
 
 	# plotting av lys (minimumsversjon)
-	ax[1].set_title('Temperatur gjennom et IIR filter')  
-	ax[1].set_xlabel("Tid [sek]")
-	ax[1].set_ylabel("Temp_IIR")
+	ax[0].set_xlabel("Tid [sek]")
 	plt.plot(
-		subplot = ax[1],    
+		subplot = ax[0],    
 		x = "Tid",	# navn på x-verdien (fra data-objektet)  
 		y = "Temp_IIR",	# navn på y-verdien (fra data-objektet)  
 
-		color = "g"
+		color = "m"
 	)
 #____________________________________________________________________________

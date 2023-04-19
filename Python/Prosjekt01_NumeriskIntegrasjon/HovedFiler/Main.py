@@ -269,7 +269,7 @@ def stopMotors(robot):
 # Dersom enten nrows = 1 eller ncols = 1, så benyttes "ax[0]", "ax[1]", osv.
 # Dersom både nrows > 1 og ncols > 1, så benyttes "ax[0,0]", "ax[1,0]", osv
 def lagPlot(plt):
-	nrows = 3
+	nrows = 2
 	ncols = 1
 	sharex = True
 	plt.create(nrows,ncols,sharex)
@@ -280,7 +280,7 @@ def lagPlot(plt):
 	# Ved flere subplot over hverandre så er det lurt å legge 
 	# informasjon om x-label på de nederste subplotene (sharex = True)
 
-	fig.suptitle('Bergning av Flow, Volum og Tidsskritt')
+	fig.suptitle('Bergning av Flow og Volum')
 
 	# plotting av Flow
 	ax[0].set_title('Flow')  
@@ -308,15 +308,15 @@ def lagPlot(plt):
 		y = "Volum",	# navn på y-verdien (fra data-objektet)  
 	)
 
-	# plotting av Ts (benytter utvalg av listene)
-	ax[2].set_title('Beregning av Ts')  
-	ax[2].set_xlabel("Tid [sek]")
-	ax[2].set_ylabel("tidsskritt")
-	plt.plot(
-		subplot = ax[2],    
-		x = "Tid[:-1]",       
-		y = "Ts[:-1]",
-		color = "b",
-		linestyle = "dashed",
-	)
+	# # plotting av Ts (benytter utvalg av listene)
+	# ax[2].set_title('Beregning av Ts')  
+	# ax[2].set_xlabel("Tid [sek]")
+	# ax[2].set_ylabel("tidsskritt")
+	# plt.plot(
+	# 	subplot = ax[2],    
+	# 	x = "Tid[:-1]",       
+	# 	y = "Ts[:-1]",
+	# 	color = "b",
+	# 	linestyle = "dashed",
+	# )
 #____________________________________________________________________________
