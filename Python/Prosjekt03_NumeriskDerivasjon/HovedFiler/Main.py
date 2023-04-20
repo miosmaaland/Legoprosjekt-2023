@@ -43,8 +43,8 @@ timer = clock()				# timerobjekt med tic toc funksjoner
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #                            1) KONFIGURASJON
 #
-Configs.EV3_IP = "169.254.206.224"	# Avles IP-adressen på EV3-skjermen
-Configs.Online = True	# Online = True  --> programmet kjører på robot  
+Configs.EV3_IP = "169.254.203.71"	# Avles IP-adressen på EV3-skjermen
+Configs.Online = False	# Online = True  --> programmet kjører på robot  
 						# Online = False --> programmet kjører på datamaskin
 Configs.livePlot = False 	# livePlot = True  --> Live plot, typisk stor Ts
 							# livePlot = False --> Ingen plot, liten Ts
@@ -282,7 +282,7 @@ def stopMotors(robot):
 # Dersom enten nrows = 1 eller ncols = 1, så benyttes "ax[0]", "ax[1]", osv.
 # Dersom både nrows > 1 og ncols > 1, så benyttes "ax[0,0]", "ax[1,0]", osv
 def lagPlot(plt):
-	nrows = 3
+	nrows = 4
 	ncols = 1
 	sharex = True
 	plt.create(nrows,ncols,sharex)
@@ -296,13 +296,13 @@ def lagPlot(plt):
 	fig.suptitle('Her kan du bruke en tittel for hele figuren')
 
 	# plotting av lys
-	ax[0].set_title('Reflektert lys')  
-	ax[0].set_xlabel("Tid [sek]")	 
-	ax[0].set_ylabel("Lys")
+	ax[0].set_title('Avstandsmåling rådata(b) og IIR filtrert avstandsmåling, alfa=0.03 (r)')  
+	ax[0].set_xlabel("Tid[sek]")	 
+	ax[0].set_ylabel("m")
 	plt.plot(
 		subplot = ax[0],  	# Definer hvilken delfigur som skal plottes
 		x = "Tid", 			# navn på x-verdien (fra data-objektet)
-		y = "Lys",			# navn på y-verdien (fra data-objektet)
+		y = "Fart",			# navn på y-verdien (fra data-objektet)
 
 		# VALGFRITT
 		color = "b",		# fargen på kurven som plottes (default: blå)
@@ -312,8 +312,8 @@ def lagPlot(plt):
 	)
 
 	# plotting av lys (minimumsversjon)
-	ax[1].set_title('Lys')  
-	ax[1].set_xlabel("Tid [sek]")
+	ax[1].set_title('Beregnet hastighet av rådata')  
+	ax[1].set_xlabel("m/s")
 	ax[1].set_ylabel("Lys")
 	plt.plot(
 		subplot = ax[1],    
@@ -322,7 +322,7 @@ def lagPlot(plt):
 	)
 
 	# plotting av Ts (benytter utvalg av listene)
-	ax[2].set_title('Beregning av Ts')  
+	ax[2].set_title('Beregnet hastighet av filtrert avstandsmålinger')  
 	ax[2].set_xlabel("Tid [sek]")
 	ax[2].set_ylabel("tidsskritt")
 	plt.plot(
@@ -336,7 +336,7 @@ def lagPlot(plt):
 	# plotting av Ts (benytter utvalg av listene)
 	ax[3].set_title('Beregning av Ts')  
 	ax[3].set_xlabel("Tid [sek]")
-	ax[3].set_ylabel("tidsskritt")
+	ax[3].set_ylabel("m/s")
 	plt.plot(
 		subplot = ax[2],    
 		x = "Tid[:-1]",       
