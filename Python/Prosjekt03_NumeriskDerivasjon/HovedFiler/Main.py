@@ -238,7 +238,7 @@ def MathCalculations(data,k,init):
 		data.Ts.append(data.Tid[k] - data.Tid[k-1])
 		data.Fart.append((data.Avstand[k] - data.Avstand[k-1])/ data.Ts[k])
 		data.Avstand_IIR.append(IIR_Filter(data.Avstand_IIR[k-1], data.Avstand[k], alfa))
-		data.Fart_IIR.append((data.Avstand_IIR[k] - data.Avstand_IIR[k-1]) / data.Ts[k])
+		data.Fart_IIR.append(IIR_Filter(data.Fart_IIR[k-1], data.Fart[k], alfa))
 #_____________________________________________________________________________
 
 
@@ -293,7 +293,7 @@ def lagPlot(plt):
 
 	fig.suptitle('Her kan du bruke en tittel for hele figuren')
 
-	# plotting av lys
+	# plotting av Avstand og Avstand_IIR
 	ax[0].set_title('Beregning av avstand rådata(b) og IIR-filtrert avstandmåling, alfa=0.03')  
 	ax[0].set_xlabel("Tid [sek]")	 
 	ax[0].set_ylabel("Avstand [m]")
