@@ -291,7 +291,7 @@ def lagPlot(plt):
 	# Ved flere subplot over hverandre så er det lurt å legge 
 	# informasjon om x-label på de nederste subplotene (sharex = True)
 
-	fig.suptitle('Her kan du bruke en tittel for hele figuren')
+	fig.suptitle('')
 
 	# plotting av Avstand og Avstand_IIR
 	ax[0].set_title('Beregning av avstand rådata(b) og IIR-filtrert avstandmåling, alfa=0.03')  
