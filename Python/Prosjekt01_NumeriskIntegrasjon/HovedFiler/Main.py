@@ -1,9 +1,9 @@
 # coding=utf-8
 
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# P01_NumeriskIntegrasjon
+# P0X_BeskrivendeTekst
 #
-# Hensikten med programmet er å drepe meg selv
+# Hensikten med programmet er å ................
 #
 # Følgende sensorer brukes:
 # - Lyssensor
@@ -43,18 +43,25 @@ timer = clock()				# timerobjekt med tic toc funksjoner
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #                            1) KONFIGURASJON
 #
-Configs.EV3_IP = "169.254.2.201"	# Avles IP-adressen på EV3-skjermen
+Configs.EV3_IP = "169.254.14.180"	# Avles IP-adressen på EV3-skjermen
 Configs.Online = False	# Online = True  --> programmet kjører på robot  
 						# Online = False --> programmet kjører på datamaskin
-Configs.livePlot = False 	# livePlot = True  --> Live plot, typisk stor Ts
+Configs.livePlot = True 	# livePlot = True  --> Live plot, typisk stor Ts
 							# livePlot = False --> Ingen plot, liten Ts
 Configs.avgTs = 0.005	# livePlot = False --> spesifiser ønsket Ts
 						# Lav avgTs -> høy samplingsfrekvens og mye data.
 						# --> Du må vente veldig lenge for å lagre filen.
+<<<<<<< HEAD
 Configs.filename = "P01_NumeriskIntegrasjon_Chirp.txt"	
 						# Målinger/beregninger i Online lagres til denne 
 						# .txt-filen. Upload til Data-mappen.
 Configs.filenameOffline = "Offline_P01_NumeriskIntegrasjon_Chirp.txt"	
+=======
+Configs.filename = "P01_NumeriskIntegrasjon.txt"	
+						# Målinger/beregninger i Online lagres til denne 
+						# .txt-filen. Upload til Data-mappen.
+Configs.filenameOffline = "Offline_P01_NumeriskIntegrasjon.txt"	
+>>>>>>> 4241bc87eb2a839d822cc6b6165a6a608f2ba438
 						# I Offline brukes den opplastede datafilen 
 						# og alt lagres til denne .txt-filen.
 Configs.plotMethod = 2	# verdier: 1 eller 2, hvor hver plottemetode 
@@ -84,8 +91,6 @@ data.Lys = []            	# måling av reflektert lys fra ColorSensor
 
 # beregninger
 data.Ts = []			  	# beregning av tidsskritt
-data.Flow = []				# beregning av flow
-data.Volum = []				# beregning av volum
 
 """
 # Utvalg av målinger
@@ -153,10 +158,10 @@ data.PowerD = []         # berenging av motorpådrag D
 
 def addMeasurements(data,robot,init,k):
 	if k==0:
-		# Definer initielle målinger inn i init variabelen.
-		# Initialverdiene kan brukes i MathCalculations()
+		# Definer initielle lmålinger inn i init variabelen.
+        # Initialverdiene kan brukes i MathCalculations()
 		init.Lys0 = robot.ColorSensor.reflection() 	# lagrer første lysmåling
-		
+
 		data.Tid.append(timer.tic())		# starter "stoppeklokken" på 0
 	else:
 
@@ -165,7 +170,6 @@ def addMeasurements(data,robot,init,k):
 	
 	# lagrer målinger av lys
 	data.Lys.append(robot.ColorSensor.reflection())
-	
 
 	"""
 	data.LysDirekte.append(robot.ColorSensor.ambient())
@@ -213,21 +217,38 @@ def addMeasurements(data,robot,init,k):
 # Funksjonen brukes både i online og offline.
 #
 def MathCalculations(data,k,init):
+	# return  	# Bruk denne dersom ingen beregninger gjøres,
+				# som for eksempel ved innhentning av kun data for 
+				# bruk i offline.
+
 	# Parametre
-	init.nullflow = data.Lys[0]	# Setter nullflow til første verdi i data.Lys
+	a = 0.7
+
+    # Tilordne målinger til variable
+	Flow = []
+	Volum = []
+    
+	for k in range(len(data.Tid)):
+		Flow_k = data.Lys[k] - data.Lys[0]
+		Flow.append(Flow_k) 
 
 		# Initialverdier og beregninger 
-	if k == 0:
-		# Initialverdier
-		data.Ts.append(0.005)  	# Nominell verdi
-		data.Flow.append(0)		# Flow starter i 0
-		data.Volum.append(0)	# Volum starter i 0
+		if k == 0:
+			# Initialverdier
+			data.Ts.append(0.005)  	# nominell verdi
+			Volum_k = Volum.append(0)
 		
-	else:
-		# Beregninger av Ts og variable som avhenger av initialverdi
-		data.Ts.append(data.Tid[k]-data.Tid[k-1])						# Tidsdifferansen mellom tidspunktene k og k-1 i data.Tid
-		data.Flow.append(data.Lys[k] - init.nullflow)					# Flow beregnes som forskjellen mellom data.Lys[k] og nullflow
-		data.Volum.append(data.Volum[k-1] + data.Flow[k-1] * data.Ts[k])	# Volum beregnes med Eulers forovermetoden
+		else:
+			# Beregninger av Ts og variable som avhenger av initialverdi
+			data.Ts.append(data.Tid[k]-data.Tid[k-1])
+			Volum_k = Volum[k-1] + Flow_k * data.Ts[k]
+
+		Volum.append(Volum_k)
+
+	return (Flow, Volum[:-1])
+    # Andre beregninger uavhengig av initialverdi
+
+    # Pådragsberegninger
 #_____________________________________________________________________________
 
 
@@ -276,20 +297,24 @@ def lagPlot(plt):
 	ax,fig = plt.ax, plt.fig
 
 	# Legger inn titler og aksenavn (valgfritt) for hvert subplot,  
-	# sammen med argumenter til plt.plot() funksjonen. 
-	# Ved flere subplot over hverandre så er det lurt å legge 
-	# informasjon om x-label på de nederste subplotene (sharex = True)
+    # sammen med argumenter til plt.plot() funksjonen. 
+    # Ved flere subplot over hverandre så er det lurt å legge 
+    # informasjon om x-label på de nederste subplotene (sharex = True)
 
+<<<<<<< HEAD
 	fig.suptitle('Bergning av Flow og Volum')
+=======
+	fig.suptitle('Her kan du bruke en tittel for hele figuren')
+>>>>>>> 4241bc87eb2a839d822cc6b6165a6a608f2ba438
 
-	# plotting av Flow
-	ax[0].set_title('Flow')  
+	# plotting av lys
+	ax[0].set_title('Reflektert lys')  
 	ax[0].set_xlabel("Tid [sek]")	 
-	ax[0].set_ylabel("[cl/s]")
+	ax[0].set_ylabel("Lys")
 	plt.plot(
 		subplot = ax[0],  	# Definer hvilken delfigur som skal plottes
 		x = "Tid", 			# navn på x-verdien (fra data-objektet)
-		y = "Flow",			# navn på y-verdien (fra data-objektet)
+		y = "Lys",			# navn på y-verdien (fra data-objektet)
 
 		# VALGFRITT
 		color = "b",		# fargen på kurven som plottes (default: blå)
@@ -298,14 +323,14 @@ def lagPlot(plt):
 		marker = "",       	# legg til markør på hvert punkt
 	)
 
-	# plotting av Volum
-	ax[1].set_title('Volum')  
+	# plotting av lys (minimumsversjon)
+	ax[1].set_title('Lys')  
 	ax[1].set_xlabel("Tid [sek]")
-	ax[1].set_ylabel("[cl]")
+	ax[1].set_ylabel("Lys")
 	plt.plot(
 		subplot = ax[1],    
 		x = "Tid",	# navn på x-verdien (fra data-objektet)  
-		y = "Volum",	# navn på y-verdien (fra data-objektet)  
+		y = "Lys",	# navn på y-verdien (fra data-objektet)  
 	)
 
 	# # plotting av Ts (benytter utvalg av listene)
