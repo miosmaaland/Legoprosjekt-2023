@@ -43,7 +43,7 @@ timer = clock()				# timerobjekt med tic toc funksjoner
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #                            1) KONFIGURASJON
 #
-Configs.EV3_IP = "169.254.68.36"	# Avles IP-adressen på EV3-skjermen
+Configs.EV3_IP = "169.254.152.120"	# Avles IP-adressen på EV3-skjermen
 Configs.Online = False	# Online = True  --> programmet kjører på robot  
 						# Online = False --> programmet kjører på datamaskin
 Configs.livePlot = False 	# livePlot = True  --> Live plot, typisk stor Ts
@@ -220,7 +220,7 @@ def MathCalculations(data,k,init):
 				# bruk i offline.
 
 	# Parametre
-	alfa = 0.05
+	alfa = 0.03
 
     # Tilordne målinger til variable
 	data.Avstand.append(data.Lys[k])
@@ -230,7 +230,8 @@ def MathCalculations(data,k,init):
 		# Initialverdier
 		data.Ts.append(0.005)  	# nominell verdi
 		data.Avstand_IIR.append(data.Avstand[0])
-		data.Avstand_IIR.append(0)
+		data.Fart.append(0)
+		data.Fart_IIR.append(0)
 	
 	else:
         # Beregninger av Ts og variable som avhenger av initialverdi
@@ -238,10 +239,6 @@ def MathCalculations(data,k,init):
 		data.Fart.append((data.Avstand[k] - data.Avstand[k-1])/ data.Ts[k])
 		data.Avstand_IIR.append(IIR_Filter(data.Avstand_IIR[k-1], data.Avstand[k], alfa))
 		data.Fart_IIR.append((data.Avstand_IIR[k] - data.Avstand_IIR[k-1]) / data.Ts[k])
-
-    # Andre beregninger uavhengig av initialverdi
-
-    # Pådragsberegninger
 #_____________________________________________________________________________
 
 
