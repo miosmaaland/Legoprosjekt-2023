@@ -230,6 +230,7 @@ def MathCalculations(data,k,init):
 		# Initialverdier
 		data.Ts.append(0.005)  	# nominell verdi
 		data.Avstand_IIR.append(data.Avstand[0])
+		data.Avstand_IIR.append(0)
 	
 	else:
         # Beregninger av Ts og variable som avhenger av initialverdi
@@ -282,27 +283,27 @@ def stopMotors(robot):
 # Dersom enten nrows = 1 eller ncols = 1, så benyttes "ax[0]", "ax[1]", osv.
 # Dersom både nrows > 1 og ncols > 1, så benyttes "ax[0,0]", "ax[1,0]", osv
 def lagPlot(plt):
-	nrows = 4
+	nrows = 3
 	ncols = 1
 	sharex = True
 	plt.create(nrows,ncols,sharex)
 	ax,fig = plt.ax, plt.fig
 
 	# Legger inn titler og aksenavn (valgfritt) for hvert subplot,  
-    # sammen med argumenter til plt.plot() funksjonen. 
-    # Ved flere subplot over hverandre så er det lurt å legge 
-    # informasjon om x-label på de nederste subplotene (sharex = True)
+	# sammen med argumenter til plt.plot() funksjonen. 
+	# Ved flere subplot over hverandre så er det lurt å legge 
+	# informasjon om x-label på de nederste subplotene (sharex = True)
 
 	fig.suptitle('Her kan du bruke en tittel for hele figuren')
 
 	# plotting av lys
-	ax[0].set_title('Avstandsmåling rådata(b) og IIR filtrert avstandsmåling, alfa=0.03 (r)')  
-	ax[0].set_xlabel("Tid[sek]")	 
-	ax[0].set_ylabel("m")
+	ax[0].set_title('Beregning av avstand rådata(b) og IIR-filtrert avstandmåling, alfa=0.03')  
+	ax[0].set_xlabel("Tid [sek]")	 
+	ax[0].set_ylabel("Avstand [m]")
 	plt.plot(
 		subplot = ax[0],  	# Definer hvilken delfigur som skal plottes
 		x = "Tid", 			# navn på x-verdien (fra data-objektet)
-		y = "Fart",			# navn på y-verdien (fra data-objektet)
+		y = "Avstand",			# navn på y-verdien (fra data-objektet)
 
 		# VALGFRITT
 		color = "b",		# fargen på kurven som plottes (default: blå)
@@ -312,36 +313,31 @@ def lagPlot(plt):
 	)
 
 	# plotting av lys (minimumsversjon)
-	ax[1].set_title('Beregnet hastighet av rådata')  
-	ax[1].set_xlabel("m/s")
-	ax[1].set_ylabel("Lys")
+	plt.plot(
+		subplot = ax[0],    
+		x = "Tid",	# navn på x-verdien (fra data-objektet)  
+		y = "Avstand_IIR",	# navn på y-verdien (fra data-objektet)  
+		color = "r"
+	)
+
+	# plotting av Ts (benytter utvalg av listene)
+	ax[1].set_title('Beregning av hastighet rådata')  
+	ax[1].set_xlabel("Tid [sek]")
+	ax[1].set_ylabel("Hastighet [m/s]")
 	plt.plot(
 		subplot = ax[1],    
-		x = "Tid",	# navn på x-verdien (fra data-objektet)  
-		y = "Lys",	# navn på y-verdien (fra data-objektet)  
+		x = "Tid",       
+		y = "Fart",
+		color = "b",
 	)
 
-	# plotting av Ts (benytter utvalg av listene)
-	ax[2].set_title('Beregnet hastighet av filtrert avstandsmålinger')  
+	ax[2].set_title('Beregning av hastighet IIR-filtrert')  
 	ax[2].set_xlabel("Tid [sek]")
-	ax[2].set_ylabel("tidsskritt")
+	ax[2].set_ylabel("Hastighet [m/s]")
 	plt.plot(
 		subplot = ax[2],    
-		x = "Tid[:-1]",       
-		y = "Ts[:-1]",
+		x = "Tid",       
+		y = "Fart_IIR",
 		color = "b",
-		linestyle = "dashed",
-	)
-
-	# plotting av Ts (benytter utvalg av listene)
-	ax[3].set_title('Beregning av Ts')  
-	ax[3].set_xlabel("Tid [sek]")
-	ax[3].set_ylabel("m/s")
-	plt.plot(
-		subplot = ax[2],    
-		x = "Tid[:-1]",       
-		y = "Ts[:-1]",
-		color = "b",
-		linestyle = "dashed",
 	)
 #____________________________________________________________________________
