@@ -43,7 +43,7 @@ timer = clock()				# timerobjekt med tic toc funksjoner
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #                            1) KONFIGURASJON
 #
-Configs.EV3_IP = "169.254.117230.251"	# Avles IP-adressen på EV3-skjermen
+Configs.EV3_IP = "169.254.193.166"	# Avles IP-adressen på EV3-skjermen
 Configs.Online = True	# Online = True  --> programmet kjører på robot  
 						# Online = False --> programmet kjører på datamaskin
 Configs.livePlot = False 	# livePlot = True  --> Live plot, typisk stor Ts
@@ -51,10 +51,10 @@ Configs.livePlot = False 	# livePlot = True  --> Live plot, typisk stor Ts
 Configs.avgTs = 0.005	# livePlot = False --> spesifiser ønsket Ts
 						# Lav avgTs -> høy samplingsfrekvens og mye data.
 						# --> Du må vente veldig lenge for å lagre filen.
-Configs.filename = "P0X_BeskrivendeTekst_Y.txt"	
+Configs.filename = "P04_ManuellKjøring.txt"	
 						# Målinger/beregninger i Online lagres til denne 
 						# .txt-filen. Upload til Data-mappen.
-Configs.filenameOffline = "Offline_P0X_BeskrivendeTekst_Y.txt"	
+Configs.filenameOffline = "Offline_P04_ManuellKjøring.txt"	
 						# I Offline brukes den opplastede datafilen 
 						# og alt lagres til denne .txt-filen.
 Configs.plotMethod = 2	# verdier: 1 eller 2, hvor hver plottemetode 
@@ -82,12 +82,6 @@ Configs.ConnectJoystickToPC = False	# True  --> joystick direkte på datamaskin
 data.Tid = []            	# måling av tidspunkt
 data.Lys = []            	# måling av reflektert lys fra ColorSensor
 
-data.VinkelPosMotorA = []    # måling av vinkelposisjon motor A
-data.HastighetMotorA = []    # måling av vinkelhastighet motor A
-
-data.VinkelPosMotorD = []    # måling av vinkelposisjon motor D
-data.HastighetMotorD = []    # måling av vinkelhastighet motor D
-
 data.joyForward = []         # måling av foroverbevegelse styrestikke
 data.joySide = []            # måling av sidebevegelse styrestikke
 
@@ -98,21 +92,20 @@ data.joy3 = []               # måling av knapp 3
 # beregninger
 data.Ts = []			  	# beregning av tidsskritt
 
-data.PowerA = []         # berenging av motorpådrag A
-data.PowerD = []         # berenging av motorpådrag D
+data.PowerA = []         	# berenging av motorpådrag A
+data.PowerD = []         	# berenging av motorpådrag D
 
-data.PowerA_abs = []         # berenging av motorpådrag A
-data.PowerD_abs = []         # berenging av motorpådrag D
+data.PowerA_abs = []        # berenging av motorpådrag A
+data.PowerD_abs = []        # berenging av motorpådrag D
 
-data.avvik = []
-data.abs_avik = []
+data.avvik = []				# beregning av avvik	
+data.abs_avik = []			# beregning av absolut avvik
 
-data.IAEList = []
-data.MAEList = []
+data.IAEList = []			# beregning av IAE
+data.MAEList = []			# beregning av MAE
 
-data.TvA = []
-data.TvD = []
-
+data.TvA = []				# beregning av totalt motorpådrag A
+data.TvD = []				# beregning av totalt motorpådrag B
 
 """
 # Utvalg av målinger
@@ -122,19 +115,19 @@ data.Avstand = []            # måling av avstand fra UltrasonicSensor
 data.GyroAngle = []          # måling av gyrovinkel fra GyroSensor
 data.GyroRate = []           # måling av gyrovinkelfart fra GyroSensor
 
-
+data.VinkelPosMotorA = []    # måling av vinkelposisjon motor A
+data.HastighetMotorA = []    # måling av vinkelhastighet motor A
 data.VinkelPosMotorB = []    # måling av vinkelposisjon motor B 
 data.HastighetMotorB = []    # måling av vinkelhastighet motor B
 data.VinkelPosMotorC = []    # måling av vinkelposisjon motor C
 data.HastighetMotorC = []    # måling av vinkelhastighet motor C
-
-
+data.VinkelPosMotorD = []    # måling av vinkelposisjon motor D
+data.HastighetMotorD = []    # måling av vinkelhastighet motor D
 
 data.joyTwist = []           # måling av vribevegelse styrestikke
 data.joyPotMeter = []        # måling av potensionmeter styrestikke
 data.joyPOVForward = []      # måling av foroverbevegelse toppledd
 data.joyPOVSide = []         # måling av sidebevegelse toppledd
-
 
 data.joy4 = []               # måling av knapp 4 
 data.joy5 = []               # måling av knapp 5 
@@ -147,10 +140,8 @@ data.joy11 = []              # måling av knapp 11
 data.joy12 = []              # måling av knapp 12
 
 # Utvalg av beregninger
-
 data.PowerB = []         # berenging av motorpådrag B
 data.PowerC = []         # berenging av motorpådrag C
-
 """
 #____________________________________________________________________________________________
 
@@ -206,8 +197,6 @@ def addMeasurements(data,robot,init,k):
 	data.HastighetMotorC.append(robot.motorC.speed())
 	data.VinkelPosMotorD.append(robot.motorD.angle())
 	data.HastighetMotorD.append(robot.motorD.speed())
-
-	
 	
 	data.joyTwist.append(config.joyTwistInstance)
 	data.joyPotMeter.append(config.joyPotMeterInstance)
