@@ -43,8 +43,8 @@ timer = clock()				# timerobjekt med tic toc funksjoner
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #                            1) KONFIGURASJON
 #
-Configs.EV3_IP = "169.254.206.224"	# Avles IP-adressen på EV3-skjermen
-Configs.Online = True	# Online = True  --> programmet kjører på robot  
+Configs.EV3_IP = "169.254.28.34"	# Avles IP-adressen på EV3-skjermen
+Configs.Online = False	# Online = True  --> programmet kjører på robot  
 						# Online = False --> programmet kjører på datamaskin
 Configs.livePlot = False 	# livePlot = True  --> Live plot, typisk stor Ts
 							# livePlot = False --> Ingen plot, liten Ts
@@ -220,7 +220,7 @@ def MathCalculations(data,k,init):
 				# bruk i offline.
 
 	# Parametre
-	alfa = 0.05
+	alfa = 0.03
 
     # Tilordne målinger til variable
 	data.Avstand.append(data.Lys[k])
@@ -230,17 +230,15 @@ def MathCalculations(data,k,init):
 		# Initialverdier
 		data.Ts.append(0.005)  	# nominell verdi
 		data.Avstand_IIR.append(data.Avstand[0])
+		data.Fart.append(0)
+		data.Fart_IIR.append(0)
 	
 	else:
         # Beregninger av Ts og variable som avhenger av initialverdi
 		data.Ts.append(data.Tid[k] - data.Tid[k-1])
 		data.Fart.append((data.Avstand[k] - data.Avstand[k-1])/ data.Ts[k])
 		data.Avstand_IIR.append(IIR_Filter(data.Avstand_IIR[k-1], data.Avstand[k], alfa))
-		data.Fart_IIR.append((data.Avstand_IIR[k] - data.Avstand_IIR[k-1]) / data.Ts[k])
-
-    # Andre beregninger uavhengig av initialverdi
-
-    # Pådragsberegninger
+		data.Fart_IIR.append(IIR_Filter(data.Fart_IIR[k-1], data.Fart[k], alfa))
 #_____________________________________________________________________________
 
 
@@ -289,20 +287,20 @@ def lagPlot(plt):
 	ax,fig = plt.ax, plt.fig
 
 	# Legger inn titler og aksenavn (valgfritt) for hvert subplot,  
-    # sammen med argumenter til plt.plot() funksjonen. 
-    # Ved flere subplot over hverandre så er det lurt å legge 
-    # informasjon om x-label på de nederste subplotene (sharex = True)
+	# sammen med argumenter til plt.plot() funksjonen. 
+	# Ved flere subplot over hverandre så er det lurt å legge 
+	# informasjon om x-label på de nederste subplotene (sharex = True)
 
-	fig.suptitle('Her kan du bruke en tittel for hele figuren')
+	fig.suptitle('')
 
-	# plotting av lys
-	ax[0].set_title('Reflektert lys')  
+	# plotting av Avstand og Avstand_IIR
+	ax[0].set_title('Beregning av avstand rådata(b) og IIR-filtrert avstandmåling, alfa=0.03')  
 	ax[0].set_xlabel("Tid [sek]")	 
-	ax[0].set_ylabel("Lys")
+	ax[0].set_ylabel("Avstand [m]")
 	plt.plot(
 		subplot = ax[0],  	# Definer hvilken delfigur som skal plottes
 		x = "Tid", 			# navn på x-verdien (fra data-objektet)
-		y = "Lys",			# navn på y-verdien (fra data-objektet)
+		y = "Avstand",			# navn på y-verdien (fra data-objektet)
 
 		# VALGFRITT
 		color = "b",		# fargen på kurven som plottes (default: blå)
@@ -312,36 +310,31 @@ def lagPlot(plt):
 	)
 
 	# plotting av lys (minimumsversjon)
-	ax[1].set_title('Lys')  
+	plt.plot(
+		subplot = ax[0],    
+		x = "Tid",	# navn på x-verdien (fra data-objektet)  
+		y = "Avstand_IIR",	# navn på y-verdien (fra data-objektet)  
+		color = "r"
+	)
+
+	# plotting av Ts (benytter utvalg av listene)
+	ax[1].set_title('Beregning av hastighet rådata')  
 	ax[1].set_xlabel("Tid [sek]")
-	ax[1].set_ylabel("Lys")
+	ax[1].set_ylabel("Hastighet [m/s]")
 	plt.plot(
 		subplot = ax[1],    
-		x = "Tid",	# navn på x-verdien (fra data-objektet)  
-		y = "Lys",	# navn på y-verdien (fra data-objektet)  
+		x = "Tid",       
+		y = "Fart",
+		color = "b",
 	)
 
-	# plotting av Ts (benytter utvalg av listene)
-	ax[2].set_title('Beregning av Ts')  
+	ax[2].set_title('Beregning av hastighet IIR-filtrert')  
 	ax[2].set_xlabel("Tid [sek]")
-	ax[2].set_ylabel("tidsskritt")
+	ax[2].set_ylabel("Hastighet [m/s]")
 	plt.plot(
 		subplot = ax[2],    
-		x = "Tid[:-1]",       
-		y = "Ts[:-1]",
+		x = "Tid",       
+		y = "Fart_IIR",
 		color = "b",
-		linestyle = "dashed",
-	)
-
-	# plotting av Ts (benytter utvalg av listene)
-	ax[3].set_title('Beregning av Ts')  
-	ax[3].set_xlabel("Tid [sek]")
-	ax[3].set_ylabel("tidsskritt")
-	plt.plot(
-		subplot = ax[2],    
-		x = "Tid[:-1]",       
-		y = "Ts[:-1]",
-		color = "b",
-		linestyle = "dashed",
 	)
 #____________________________________________________________________________

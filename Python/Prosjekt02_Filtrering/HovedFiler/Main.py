@@ -32,6 +32,7 @@ if sys.implementation.name.lower().find("micropython") != -1:
 from MineFunksjoner import *
 from funksjoner import *
 import random
+import time
 data = Bunch()				# dataobjektet ditt (punktum notasjon)
 Configs = Bunch()			# konfiguarsjonene dine
 init = Bunch()				# initalverdier (brukes i addmeasurement og mathcalculations)
@@ -44,7 +45,7 @@ timer = clock()				# timerobjekt med tic toc funksjoner
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #                            1) KONFIGURASJON
 #
-Configs.EV3_IP = "169.254.135.82"	# Avles IP-adressen på EV3-skjermen
+Configs.EV3_IP = "169.254.122.154"	# Avles IP-adressen på EV3-skjermen
 Configs.Online = False	# Online = True  --> programmet kjører på robot  
 						# Online = False --> programmet kjører på datamaskin
 Configs.livePlot = False 	# livePlot = True  --> Live plot, typisk stor Ts
@@ -223,8 +224,8 @@ def MathCalculations(data,k,init):
 	a = 1-alfa
 	b = alfa
 	M = 3
-	if k < M:
-		M = k
+	
+	num_points = k + 1 if k < M else M
 	
 	# Tilordne målinger til variable
 	data.Temp.append(data.Lys[k] + random.random())
@@ -239,12 +240,8 @@ def MathCalculations(data,k,init):
 	else:
 		# Beregninger av Ts og variable som avhenger av initialverdi
 		data.Ts.append(data.Tid[k]-data.Tid[k-1])
-		data.Temp_FIR.append(sum(data.Temp[k-M : k]) * 1/M)
+		data.Temp_FIR.append(sum(data.Temp[k - num_points + 1 : k + 1]) / num_points)
 		data.Temp_IIR.append(a*data.Temp_IIR[k-1] + b*data.Temp[k])
-
-	# Andre beregninger uavhengig av initialverdi
-
-	# Pådragsberegninger
 #_____________________________________________________________________________
 
 
@@ -286,7 +283,7 @@ def stopMotors(robot):
 # Dersom enten nrows = 1 eller ncols = 1, så benyttes "ax[0]", "ax[1]", osv.
 # Dersom både nrows > 1 og ncols > 1, så benyttes "ax[0,0]", "ax[1,0]", osv
 def lagPlot(plt):
-	nrows = 4
+	nrows = 3
 	ncols = 1
 	sharex = True
 	plt.create(nrows,ncols,sharex)
@@ -299,7 +296,7 @@ def lagPlot(plt):
 
 	fig.suptitle('Temperaturen til en kaffekopp')
 
-	# plotting av lys
+	# plotting av Temperatur
 	ax[0].set_title('Temperatur')  
 	ax[0].set_xlabel("Tid [sek]")	 
 	ax[0].set_ylabel("Temperatur [C]")
@@ -315,15 +312,27 @@ def lagPlot(plt):
 		marker = "",       	# legg til markør på hvert punkt
 	)
 
-	# plotting av lys (minimumsversjon)
-	ax[1].set_title('Temperatur gjennom et IIR filter')  
-	ax[1].set_xlabel("Tid [sek]")
-	ax[1].set_ylabel("Temp_IIR")
+	# plotting av Temperatur gjennom et IIR-filter
+	ax[1].set_title('Temperatur IIR')  
+	ax[1].set_xlabel("Tid [sek]")	 
+	ax[1].set_ylabel("Temperatur [C]")
 	plt.plot(
 		subplot = ax[1],    
 		x = "Tid",	# navn på x-verdien (fra data-objektet)  
 		y = "Temp_IIR",	# navn på y-verdien (fra data-objektet)  
 
-		color = "g"
+		color = "m"
+	)
+
+	# plotting av Temperatur gjennom et FIR-filter
+	ax[2].set_title('Temperatur FIR')  
+	ax[2].set_xlabel("Tid [sek]")	 
+	ax[2].set_ylabel("Temperatur [C]")
+	plt.plot(
+		subplot = ax[2],    
+		x = "Tid",	# navn på x-verdien (fra data-objektet)  
+		y = "Temp_FIR",	# navn på y-verdien (fra data-objektet)  
+
+		color = "r"
 	)
 #____________________________________________________________________________
