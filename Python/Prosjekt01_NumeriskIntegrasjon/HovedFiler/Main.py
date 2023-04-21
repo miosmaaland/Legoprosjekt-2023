@@ -43,7 +43,7 @@ timer = clock()				# timerobjekt med tic toc funksjoner
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #                            1) KONFIGURASJON
 #
-Configs.EV3_IP = "169.254.226.76"	# Avles IP-adressen på EV3-skjermen
+Configs.EV3_IP = "169.254.176.2"	# Avles IP-adressen på EV3-skjermen
 Configs.Online = False	# Online = True  --> programmet kjører på robot
 						# Online = False --> programmet kjører på datamaskin
 Configs.livePlot = False 	# livePlot = True  --> Live plot, typisk stor Ts
@@ -51,10 +51,10 @@ Configs.livePlot = False 	# livePlot = True  --> Live plot, typisk stor Ts
 Configs.avgTs = 0.005	# livePlot = False --> spesifiser ønsket Ts
 						# Lav avgTs -> høy samplingsfrekvens og mye data.
 						# --> Du må vente veldig lenge for å lagre filen.
-Configs.filename = "P01_NumeriskIntegrasjon_Sinus.txt"
+Configs.filename = "P01_NumeriskIntegrasjon_Amplitude.txt"
 						# Målinger/beregninger i Online lagres til denne
 						# .txt-filen. Upload til Data-mappen.
-Configs.filenameOffline = "Offline_P01_NumeriskIntegrasjon_Sinus_02.txt"
+Configs.filenameOffline = "Offline_P01_NumeriskIntegrasjon_Amplitude.txt"
 						# I Offline brukes den opplastede datafilen
 						# og alt lagres til denne .txt-filen.
 Configs.plotMethod = 2	# verdier: 1 eller 2, hvor hver plottemetode
@@ -214,7 +214,7 @@ def addMeasurements(data,robot,init,k):
 #
 def MathCalculations(data,k,init):
 	# Parametre
-	init.nullflow = data.Lys[0] + 1	# Setter nullflow til første verdi i data.Lys
+	init.nullflow = data.Lys[0]	- 3.2# Setter nullflow til første verdi i data.Lys
 
 		# Initialverdier og beregninger
 	if k == 0:
@@ -281,7 +281,7 @@ def lagPlot(plt):
 	# Ved flere subplot over hverandre så er det lurt å legge
 	# informasjon om x-label på de nederste subplotene (sharex = True)
 
-	fig.suptitle('Bergning av Flow og Volum')
+	fig.suptitle('Bergning av Flow og Volum med varierende Amplitude')
 
 	# plotting av Flow
 	ax[0].set_title('Flow')
