@@ -81,26 +81,9 @@ Configs.ConnectJoystickToPC = False # True  --> joystick direkte på datamaskin
 # målinger
 data.Tid = []            	# måling av tidspunkt
 data.Lys = []            	# måling av reflektert lys fra ColorSensor
-data.joyForward = []        # måling av foroverbevegelse styrestikke
-data.joySide = []           # måling av sidebevegelse styrestikke
 
 # beregninger
 data.Ts = []			  	# beregning av tidsskritt
-
-data.PowerA = []         	# berenging av motorpådrag A
-data.PowerD = []         	# berenging av motorpådrag D
-
-data.PowerA_abs = []        # berenging av motorpådrag A
-data.PowerD_abs = []        # berenging av motorpådrag D
-
-data.avvik = []				# beregning av avvik	
-data.abs_avik = []			# beregning av absolut avvik
-
-data.IAEList = []			# beregning av IAE
-data.MAEList = []			# beregning av MAE
-
-data.TvA = []				
-data.TvD = []
 
 """
 # Utvalg av målinger
@@ -140,8 +123,10 @@ data.joy11 = []              # måling av knapp 11
 data.joy12 = []              # måling av knapp 12
 
 # Utvalg av beregninger
+data.PowerA = []         # berenging av motorpådrag A
 data.PowerB = []         # berenging av motorpådrag B
 data.PowerC = []         # berenging av motorpådrag C
+data.PowerD = []         # berenging av motorpådrag D
 """
 #____________________________________________________________________________________________
 
@@ -179,9 +164,6 @@ def addMeasurements(data,robot,init,k):
 	# lagrer målinger av lys
 	data.Lys.append(robot.ColorSensor.reflection())
 
-	data.joyForward.append(config.joyForwardInstance)
-	data.joySide.append(config.joySideInstance)
-
 	"""
 	data.LysDirekte.append(robot.ColorSensor.ambient())
 	data.Bryter.append(robot.TouchSensor.pressed())
@@ -198,6 +180,8 @@ def addMeasurements(data,robot,init,k):
 	data.VinkelPosMotorD.append(robot.motorD.angle())
 	data.HastighetMotorD.append(robot.motorD.speed())
 
+	data.joyForward.append(config.joyForwardInstance)
+	data.joySide.append(config.joySideInstance)
 	data.joyTwist.append(config.joyTwistInstance)
 	data.joyPotMeter.append(config.joyPotMeterInstance)
 	data.joyPOVForward.append(config.joyPOVForwardInstance)
