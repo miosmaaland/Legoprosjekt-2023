@@ -107,6 +107,8 @@ data.MAEList = []			# beregning av MAE
 data.TvA = []				# beregning av totalt motorpådrag A
 data.TvD = []				# beregning av totalt motorpådrag B
 
+data.refferanse = []
+
 """
 # Utvalg av målinger
 data.LysDirekte = []         # måling av lys direkte inn fra ColorSensor
@@ -234,31 +236,37 @@ def MathCalculations(data,k,init):
 	a = 0.5
 	b = 0.35
 	c = -0.35
-
-	init.Referanse = data.Lys[0]
-
+	data.refferanse.append(data.Lys[0])
 
 	# Tilordne målinger til variable
 	data.PowerA.append(a*data.JoyForward[k] + b*data.JoySide[k])
 	data.PowerD.append(a*data.JoyForward[k] + c*data.JoySide[k])
-	data.avvik.append(init.Referanse - data.Lys[k])
 	
 	# Initialverdier og beregninger 
 	if k == 0:
 		# Initialverdier
 		data.Ts.append(0.005)  	# nominell verdi
+		data.avvik.append(0)
+		
 		data.IAEList.append(0)
 		data.MAEList.append(0)
+		
+		data.PowerA_abs.append(0)
+		data.PowerD_abs.append(0)
+		
 		data.TvA.append(abs(data.PowerA[0]))
 		data.TvD.append(abs(data.PowerB[0]))
+	
 	else:
 		# Beregninger av Ts og variable som avhenger av initialverdi
 		data.Ts.append(data.Tid[k]-data.Tid[k-1])
+		data.avvik.append(data.refferanse - data.Lys[k])
+		
 		data.IAEList.append(EulerForward(data.IAEList[-1], abs(data.avvik[-1]), data.Ts[k]))
 		data.MAEList.append(FIR_Filter(data.avvik[0:k]), k)
 
-		data.PowerA_abs.append(abs(data.PowerA[-1] - data.PowerA[-2]))
-		data.PowerD_abs.append(abs(data.PowerD[-1] - data.PowerD[-2]))
+		data.PowerA_abs.append(abs(data.PowerA[k] - data.PowerA[k-1]))
+		data.PowerD_abs.append(abs(data.PowerD[k] - data.PowerD[k-1]))
 
 		data.TvA.append(sum(data.PowerA_abs[0:k]))
 		data.TvB.append(sum(data.PowerB_abs[0:k]))
@@ -278,9 +286,6 @@ def MathCalculations(data,k,init):
 # Motorene oppdateres for hver iterasjon etter mathcalculations
 #
 def setMotorPower(data,robot):
-	# return # fjern denne om motor(er) brukes
-	# robot.motorB.dc(data.PowerB[-1])
-	# robot.motorC.dc(data.PowerC[-1])
 	robot.motorA.dc(data.PowerA[-1])
 	robot.motorD.dc(data.PowerD[-1])
 
@@ -290,10 +295,6 @@ def setMotorPower(data,robot):
 # - brake() ruller videre, men bruker strømmen generert av rotasjonen til brems
 # - hold() bråstopper umiddelbart og holder posisjonen
 def stopMotors(robot):
-	# return # fjern denne om motor(er) brukes
-	# robot.motorA.stop()
-	# robot.motorB.brake()
-	# robot.motorC.hold()
 	robot.motorA.hold()
 	robot.motorD.hold()
 #______________________________________________________________________________
