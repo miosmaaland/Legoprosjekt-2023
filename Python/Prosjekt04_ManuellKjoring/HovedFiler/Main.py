@@ -236,6 +236,7 @@ def MathCalculations(data,k,init):
 	a = 0.5
 	b = 0.35
 	c = -0.35
+
 	data.refferanse.append(data.Lys[0])
 
 	# Tilordne målinger til variable
@@ -260,7 +261,7 @@ def MathCalculations(data,k,init):
 	else:
 		# Beregninger av Ts og variable som avhenger av initialverdi
 		data.Ts.append(data.Tid[k]-data.Tid[k-1])
-		data.avvik.append(data.refferanse - data.Lys[k])
+		data.avvik.append(data.refferanse[0] - data.Lys[k])
 		
 		data.IAEList.append(EulerForward(data.IAEList[-1], abs(data.avvik[-1]), data.Ts[k]))
 		data.MAEList.append(FIR_Filter(data.avvik[0:k]), k)

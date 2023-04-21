@@ -32,6 +32,7 @@ if sys.implementation.name.lower().find("micropython") != -1:
 from MineFunksjoner import *
 from funksjoner import *
 import random
+import time
 data = Bunch()				# dataobjektet ditt (punktum notasjon)
 Configs = Bunch()			# konfiguarsjonene dine
 init = Bunch()				# initalverdier (brukes i addmeasurement og mathcalculations)
@@ -44,18 +45,18 @@ timer = clock()				# timerobjekt med tic toc funksjoner
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #                            1) KONFIGURASJON
 #
-Configs.EV3_IP = "169.254.135.82"	# Avles IP-adressen på EV3-skjermen
-Configs.Online = False	# Online = True  --> programmet kjører på robot  
+Configs.EV3_IP = "169.254.43.69"	# Avles IP-adressen på EV3-skjermen
+Configs.Online = True	# Online = True  --> programmet kjører på robot  
 						# Online = False --> programmet kjører på datamaskin
 Configs.livePlot = False 	# livePlot = True  --> Live plot, typisk stor Ts
 							# livePlot = False --> Ingen plot, liten Ts
 Configs.avgTs = 0.005	# livePlot = False --> spesifiser ønsket Ts
 						# Lav avgTs -> høy samplingsfrekvens og mye data.
 						# --> Du må vente veldig lenge for å lagre filen.
-Configs.filename = "P02_Filtrering_Random.txt"	
+Configs.filename = "P02_Filtrering_Verifisering.txt"	
 						# Målinger/beregninger i Online lagres til denne 
 						# .txt-filen. Upload til Data-mappen.
-Configs.filenameOffline = "Offline_P02_Filtrering_Random.txt"	
+Configs.filenameOffline = "Offline_P02_Filtrering_Verifisering.txt"	
 						# I Offline brukes den opplastede datafilen 
 						# og alt lagres til denne .txt-filen.
 Configs.plotMethod = 2	# verdier: 1 eller 2, hvor hver plottemetode 
@@ -217,9 +218,11 @@ def MathCalculations(data,k,init):
 	# return  	# Bruk denne dersom ingen beregninger gjøres,
 				# som for eksempel ved innhentning av kun data for 
 				# bruk i offline.
+	if k > 11:
+		return  
 
 	# Parametre
-	alfa = 0.01
+	alfa = 0.6
 	a = 1-alfa
 	b = alfa
 	M = 3
@@ -227,7 +230,7 @@ def MathCalculations(data,k,init):
 		M = k
 	
 	# Tilordne målinger til variable
-	data.Temp.append(data.Lys[k] + random.random())
+	data.Temp.append(data.Lys[k])
 	
 	# Initialverdier og beregninger 
 	if k == 0:
@@ -242,9 +245,7 @@ def MathCalculations(data,k,init):
 		data.Temp_FIR.append(sum(data.Temp[k-M : k]) * 1/M)
 		data.Temp_IIR.append(a*data.Temp_IIR[k-1] + b*data.Temp[k])
 
-	# Andre beregninger uavhengig av initialverdi
-
-	# Pådragsberegninger
+	time.sleep(0.5)
 #_____________________________________________________________________________
 
 
@@ -286,7 +287,7 @@ def stopMotors(robot):
 # Dersom enten nrows = 1 eller ncols = 1, så benyttes "ax[0]", "ax[1]", osv.
 # Dersom både nrows > 1 og ncols > 1, så benyttes "ax[0,0]", "ax[1,0]", osv
 def lagPlot(plt):
-	nrows = 2
+	nrows = 3
 	ncols = 1
 	sharex = True
 	plt.create(nrows,ncols,sharex)
@@ -299,7 +300,7 @@ def lagPlot(plt):
 
 	fig.suptitle('Temperaturen til en kaffekopp')
 
-	# plotting av lys
+	# plotting av Temperatur
 	ax[0].set_title('Temperatur')  
 	ax[0].set_xlabel("Tid [sek]")	 
 	ax[0].set_ylabel("Temperatur [C]")
@@ -315,13 +316,27 @@ def lagPlot(plt):
 		marker = "",       	# legg til markør på hvert punkt
 	)
 
-	# plotting av lys (minimumsversjon)
-	ax[0].set_xlabel("Tid [sek]")
+	# plotting av Temperatur gjennom et IIR-filter
+	ax[1].set_title('Temperatur IIR')  
+	ax[1].set_xlabel("Tid [sek]")	 
+	ax[1].set_ylabel("Temperatur [C]")
 	plt.plot(
-		subplot = ax[0],    
+		subplot = ax[1],    
 		x = "Tid",	# navn på x-verdien (fra data-objektet)  
 		y = "Temp_IIR",	# navn på y-verdien (fra data-objektet)  
 
 		color = "m"
+	)
+
+	# plotting av Temperatur gjennom et FIR-filter
+	ax[2].set_title('Temperatur FIR')  
+	ax[2].set_xlabel("Tid [sek]")	 
+	ax[2].set_ylabel("Temperatur [C]")
+	plt.plot(
+		subplot = ax[2],    
+		x = "Tid",	# navn på x-verdien (fra data-objektet)  
+		y = "Temp_FIR",	# navn på y-verdien (fra data-objektet)  
+
+		color = "r"
 	)
 #____________________________________________________________________________
