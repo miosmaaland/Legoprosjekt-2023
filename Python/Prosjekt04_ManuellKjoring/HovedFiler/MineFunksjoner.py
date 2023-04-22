@@ -10,18 +10,7 @@ def EulerForward(IntValue, FunctionValue, TimeStep):
 
 
 def FIR_Filter(Measurements, M):
-	k = len(Measurements)
-	
-	if k == 0:
-		# Initial values
-		Filtered_FIR = [Measurements[0]]
-	else:
-		# FIR filter calculation
-		if k < M:
-			M = k
-
-		Filtered_FIR = sum(Measurements[k-M+1:k]) / M
-	
+	Filtered_FIR = (sum(Measurements[k-M+1:k+1]) / M)	
 	return Filtered_FIR
 
 
@@ -29,7 +18,9 @@ def IIR_Filter(FilteredValue, Measurement, alfa):
 	# Parameters
 	a = 1 - alfa
 	b = alfa
-	Filtered_IIR = a * FilteredValue+ b * Measurement
+	
+	Filtered_IIR = []
+	Filtered_IIR.append(a * FilteredValue+ b * Measurement)
 		
 	return Filtered_IIR
 
@@ -40,7 +31,7 @@ def Derivation(FunctionValues, TimeStep):
 	if k == 0:
 		derivative = 0
 	else:
-		derivative = (FunctionValues[-1] - FunctionValues[-2]) / TimeStep
+		derivative = (FunctionValues[k] - FunctionValues[k-1]) / TimeStep
 	
 	return derivative
 		
