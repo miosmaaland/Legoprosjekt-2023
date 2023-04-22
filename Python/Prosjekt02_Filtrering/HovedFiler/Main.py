@@ -56,7 +56,7 @@ Configs.avgTs = 0.005	# livePlot = False --> spesifiser ønsket Ts
 Configs.filename = "P02_Filtrering_Random.txt"	
 						# Målinger/beregninger i Online lagres til denne 
 						# .txt-filen. Upload til Data-mappen.
-Configs.filenameOffline = "Offline_P02_Filtrering_Random.txt"	
+Configs.filenameOffline = "Offline_P02_Filtrering_Kaffe.txt"	
 						# I Offline brukes den opplastede datafilen 
 						# og alt lagres til denne .txt-filen.
 Configs.plotMethod = 2	# verdier: 1 eller 2, hvor hver plottemetode 
@@ -228,7 +228,7 @@ def MathCalculations(data,k,init):
 	num_points = k + 1 if k < M else M
 	
 	# Tilordne målinger til variable
-	data.Temp.append(data.Lys[k] + random.random())
+	data.Temp.append(data.Lys[k])
 	
 	# Initialverdier og beregninger 
 	if k == 0:
@@ -283,10 +283,10 @@ def stopMotors(robot):
 # Dersom enten nrows = 1 eller ncols = 1, så benyttes "ax[0]", "ax[1]", osv.
 # Dersom både nrows > 1 og ncols > 1, så benyttes "ax[0,0]", "ax[1,0]", osv
 def lagPlot(plt):
-	nrows = 3
-	ncols = 1
+	nrows = 1
+	ncols = 2
 	sharex = True
-	plt.create(nrows,ncols,sharex)
+	plt.create(nrows,ncols, sharex)
 	ax,fig = plt.ax, plt.fig
 
 	# Legger inn titler og aksenavn (valgfritt) for hvert subplot,  
@@ -312,27 +312,13 @@ def lagPlot(plt):
 		marker = "",       	# legg til markør på hvert punkt
 	)
 
-	# plotting av Temperatur gjennom et IIR-filter
-	ax[1].set_title('Temperatur IIR')  
-	ax[1].set_xlabel("Tid [sek]")	 
-	ax[1].set_ylabel("Temperatur [C]")
+	# plotting av Temperatur gjennom et IIR-filter 
 	plt.plot(
-		subplot = ax[1],    
+		subplot = ax[0],    
 		x = "Tid",	# navn på x-verdien (fra data-objektet)  
 		y = "Temp_IIR",	# navn på y-verdien (fra data-objektet)  
 
 		color = "m"
 	)
 
-	# plotting av Temperatur gjennom et FIR-filter
-	ax[2].set_title('Temperatur FIR')  
-	ax[2].set_xlabel("Tid [sek]")	 
-	ax[2].set_ylabel("Temperatur [C]")
-	plt.plot(
-		subplot = ax[2],    
-		x = "Tid",	# navn på x-verdien (fra data-objektet)  
-		y = "Temp_FIR",	# navn på y-verdien (fra data-objektet)  
-
-		color = "r"
-	)
 #____________________________________________________________________________
