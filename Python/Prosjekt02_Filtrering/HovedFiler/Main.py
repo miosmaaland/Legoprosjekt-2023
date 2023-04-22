@@ -14,7 +14,7 @@
 # - ...
 # - ...
 #
-# OBS: Vær klar over at dersom du kobler til 
+# OBS: Vær klar over at dersom du kobler til
 # sensorer/motorer som du ikke bruker, så øker tidsskrittet
 #____________________________________________________________________________
 
@@ -46,24 +46,24 @@ timer = clock()				# timerobjekt med tic toc funksjoner
 #                            1) KONFIGURASJON
 #
 Configs.EV3_IP = "169.254.122.154"	# Avles IP-adressen på EV3-skjermen
-Configs.Online = False	# Online = True  --> programmet kjører på robot  
+Configs.Online = False	# Online = True  --> programmet kjører på robot
 						# Online = False --> programmet kjører på datamaskin
 Configs.livePlot = False 	# livePlot = True  --> Live plot, typisk stor Ts
 							# livePlot = False --> Ingen plot, liten Ts
 Configs.avgTs = 0.005	# livePlot = False --> spesifiser ønsket Ts
 						# Lav avgTs -> høy samplingsfrekvens og mye data.
 						# --> Du må vente veldig lenge for å lagre filen.
-Configs.filename = "P02_Filtrering_Random.txt"	
-						# Målinger/beregninger i Online lagres til denne 
+Configs.filename = "P02_Filtrering_Random.txt"
+						# Målinger/beregninger i Online lagres til denne
 						# .txt-filen. Upload til Data-mappen.
-Configs.filenameOffline = "Offline_P02_Filtrering_Kaffe.txt"	
-						# I Offline brukes den opplastede datafilen 
+Configs.filenameOffline = "Random_M3.txt"
+						# I Offline brukes den opplastede datafilen
 						# og alt lagres til denne .txt-filen.
-Configs.plotMethod = 2	# verdier: 1 eller 2, hvor hver plottemetode 
+Configs.plotMethod = 2	# verdier: 1 eller 2, hvor hver plottemetode
 						# har sine fordeler og ulemper.
 Configs.plotBackend = ""	# Ønsker du å bruke en spesifikk backend, last ned
-							# og skriv her. Eks.: qt5agg, qtagg, tkagg, macosx. 
-Configs.limitMeasurements = False	# Mulighet å kjøre programmet lenge 
+							# og skriv her. Eks.: qt5agg, qtagg, tkagg, macosx.
+Configs.limitMeasurements = False	# Mulighet å kjøre programmet lenge
 									# uten at roboten kræsjer pga minnet
 Configs.ConnectJoystickToPC = False # True  --> joystick direkte på datamaskin
 									# False	--> koble joystick på EV3-robot
@@ -77,7 +77,7 @@ Configs.ConnectJoystickToPC = False # True  --> joystick direkte på datamaskin
 #                           2) VELG MÅLINGER OG DEFINER VARIABLE
 #
 # Dataobjektet "data" inneholder både målinger og beregninger.
-# OBS! Bruk kun punktum notasjon for dette objektet. 
+# OBS! Bruk kun punktum notasjon for dette objektet.
 # data.variabelnavn = []. IKKE d["variabelnavn"] = []
 
 # målinger
@@ -100,7 +100,7 @@ data.GyroRate = []           # måling av gyrovinkelfart fra GyroSensor
 
 data.VinkelPosMotorA = []    # måling av vinkelposisjon motor A
 data.HastighetMotorA = []    # måling av vinkelhastighet motor A
-data.VinkelPosMotorB = []    # måling av vinkelposisjon motor B 
+data.VinkelPosMotorB = []    # måling av vinkelposisjon motor B
 data.HastighetMotorB = []    # måling av vinkelhastighet motor B
 data.VinkelPosMotorC = []    # måling av vinkelposisjon motor C
 data.HastighetMotorC = []    # måling av vinkelhastighet motor C
@@ -116,15 +116,15 @@ data.joyPOVSide = []         # måling av sidebevegelse toppledd
 
 data.joy1 = []               # måling av knapp 1 (skyteknapp)
 data.joy2 = []               # måling av knapp 2 (ved tommel)
-data.joy3 = []               # måling av knapp 3 
-data.joy4 = []               # måling av knapp 4 
-data.joy5 = []               # måling av knapp 5 
-data.joy6 = []               # måling av knapp 6 
-data.joy7 = []               # måling av knapp 7 
-data.joy8 = []               # måling av knapp 8 
-data.joy9 = []               # måling av knapp 9 
-data.joy10 = []              # måling av knapp 10 
-data.joy11 = []              # måling av knapp 11 
+data.joy3 = []               # måling av knapp 3
+data.joy4 = []               # måling av knapp 4
+data.joy5 = []               # måling av knapp 5
+data.joy6 = []               # måling av knapp 6
+data.joy7 = []               # måling av knapp 7
+data.joy8 = []               # måling av knapp 8
+data.joy9 = []               # måling av knapp 9
+data.joy10 = []              # måling av knapp 10
+data.joy11 = []              # måling av knapp 11
 data.joy12 = []              # måling av knapp 12
 
 # Utvalg av beregninger
@@ -165,7 +165,7 @@ def addMeasurements(data,robot,init,k):
 
 		# lagrer "målinger" av tid
 		data.Tid.append(timer.toc())
-	
+
 	# lagrer målinger av lys
 	data.Lys.append(robot.ColorSensor.reflection())
 
@@ -216,7 +216,7 @@ def addMeasurements(data,robot,init,k):
 #
 def MathCalculations(data,k,init):
 	# return  	# Bruk denne dersom ingen beregninger gjøres,
-				# som for eksempel ved innhentning av kun data for 
+				# som for eksempel ved innhentning av kun data for
 				# bruk i offline.
 
 	# Parametre
@@ -224,19 +224,19 @@ def MathCalculations(data,k,init):
 	a = 1-alfa
 	b = alfa
 	M = 3
-	
+
 	num_points = k + 1 if k < M else M
-	
+
 	# Tilordne målinger til variable
-	data.Temp.append(data.Lys[k])
-	
-	# Initialverdier og beregninger 
+	data.Temp.append(data.Lys[k] + random.random())
+
+	# Initialverdier og beregninger
 	if k == 0:
 		# Initialverdier
 		data.Ts.append(0.005)
 		data.Temp_FIR.append(data.Temp[0])
 		data.Temp_IIR.append(data.Temp[0])
-	
+
 	else:
 		# Beregninger av Ts og variable som avhenger av initialverdi
 		data.Ts.append(data.Tid[k]-data.Tid[k-1])
@@ -284,26 +284,26 @@ def stopMotors(robot):
 # Dersom både nrows > 1 og ncols > 1, så benyttes "ax[0,0]", "ax[1,0]", osv
 def lagPlot(plt):
 	nrows = 1
-	ncols = 2
+	ncols = 1
 	sharex = True
 	plt.create(nrows,ncols, sharex)
 	ax,fig = plt.ax, plt.fig
 
-	# Legger inn titler og aksenavn (valgfritt) for hvert subplot,  
-	# sammen med argumenter til plt.plot() funksjonen. 
-	# Ved flere subplot over hverandre så er det lurt å legge 
+	# Legger inn titler og aksenavn (valgfritt) for hvert subplot,
+	# sammen med argumenter til plt.plot() funksjonen.
+	# Ved flere subplot over hverandre så er det lurt å legge
 	# informasjon om x-label på de nederste subplotene (sharex = True)
 
-	fig.suptitle('Temperaturen til en kaffekopp')
+	# fig.suptitle('Temperaturen til en kaffekopp')
 
 	# plotting av Temperatur
-	ax[0].set_title('Temperatur')  
-	ax[0].set_xlabel("Tid [sek]")	 
-	ax[0].set_ylabel("Temperatur [C]")
-	
+	ax.set_title('Temperatur')
+	ax.set_xlabel("Tid [sek]")
+	ax.set_ylabel("Temperatur [C]")
+
 
 	plt.plot(
-		subplot = ax[0],  	# Definer hvilken delfigur som skal plottes
+		subplot = ax,  	# Definer hvilken delfigur som skal plottes
 		x = "Tid", 			# navn på x-verdien (fra data-objektet)
 		y = "Temp",			# navn på y-verdien (fra data-objektet)
 
@@ -314,13 +314,22 @@ def lagPlot(plt):
 		marker = "",       	# legg til markør på hvert punkt
 	)
 
-	# plotting av Temperatur gjennom et IIR-filter 
+	# plotting av Temperatur gjennom et IIR-filter
 	plt.plot(
-		subplot = ax[0],    
-		x = "Tid",	# navn på x-verdien (fra data-objektet)  
-		y = "Temp_IIR",	# navn på y-verdien (fra data-objektet)  
+		subplot = ax,
+		x = "Tid",	# navn på x-verdien (fra data-objektet)
+		y = "Temp_IIR",	# navn på y-verdien (fra data-objektet)
 
 		color = "m"
+	)
+
+	# plotting av Temperatur gjennom et IIR-filter
+	plt.plot(
+		subplot = ax,
+		x = "Tid",	# navn på x-verdien (fra data-objektet)
+		y = "Temp_FIR",	# navn på y-verdien (fra data-objektet)
+
+		color = "g"
 	)
 
 #____________________________________________________________________________
