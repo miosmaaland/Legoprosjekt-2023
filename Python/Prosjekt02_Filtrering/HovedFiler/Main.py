@@ -300,6 +300,8 @@ def lagPlot(plt):
 	ax[0].set_title('Temperatur')  
 	ax[0].set_xlabel("Tid [sek]")	 
 	ax[0].set_ylabel("Temperatur [C]")
+	
+
 	plt.plot(
 		subplot = ax[0],  	# Definer hvilken delfigur som skal plottes
 		x = "Tid", 			# navn på x-verdien (fra data-objektet)
