@@ -56,7 +56,7 @@ Configs.avgTs = 0.005	# livePlot = False --> spesifiser ønsket Ts
 Configs.filename = "P02_Filtrering_Random.txt"	
 						# Målinger/beregninger i Online lagres til denne 
 						# .txt-filen. Upload til Data-mappen.
-Configs.filenameOffline = "Offline_P02_Filtrering_Kaffe.txt"	
+Configs.filenameOffline = "Alfa06_M3.txt"	
 						# I Offline brukes den opplastede datafilen 
 						# og alt lagres til denne .txt-filen.
 Configs.plotMethod = 2	# verdier: 1 eller 2, hvor hver plottemetode 
@@ -228,7 +228,7 @@ def MathCalculations(data,k,init):
 	num_points = k + 1 if k < M else M
 	
 	# Tilordne målinger til variable
-	data.Temp.append(data.Lys[k])
+	data.Temp.append(data.Lys[k] + random.random())
 	
 	# Initialverdier og beregninger 
 	if k == 0:
@@ -283,8 +283,8 @@ def stopMotors(robot):
 # Dersom enten nrows = 1 eller ncols = 1, så benyttes "ax[0]", "ax[1]", osv.
 # Dersom både nrows > 1 og ncols > 1, så benyttes "ax[0,0]", "ax[1,0]", osv
 def lagPlot(plt):
-	nrows = 1
-	ncols = 2
+	nrows = 3
+	ncols = 1
 	sharex = True
 	plt.create(nrows,ncols, sharex)
 	ax,fig = plt.ax, plt.fig
@@ -294,7 +294,8 @@ def lagPlot(plt):
 	# Ved flere subplot over hverandre så er det lurt å legge 
 	# informasjon om x-label på de nederste subplotene (sharex = True)
 
-	fig.suptitle('Temperaturen til en kaffekopp')
+	fig.suptitle('Temperaturen til en kaffekopp med tilfeldig støy')
+
 
 	# plotting av Temperatur
 	ax[0].set_title('Temperatur')  
@@ -315,10 +316,24 @@ def lagPlot(plt):
 	)
 
 	# plotting av Temperatur gjennom et IIR-filter 
+	ax[1].set_title('Temperatur IIR-filter')  
+	ax[1].set_xlabel("Tid [sek]")	 
+	ax[1].set_ylabel("Temperatur [C]")
 	plt.plot(
-		subplot = ax[0],    
+		subplot = ax[1],    
 		x = "Tid",	# navn på x-verdien (fra data-objektet)  
 		y = "Temp_IIR",	# navn på y-verdien (fra data-objektet)  
+
+		color = "m"
+	)
+
+	ax[2].set_title('Temperatur FIR-filter')  
+	ax[2].set_xlabel("Tid [sek]")	 
+	ax[2].set_ylabel("Temperatur [C]")
+	plt.plot(
+		subplot = ax[2],    
+		x = "Tid",	# navn på x-verdien (fra data-objektet)  
+		y = "Temp_FIR",	# navn på y-verdien (fra data-objektet)  
 
 		color = "m"
 	)
