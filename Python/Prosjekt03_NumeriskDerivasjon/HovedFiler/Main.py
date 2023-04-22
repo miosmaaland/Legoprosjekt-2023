@@ -220,7 +220,7 @@ def MathCalculations(data,k,init):
 				# bruk i offline.
 
 	# Parametre
-	alfa = 0.02
+	alfa = 0.2
 
     # Tilordne målinger til variable
 	data.Avstand.append(data.Lys[k])
