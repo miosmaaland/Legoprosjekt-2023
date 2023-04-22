@@ -43,7 +43,7 @@ timer = clock()				# timerobjekt med tic toc funksjoner
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #                            1) KONFIGURASJON
 #
-Configs.EV3_IP = "169.254.28.34"	# Avles IP-adressen på EV3-skjermen
+Configs.EV3_IP = "169.254.211.212"	# Avles IP-adressen på EV3-skjermen
 Configs.Online = False	# Online = True  --> programmet kjører på robot  
 						# Online = False --> programmet kjører på datamaskin
 Configs.livePlot = False 	# livePlot = True  --> Live plot, typisk stor Ts
@@ -51,10 +51,10 @@ Configs.livePlot = False 	# livePlot = True  --> Live plot, typisk stor Ts
 Configs.avgTs = 0.005	# livePlot = False --> spesifiser ønsket Ts
 						# Lav avgTs -> høy samplingsfrekvens og mye data.
 						# --> Du må vente veldig lenge for å lagre filen.
-Configs.filename = "P03_NumeriskDerivasjon.txt"	
+Configs.filename = "P03_NumeriskDerivasjon_Chirp.txt"	
 						# Målinger/beregninger i Online lagres til denne 
 						# .txt-filen. Upload til Data-mappen.
-Configs.filenameOffline = "Offline_P03_NumeriskDerivasjon.txt"	
+Configs.filenameOffline = "Offline_P03_NumeriskDerivasjon_Chirp.txt"	
 						# I Offline brukes den opplastede datafilen 
 						# og alt lagres til denne .txt-filen.
 Configs.plotMethod = 2	# verdier: 1 eller 2, hvor hver plottemetode 
@@ -220,7 +220,7 @@ def MathCalculations(data,k,init):
 				# bruk i offline.
 
 	# Parametre
-	alfa = 0.03
+	alfa = 0.02
 
     # Tilordne målinger til variable
 	data.Avstand.append(data.Lys[k])
@@ -280,10 +280,10 @@ def stopMotors(robot):
 # Dersom enten nrows = 1 eller ncols = 1, så benyttes "ax[0]", "ax[1]", osv.
 # Dersom både nrows > 1 og ncols > 1, så benyttes "ax[0,0]", "ax[1,0]", osv
 def lagPlot(plt):
-	nrows = 3
+	nrows = 2
 	ncols = 1
 	sharex = True
-	plt.create(nrows,ncols,sharex)
+	plt.create(nrows,ncols)
 	ax,fig = plt.ax, plt.fig
 
 	# Legger inn titler og aksenavn (valgfritt) for hvert subplot,  
@@ -294,45 +294,26 @@ def lagPlot(plt):
 	fig.suptitle('')
 
 	# plotting av Avstand og Avstand_IIR
-	ax[0].set_title('Beregning av avstand rådata(b) og IIR-filtrert avstandmåling, alfa=0.03')  
+	ax[0].set_title('Beregning av IIR-filtrert avstandmåling, alfa=0.02')  
 	ax[0].set_xlabel("Tid [sek]")	 
 	ax[0].set_ylabel("Avstand [m]")
 	plt.plot(
 		subplot = ax[0],  	# Definer hvilken delfigur som skal plottes
 		x = "Tid", 			# navn på x-verdien (fra data-objektet)
-		y = "Avstand",			# navn på y-verdien (fra data-objektet)
+		y = "Avstand_IIR",			# navn på y-verdien (fra data-objektet)
 
 		# VALGFRITT
-		color = "b",		# fargen på kurven som plottes (default: blå)
+		color = "r",		# fargen på kurven som plottes (default: blå)
 		linestyle = "solid",  # "solid" / "dashed" / "dotted"
 		linewidth = 1,		# tykkelse på linjen
 		marker = "",       	# legg til markør på hvert punkt
 	)
 
-	# plotting av lys (minimumsversjon)
-	plt.plot(
-		subplot = ax[0],    
-		x = "Tid",	# navn på x-verdien (fra data-objektet)  
-		y = "Avstand_IIR",	# navn på y-verdien (fra data-objektet)  
-		color = "r"
-	)
-
-	# plotting av Ts (benytter utvalg av listene)
-	ax[1].set_title('Beregning av hastighet rådata')  
+	ax[1].set_title('Beregning av hastighet IIR-filtrert')  
 	ax[1].set_xlabel("Tid [sek]")
 	ax[1].set_ylabel("Hastighet [m/s]")
 	plt.plot(
 		subplot = ax[1],    
-		x = "Tid",       
-		y = "Fart",
-		color = "b",
-	)
-
-	ax[2].set_title('Beregning av hastighet IIR-filtrert')  
-	ax[2].set_xlabel("Tid [sek]")
-	ax[2].set_ylabel("Hastighet [m/s]")
-	plt.plot(
-		subplot = ax[2],    
 		x = "Tid",       
 		y = "Fart_IIR",
 		color = "b",
