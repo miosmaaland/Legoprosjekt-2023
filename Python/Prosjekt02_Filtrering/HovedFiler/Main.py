@@ -56,7 +56,7 @@ Configs.avgTs = 0.005	# livePlot = False --> spesifiser ønsket Ts
 Configs.filename = "P02_Filtrering_Random.txt"	
 						# Målinger/beregninger i Online lagres til denne 
 						# .txt-filen. Upload til Data-mappen.
-Configs.filenameOffline = "Offline_P02_Filtrering_Random.txt"	
+Configs.filenameOffline = "Offline_P02_Filtrering_Kaffe.txt"	
 						# I Offline brukes den opplastede datafilen 
 						# og alt lagres til denne .txt-filen.
 Configs.plotMethod = 2	# verdier: 1 eller 2, hvor hver plottemetode 
@@ -284,9 +284,9 @@ def stopMotors(robot):
 # Dersom både nrows > 1 og ncols > 1, så benyttes "ax[0,0]", "ax[1,0]", osv
 def lagPlot(plt):
 	nrows = 1
-	ncols = 1
+	ncols = 2
 	sharex = True
-	plt.create(nrows,ncols,sharex)
+	plt.create(nrows,ncols, sharex)
 	ax,fig = plt.ax, plt.fig
 
 	# Legger inn titler og aksenavn (valgfritt) for hvert subplot,  
@@ -297,11 +297,13 @@ def lagPlot(plt):
 	fig.suptitle('Temperaturen til en kaffekopp')
 
 	# plotting av Temperatur
-	ax.set_title('Temperatur')  
-	ax.set_xlabel("Tid [sek]")	 
-	ax.set_ylabel("Temperatur [C]")
+	ax[0].set_title('Temperatur')  
+	ax[0].set_xlabel("Tid [sek]")	 
+	ax[0].set_ylabel("Temperatur [C]")
+	
+
 	plt.plot(
-		subplot = ax,  	# Definer hvilken delfigur som skal plottes
+		subplot = ax[0],  	# Definer hvilken delfigur som skal plottes
 		x = "Tid", 			# navn på x-verdien (fra data-objektet)
 		y = "Temp",			# navn på y-verdien (fra data-objektet)
 
@@ -312,12 +314,13 @@ def lagPlot(plt):
 		marker = "",       	# legg til markør på hvert punkt
 	)
 
-	# plotting av Temperatur gjennom et IIR-filter
+	# plotting av Temperatur gjennom et IIR-filter 
 	plt.plot(
-		subplot = ax,    
+		subplot = ax[0],    
 		x = "Tid",	# navn på x-verdien (fra data-objektet)  
 		y = "Temp_IIR",	# navn på y-verdien (fra data-objektet)  
 
 		color = "m"
 	)
+
 #____________________________________________________________________________
