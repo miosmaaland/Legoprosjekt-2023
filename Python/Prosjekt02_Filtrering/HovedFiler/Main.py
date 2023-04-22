@@ -228,7 +228,7 @@ def MathCalculations(data,k,init):
 	num_points = k + 1 if k < M else M
 	
 	# Tilordne målinger til variable
-	data.Temp.append(data.Lys[k] + random.random())
+	data.Temp.append(data.Lys[k])
 	
 	# Initialverdier og beregninger 
 	if k == 0:
