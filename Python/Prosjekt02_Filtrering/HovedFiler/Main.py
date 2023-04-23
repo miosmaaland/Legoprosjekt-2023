@@ -53,10 +53,10 @@ Configs.livePlot = False 	# livePlot = True  --> Live plot, typisk stor Ts
 Configs.avgTs = 0.005	# livePlot = False --> spesifiser ønsket Ts
 						# Lav avgTs -> høy samplingsfrekvens og mye data.
 						# --> Du må vente veldig lenge for å lagre filen.
-Configs.filename = "P02_Filtrering_Kaffe.txt"	
+Configs.filename = "P02_Filtrering_Random.txt"	
 						# Målinger/beregninger i Online lagres til denne 
 						# .txt-filen. Upload til Data-mappen.
-Configs.filenameOffline = "Offline_P02_Filtrering_Kaffe.txt"	
+Configs.filenameOffline = "Offline_P02_random_M.txt"	
 						# I Offline brukes den opplastede datafilen 
 						# og alt lagres til denne .txt-filen.
 Configs.plotMethod = 2	# verdier: 1 eller 2, hvor hver plottemetode 
@@ -226,8 +226,8 @@ def MathCalculations(data,k,init):
 
 	# Parametre
 	alfa = 0.6
-	alfa_2 = 0.1
-	alfa_3 = 0.05
+	alfa_2 = 0
+	alfa_3 = 0
 
 	M = 3
 	M_2 = 10
@@ -238,7 +238,7 @@ def MathCalculations(data,k,init):
 	num_points_3 = k + 1 if k < M_3 else M_3
 	
 	# Tilordne målinger til variable
-	data.Temp.append(data.Lys[k])
+	data.Temp.append(data.Lys[k] + random.random())
 	
 	# Initialverdier og beregninger 
 	if k == 0:
