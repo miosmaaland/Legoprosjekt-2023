@@ -244,6 +244,7 @@ def MathCalculations(data,k,init):
 	if k == 0:
 		# Initialverdier
 		data.Ts.append(0.005)
+
 		data.Temp_FIR.append(data.Temp[0])
 		data.Temp_FIR_02.append(data.Temp[0])
 		data.Temp_FIR_03.append(data.Temp[0])
@@ -359,5 +360,29 @@ def lagPlot(plt):
 
 		color = "y"
 	)
+
+	# plt.plot(
+	# 	subplot = ax,    
+	# 	x = "Tid",	# navn på x-verdien (fra data-objektet)  
+	# 	y = "Temp_FIR",	# navn på y-verdien (fra data-objektet)  
+
+	# 	color = "g"
+	# )
+
+	# plt.plot(
+	# 	subplot = ax,    
+	# 	x = "Tid",	# navn på x-verdien (fra data-objektet)  
+	# 	y = "Temp_FIR_02",	# navn på y-verdien (fra data-objektet)  
+
+	# 	color = "r"
+	# )
+
+	# plt.plot(
+	# 	subplot = ax,    
+	# 	x = "Tid",	# navn på x-verdien (fra data-objektet)  
+	# 	y = "Temp_FIR_03",	# navn på y-verdien (fra data-objektet)  
+
+	# 	color = "y"
+	# )
 
 #____________________________________________________________________________
