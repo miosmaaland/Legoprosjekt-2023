@@ -53,10 +53,10 @@ Configs.livePlot = False 	# livePlot = True  --> Live plot, typisk stor Ts
 Configs.avgTs = 0.005	# livePlot = False --> spesifiser ønsket Ts
 						# Lav avgTs -> høy samplingsfrekvens og mye data.
 						# --> Du må vente veldig lenge for å lagre filen.
-Configs.filename = "P02_Filtrering_Random.txt"	
+Configs.filename = "P02_Filtrering_Kaffe.txt"	
 						# Målinger/beregninger i Online lagres til denne 
 						# .txt-filen. Upload til Data-mappen.
-Configs.filenameOffline = "Alfa06_M3.txt"	
+Configs.filenameOffline = "Offline_P02_Filtrering_Kaffe.txt"	
 						# I Offline brukes den opplastede datafilen 
 						# og alt lagres til denne .txt-filen.
 Configs.plotMethod = 2	# verdier: 1 eller 2, hvor hver plottemetode 
@@ -88,7 +88,12 @@ data.Temp = []				# måling av temperatur
 # beregninger
 data.Ts = []			  	# beregning av tidsskritt
 data.Temp_FIR = []			# beregning av temperatur gjennom et Finite Impulse Response filter
+data.Temp_FIR_02 = []
+data.Temp_FIR_03 = []
+
 data.Temp_IIR = []			# beregning av temperatur	gjennom et Infinite Impulse Response filter
+data.Temp_IIR_02 = []
+data.Temp_IIR_03 = []
 
 """
 # Utvalg av målinger
@@ -221,27 +226,43 @@ def MathCalculations(data,k,init):
 
 	# Parametre
 	alfa = 0.6
-	a = 1-alfa
-	b = alfa
+	alfa_2 = 0.1
+	alfa_3 = 0.05
+
 	M = 3
+	M_2 = 10
+	M_3 = 50
 	
 	num_points = k + 1 if k < M else M
+	num_points_2 = k + 1 if k < M_2 else M_2
+	num_points_3 = k + 1 if k < M_3 else M_3
 	
 	# Tilordne målinger til variable
-	data.Temp.append(data.Lys[k] + random.random())
+	data.Temp.append(data.Lys[k])
 	
 	# Initialverdier og beregninger 
 	if k == 0:
 		# Initialverdier
 		data.Ts.append(0.005)
 		data.Temp_FIR.append(data.Temp[0])
+		data.Temp_FIR_02.append(data.Temp[0])
+		data.Temp_FIR_03.append(data.Temp[0])
+
 		data.Temp_IIR.append(data.Temp[0])
+		data.Temp_IIR_02.append(data.Temp[0])
+		data.Temp_IIR_03.append(data.Temp[0])
 	
 	else:
 		# Beregninger av Ts og variable som avhenger av initialverdi
 		data.Ts.append(data.Tid[k]-data.Tid[k-1])
+
 		data.Temp_FIR.append(sum(data.Temp[k - num_points + 1 : k + 1]) / num_points)
-		data.Temp_IIR.append(a*data.Temp_IIR[k-1] + b*data.Temp[k])
+		data.Temp_FIR_02.append(sum(data.Temp[k - num_points_2 + 1 : k + 1]) / num_points_2)
+		data.Temp_FIR_03.append(sum(data.Temp[k - num_points_3 + 1 : k + 1]) / num_points_3)
+
+		data.Temp_IIR.append((1-alfa)*data.Temp_IIR[k-1] + alfa*data.Temp[k])
+		data.Temp_IIR_02.append((1-alfa_2)*data.Temp_IIR[k-1] + alfa_2*data.Temp[k])
+		data.Temp_IIR_03.append((1-alfa_3)*data.Temp_IIR[k-1] + alfa_3*data.Temp[k])
 #_____________________________________________________________________________
 
 
@@ -283,7 +304,7 @@ def stopMotors(robot):
 # Dersom enten nrows = 1 eller ncols = 1, så benyttes "ax[0]", "ax[1]", osv.
 # Dersom både nrows > 1 og ncols > 1, så benyttes "ax[0,0]", "ax[1,0]", osv
 def lagPlot(plt):
-	nrows = 3
+	nrows = 1
 	ncols = 1
 	sharex = True
 	plt.create(nrows,ncols, sharex)
@@ -294,17 +315,17 @@ def lagPlot(plt):
 	# Ved flere subplot over hverandre så er det lurt å legge 
 	# informasjon om x-label på de nederste subplotene (sharex = True)
 
-	fig.suptitle('Temperaturen til en kaffekopp med tilfeldig støy')
+	# fig.suptitle('Temperaturen til en kaffekopp med tilfeldig støy')
 
 
 	# plotting av Temperatur
-	ax[0].set_title('Temperatur')  
-	ax[0].set_xlabel("Tid [sek]")	 
-	ax[0].set_ylabel("Temperatur [C]")
+	ax.set_title('Temperatur')  
+	ax.set_xlabel("Tid [sek]")	 
+	ax.set_ylabel("Temperatur [C]")
 	
 
 	plt.plot(
-		subplot = ax[0],  	# Definer hvilken delfigur som skal plottes
+		subplot = ax,  	# Definer hvilken delfigur som skal plottes
 		x = "Tid", 			# navn på x-verdien (fra data-objektet)
 		y = "Temp",			# navn på y-verdien (fra data-objektet)
 
@@ -315,27 +336,28 @@ def lagPlot(plt):
 		marker = "",       	# legg til markør på hvert punkt
 	)
 
-	# plotting av Temperatur gjennom et IIR-filter 
-	ax[1].set_title('Temperatur IIR-filter')  
-	ax[1].set_xlabel("Tid [sek]")	 
-	ax[1].set_ylabel("Temperatur [C]")
 	plt.plot(
-		subplot = ax[1],    
+		subplot = ax,    
 		x = "Tid",	# navn på x-verdien (fra data-objektet)  
 		y = "Temp_IIR",	# navn på y-verdien (fra data-objektet)  
 
-		color = "m"
+		color = "g"
 	)
 
-	ax[2].set_title('Temperatur FIR-filter')  
-	ax[2].set_xlabel("Tid [sek]")	 
-	ax[2].set_ylabel("Temperatur [C]")
 	plt.plot(
-		subplot = ax[2],    
+		subplot = ax,    
 		x = "Tid",	# navn på x-verdien (fra data-objektet)  
-		y = "Temp_FIR",	# navn på y-verdien (fra data-objektet)  
+		y = "Temp_IIR_02",	# navn på y-verdien (fra data-objektet)  
 
-		color = "m"
+		color = "r"
+	)
+
+	plt.plot(
+		subplot = ax,    
+		x = "Tid",	# navn på x-verdien (fra data-objektet)  
+		y = "Temp_IIR_03",	# navn på y-verdien (fra data-objektet)  
+
+		color = "y"
 	)
 
 #____________________________________________________________________________
