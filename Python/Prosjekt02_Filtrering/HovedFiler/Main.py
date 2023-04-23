@@ -345,21 +345,21 @@ def lagPlot(plt):
 		color = "g"
 	)
 
-	plt.plot(
-		subplot = ax,    
-		x = "Tid",	# navn på x-verdien (fra data-objektet)  
-		y = "Temp_IIR_02",	# navn på y-verdien (fra data-objektet)  
+	# plt.plot(
+	# 	subplot = ax,    
+	# 	x = "Tid",	# navn på x-verdien (fra data-objektet)  
+	# 	y = "Temp_IIR_02",	# navn på y-verdien (fra data-objektet)  
 
-		color = "r"
-	)
+	# 	color = "r"
+	# )
 
-	plt.plot(
-		subplot = ax,    
-		x = "Tid",	# navn på x-verdien (fra data-objektet)  
-		y = "Temp_IIR_03",	# navn på y-verdien (fra data-objektet)  
+	# plt.plot(
+	# 	subplot = ax,    
+	# 	x = "Tid",	# navn på x-verdien (fra data-objektet)  
+	# 	y = "Temp_IIR_03",	# navn på y-verdien (fra data-objektet)  
 
-		color = "y"
-	)
+	# 	color = "y"
+	# )
 
 	# plt.plot(
 	# 	subplot = ax,    
