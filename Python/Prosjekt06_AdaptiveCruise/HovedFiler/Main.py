@@ -43,7 +43,7 @@ timer = clock()				# timerobjekt med tic toc funksjoner
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #                            1) KONFIGURASJON
 #
-Configs.EV3_IP = "169.254.91.56"	# Avles IP-adressen på EV3-skjermen
+Configs.EV3_IP = "169.254.119.184"	# Avles IP-adressen på EV3-skjermen
 Configs.Online = True	# Online = True  --> programmet kjører på robot  
 						# Online = False --> programmet kjører på datamaskin
 Configs.livePlot = False 	# livePlot = True  --> Live plot, typisk stor Ts
@@ -235,13 +235,13 @@ def MathCalculations(data,k,init):
 				# bruk i offline.
 
 	# Parametre
-	alfa = 0.1
+	alfa = 0.25
 
 	MAEsum = 0
 
 	K_p = 2
-	K_i = 2
-	K_d = 2
+	K_i = 0.5
+	K_d = 0
     
     # Initialverdier og beregninger 
 	if k == 0:
@@ -272,13 +272,9 @@ def MathCalculations(data,k,init):
 		data.abs_Avvik.append(abs(data.Avvik[k]))
 
 		data.IAElist.append(EulerForward(data.IAElist[k-1], data.Avvik[k], data.Ts[k]))
+		data.MAElist.append((1/(len(data.Tid)+1)) * MAEsum)(FIR_Filter(data.Avvik[0:k], k))
 
-		for i in range(len(data.Tid)):
-			MAEsum += data.abs_Avvik[i]
-
-		data.MAElist.append((1/(len(data.Tid)+1)) * MAEsum)
-
-		data.Integrert_Avvik.append(EulerForward(data.Integrert_Avvik[k-1], (K_i * data.Avvik[k]), data.Ts[k]))
+		data.Integrert_Avvik.append(EulerForward(data.Integrert_Avvik[k-1], (K_i * data.Avvik[k-1]), data.Ts[k]))
 		data.Filtrert_Avvik.append(IIR_Filter(data.Filtrert_Avvik[k-1], data.Avvik[k], alfa))
 		data.Filtrert_Avvik_Derivert.append(Derivation(K_d * (data.Filtrert_Avvik[k] - data.Filtrert_Avvik[k-1]), data.Ts[k]))
 
@@ -293,8 +289,8 @@ def MathCalculations(data,k,init):
 
 		U_k = K_p*data.Avvik[k] + data.Integrert_Avvik[k] + data.Filtrert_Avvik_Derivert[k]
 
-		data.PowerA.append(data.refferanse[k] - U_k)
-		data.PowerD.append(data.refferanse[k] - U_k)
+		data.PowerA.append(data.refferanse[k] - U_k * 200)
+		data.PowerD.append(data.refferanse[k] - U_k * 200)
 
 		data.TvA.append(data.TvA[k-1] + abs(data.PowerA[k] - data.PowerA[k-1]))
 		data.TvD.append(data.TvD[k-1] + abs(data.PowerD[k] - data.PowerD[k-1]))
