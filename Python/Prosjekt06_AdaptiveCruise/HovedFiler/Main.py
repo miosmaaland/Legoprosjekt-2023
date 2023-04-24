@@ -70,7 +70,6 @@ Configs.ConnectJoystickToPC = False # True  --> joystick direkte på datamaskin
 
 
 
-
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #                           2) VELG MÅLINGER OG DEFINER VARIABLE
 #
@@ -89,7 +88,6 @@ data.HastighetMotorA = []    # måling av vinkelhastighet motor A
 
 data.VinkelPosMotorD = []    # måling av vinkelposisjon motor D
 data.HastighetMotorD = []    # måling av vinkelhastighet motor D
-
 
 # beregninger
 data.Ts = []			  	# beregning av tidsskritt
