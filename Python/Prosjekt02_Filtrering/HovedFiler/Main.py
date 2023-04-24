@@ -45,7 +45,7 @@ timer = clock()				# timerobjekt med tic toc funksjoner
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #                            1) KONFIGURASJON
 #
-Configs.EV3_IP = "169.254.122.154"	# Avles IP-adressen på EV3-skjermen
+Configs.EV3_IP = "169.254.39.39"	# Avles IP-adressen på EV3-skjermen
 Configs.Online = False	# Online = True  --> programmet kjører på robot  
 						# Online = False --> programmet kjører på datamaskin
 Configs.livePlot = False 	# livePlot = True  --> Live plot, typisk stor Ts
@@ -56,7 +56,7 @@ Configs.avgTs = 0.005	# livePlot = False --> spesifiser ønsket Ts
 Configs.filename = "P02_Filtrering_Random.txt"	
 						# Målinger/beregninger i Online lagres til denne 
 						# .txt-filen. Upload til Data-mappen.
-Configs.filenameOffline = "Offline_P02_random_M.txt"	
+Configs.filenameOffline = "Offline_P02_Filtrering_Random.txt"	
 						# I Offline brukes den opplastede datafilen 
 						# og alt lagres til denne .txt-filen.
 Configs.plotMethod = 2	# verdier: 1 eller 2, hvor hver plottemetode 
@@ -226,8 +226,8 @@ def MathCalculations(data,k,init):
 
 	# Parametre
 	alfa = 0.6
-	alfa_2 = 0
-	alfa_3 = 0
+	alfa_2 = 0.1
+	alfa_3 = 0.05
 
 	M = 3
 	M_2 = 10
@@ -262,8 +262,8 @@ def MathCalculations(data,k,init):
 		data.Temp_FIR_03.append(sum(data.Temp[k - num_points_3 + 1 : k + 1]) / num_points_3)
 
 		data.Temp_IIR.append((1-alfa)*data.Temp_IIR[k-1] + alfa*data.Temp[k])
-		data.Temp_IIR_02.append((1-alfa_2)*data.Temp_IIR[k-1] + alfa_2*data.Temp[k])
-		data.Temp_IIR_03.append((1-alfa_3)*data.Temp_IIR[k-1] + alfa_3*data.Temp[k])
+		data.Temp_IIR_02.append((1-alfa_2)*data.Temp_IIR_02[k-1] + alfa_2*data.Temp[k])
+		data.Temp_IIR_03.append((1-alfa_3)*data.Temp_IIR_03[k-1] + alfa_3*data.Temp[k])
 #_____________________________________________________________________________
 
 
@@ -306,7 +306,7 @@ def stopMotors(robot):
 # Dersom både nrows > 1 og ncols > 1, så benyttes "ax[0,0]", "ax[1,0]", osv
 def lagPlot(plt):
 	nrows = 1
-	ncols = 1
+	ncols = 2
 	sharex = True
 	plt.create(nrows,ncols, sharex)
 	ax,fig = plt.ax, plt.fig
@@ -316,17 +316,17 @@ def lagPlot(plt):
 	# Ved flere subplot over hverandre så er det lurt å legge 
 	# informasjon om x-label på de nederste subplotene (sharex = True)
 
-	# fig.suptitle('Temperaturen til en kaffekopp med tilfeldig støy')
+	fig.suptitle('Temperaturen til en kaffekopp med støy')
 
 
 	# plotting av Temperatur
-	ax.set_title('Temperatur')  
-	ax.set_xlabel("Tid [sek]")	 
-	ax.set_ylabel("Temperatur [C]")
+	ax[0].set_title('Temperatur')  
+	ax[0].set_xlabel("Tid [sek]")	 
+	ax[0].set_ylabel("Temperatur [C]")
 	
 
 	plt.plot(
-		subplot = ax,  	# Definer hvilken delfigur som skal plottes
+		subplot = ax[0],  	# Definer hvilken delfigur som skal plottes
 		x = "Tid", 			# navn på x-verdien (fra data-objektet)
 		y = "Temp",			# navn på y-verdien (fra data-objektet)
 
@@ -338,39 +338,39 @@ def lagPlot(plt):
 	)
 
 	plt.plot(
-		subplot = ax,    
+		subplot = ax[0],    
 		x = "Tid",	# navn på x-verdien (fra data-objektet)  
-		y = "Temp_IIR",	# navn på y-verdien (fra data-objektet)  
+		y = "Temp_IIR_03",	# navn på y-verdien (fra data-objektet)  
 
-		color = "g"
+		color = "m"
 	)
 
 	# plt.plot(
-	# 	subplot = ax,    
+	# 	subplot = ax[0],    
 	# 	x = "Tid",	# navn på x-verdien (fra data-objektet)  
 	# 	y = "Temp_IIR_02",	# navn på y-verdien (fra data-objektet)  
-
-	# 	color = "r"
-	# )
-
-	# plt.plot(
-	# 	subplot = ax,    
-	# 	x = "Tid",	# navn på x-verdien (fra data-objektet)  
-	# 	y = "Temp_IIR_03",	# navn på y-verdien (fra data-objektet)  
-
-	# 	color = "y"
-	# )
-
-	# plt.plot(
-	# 	subplot = ax,    
-	# 	x = "Tid",	# navn på x-verdien (fra data-objektet)  
-	# 	y = "Temp_FIR",	# navn på y-verdien (fra data-objektet)  
 
 	# 	color = "g"
 	# )
 
 	# plt.plot(
-	# 	subplot = ax,    
+	# 	subplot = ax[0],    
+	# 	x = "Tid",	# navn på x-verdien (fra data-objektet)  
+	# 	y = "Temp_IIR_03",	# navn på y-verdien (fra data-objektet)  
+
+	# 	color = "g"
+	# )
+
+	plt.plot(
+		subplot = ax[1],    
+		x = "Tid",	# navn på x-verdien (fra data-objektet)  
+		y = "Temp_FIR_03",	# navn på y-verdien (fra data-objektet)  
+
+		color = "r"
+	)
+
+	# plt.plot(
+	# 	subplot = ax[1],    
 	# 	x = "Tid",	# navn på x-verdien (fra data-objektet)  
 	# 	y = "Temp_FIR_02",	# navn på y-verdien (fra data-objektet)  
 
@@ -378,11 +378,11 @@ def lagPlot(plt):
 	# )
 
 	# plt.plot(
-	# 	subplot = ax,    
+	# 	subplot = ax[1],    
 	# 	x = "Tid",	# navn på x-verdien (fra data-objektet)  
 	# 	y = "Temp_FIR_03",	# navn på y-verdien (fra data-objektet)  
 
-	# 	color = "y"
+	# 	color = "r"
 	# )
 
 #____________________________________________________________________________
