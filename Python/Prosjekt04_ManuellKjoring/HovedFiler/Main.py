@@ -43,7 +43,7 @@ timer = clock()				# timerobjekt med tic toc funksjoner
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #                            1) KONFIGURASJON
 #
-Configs.EV3_IP = "169.254.193.166"	# Avles IP-adressen på EV3-skjermen
+Configs.EV3_IP = "169.254.84.144"	# Avles IP-adressen på EV3-skjermen
 Configs.Online = True	# Online = True  --> programmet kjører på robot  
 						# Online = False --> programmet kjører på datamaskin
 Configs.livePlot = False 	# livePlot = True  --> Live plot, typisk stor Ts
@@ -236,8 +236,8 @@ def MathCalculations(data,k,init):
 	referanse = data.Lys[0]
 
 	# Tilordne målinger til variable
-	data.PowerA.append(a*data.JoyForward[k] + b*data.JoySide[k])
-	data.PowerD.append(a*data.JoyForward[k] + c*data.JoySide[k])
+	data.PowerA.append(a*data.joyForward[k] + b*data.joySide[k])
+	data.PowerD.append(a*data.joyForward[k] + c*data.joySide[k])
 	
 	# Initialverdier og beregninger 
 	if k == 0:
@@ -257,7 +257,7 @@ def MathCalculations(data,k,init):
 		data.avvik.append(referanse - data.Lys[k])
 		
 		data.IAEList.append(EulerForward(data.IAEList[-1], abs(data.avvik[-1]), data.Ts[k]))
-		data.MAEList.append(FIR_Filter(data.avvik[0:k]), k)
+		data.MAEList.append(FIR_Filter(data.avvik[0:k], k))
 
 		data.TvA.append(abs(data.PowerA[k] - data.PowerA[k-1]))
 		data.TvD.append(abs(data.PowerD[k] - data.PowerD[k-1]))
