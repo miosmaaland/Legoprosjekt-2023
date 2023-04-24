@@ -56,7 +56,7 @@ Configs.avgTs = 0.005	# livePlot = False --> spesifiser ønsket Ts
 Configs.filename = "P02_Filtrering_Random.txt"	
 						# Målinger/beregninger i Online lagres til denne 
 						# .txt-filen. Upload til Data-mappen.
-Configs.filenameOffline = "Alfa06_M3.txt"	
+Configs.filenameOffline = "Alfa01.txt"	
 						# I Offline brukes den opplastede datafilen 
 						# og alt lagres til denne .txt-filen.
 Configs.plotMethod = 2	# verdier: 1 eller 2, hvor hver plottemetode 
@@ -220,7 +220,7 @@ def MathCalculations(data,k,init):
 				# bruk i offline.
 
 	# Parametre
-	alfa = 0.6
+	alfa = 0.05
 	a = 1-alfa
 	b = alfa
 	M = 3
