@@ -43,10 +43,10 @@ timer = clock()				# timerobjekt med tic toc funksjoner
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #                            1) KONFIGURASJON
 #
-Configs.EV3_IP = "169.254.7.251"	# Avles IP-adressen på EV3-skjermen
+Configs.EV3_IP = "169.254.91.56"	# Avles IP-adressen på EV3-skjermen
 Configs.Online = True	# Online = True  --> programmet kjører på robot  
 						# Online = False --> programmet kjører på datamaskin
-Configs.livePlot = True 	# livePlot = True  --> Live plot, typisk stor Ts
+Configs.livePlot = False 	# livePlot = True  --> Live plot, typisk stor Ts
 							# livePlot = False --> Ingen plot, liten Ts
 Configs.avgTs = 0.005	# livePlot = False --> spesifiser ønsket Ts
 						# Lav avgTs -> høy samplingsfrekvens og mye data.
@@ -93,12 +93,13 @@ data.HastighetMotorD = []    # måling av vinkelhastighet motor D
 
 # beregninger
 data.Ts = []			  	# beregning av tidsskritt
+data.refferanse = []
 
 data.PowerA = []         # berenging av motorpådrag A
 data.PowerD = []         # berenging av motorpådrag D
 
 data.Avvik = []
-data.Abs_Avvik = []
+data.abs_Avvik = []
 data.Integrert_Avvik = []
 data.Filtrert_Avvik = []
 data.Filtrert_Avvik_Derivert = []
@@ -237,27 +238,26 @@ def MathCalculations(data,k,init):
 
 	# Parametre
 	alfa = 0.1
-	referanse = data.Avstand[0]
 
 	MAEsum = 0
 
 	K_p = 2
-	K_i = 0.5
-	K_d = 0
+	K_i = 2
+	K_d = 2
     
     # Initialverdier og beregninger 
 	if k == 0:
 		# Initialverdier
 		data.Ts.append(0.005)  	# nominell verdi
-		
+		data.refferanse.append(data.Avstand[0])
 		data.Avvik.append(0)
 		data.abs_Avvik.append(0)
 		data.Integrert_Avvik.append(0)
 		data.Filtrert_Avvik.append(data.Avvik[0])
 		data.Filtrert_Avvik_Derivert.append(0)
 
-		data.IAEliste.append(0)
-		data.MAEliste.append(0) 
+		data.IAElist.append(0)
+		data.MAElist.append(0) 
 
 		data.PowerA.append(0)
 		data.PowerD.append(0)
@@ -268,8 +268,9 @@ def MathCalculations(data,k,init):
 	else:
         # Beregninger av Ts og variable som avhenger av initialverdi
 		data.Ts.append(data.Tid[k]-data.Tid[k-1])
+		data.refferanse.append(data.Avstand[0])
 
-		data.Avvik.append(referanse - data.Avstand[k])
+		data.Avvik.append(data.refferanse[k] - data.Avstand[k])
 		data.abs_Avvik.append(abs(data.Avvik[k]))
 
 		data.IAElist.append(EulerForward(data.IAElist[k-1], data.Avvik[k], data.Ts[k]))
@@ -279,21 +280,23 @@ def MathCalculations(data,k,init):
 
 		data.MAElist.append((1/(len(data.Tid)+1)) * MAEsum)
 
-		data.Integrert_Avvik.append(EulerForward(data.Integrert_Avvik[k-1], data.Avvik[k], data.Ts[k]))
+		data.Integrert_Avvik.append(EulerForward(data.Integrert_Avvik[k-1], (K_i * data.Avvik[k]), data.Ts[k]))
 		data.Filtrert_Avvik.append(IIR_Filter(data.Filtrert_Avvik[k-1], data.Avvik[k], alfa))
-		data.Filtrert_Avvik_Derivert(Derivation(data.Filtrert_Avvik[k-1:k], data.Ts[k]))
+		data.Filtrert_Avvik_Derivert.append(Derivation(K_d * (data.Filtrert_Avvik[k] - data.Filtrert_Avvik[k-1]), data.Ts[k]))
 
-		if data.Integrert_Avvik[k] > 50:
-			data.Integrert_Avvik[k] = 50
+		# if data.Integrert_Avvik[k] > 50:
+		# 	data.Integrert_Avvik[k] = 50
 
-		elif data.Integrert_Avvik[k] < -50:
-			data.Integrert_Avvik[k] = -50
+		# elif data.Integrert_Avvik[k] < -50:
+		# 	data.Integrert_Avvik[k] = -50
 
-		PowerA_k = -K_p*data.Avvik[k] - K_i*data.Integrert_Avvik[k] - K_d*data.Filtrert_Avvik_Derivert[k]
-		PowerD_k = +K_p*data.Avvik[k] + K_i*data.Integrert_Avvik[k] + K_d*data.Filtrert_Avvik_Derivert[k]
+		# PowerA_k = -K_p*data.Avvik[k] - K_i*data.Integrert_Avvik[k] - K_d*data.Filtrert_Avvik_Derivert[k]
+		# PowerD_k = +K_p*data.Avvik[k] + K_i*data.Integrert_Avvik[k] + K_d*data.Filtrert_Avvik_Derivert[k]
 
-		data.PowerA.append(PowerA_k)
-		data.PowerD.append(PowerD_k)
+		U_k = K_p*data.Avvik[k] + data.Integrert_Avvik[k] + data.Filtrert_Avvik_Derivert[k]
+
+		data.PowerA.append(data.refferanse[k] - U_k)
+		data.PowerD.append(data.refferanse[k] - U_k)
 
 		data.TvA.append(data.TvA[k-1] + abs(data.PowerA[k] - data.PowerA[k-1]))
 		data.TvD.append(data.TvD[k-1] + abs(data.PowerD[k] - data.PowerD[k-1]))
@@ -323,7 +326,7 @@ def setMotorPower(data,robot):
 # - hold() bråstopper umiddelbart og holder posisjonen
 def stopMotors(robot):
 	robot.motorA.stop()
-	robot.motorB.stop()
+	robot.motorD.stop()
 #______________________________________________________________________________
 
 
