@@ -83,20 +83,13 @@ data.Tid = []            	# måling av tidspunkt
 data.Lys = []            	# måling av reflektert lys fra ColorSensor
 
 data.joyForward = []         # måling av foroverbevegelse styrestikke
-data.joySide = []            # måling av sidebevegelse styrestikke
-
-data.joy1 = []               # måling av knapp 1 (skyteknapp)
-data.joy2 = []               # måling av knapp 2 (ved tommel)
-data.joy3 = []               # måling av knapp 3 
+data.joySide = []            # måling av sidebevegelse styrestikke 
 
 # beregninger
 data.Ts = []			  	# beregning av tidsskritt
 
 data.PowerA = []         	# berenging av motorpådrag A
 data.PowerD = []         	# berenging av motorpådrag D
-
-data.PowerA_abs = []        # berenging av motorpådrag A
-data.PowerD_abs = []        # berenging av motorpådrag D
 
 data.avvik = []				# beregning av avvik	
 data.abs_avik = []			# beregning av absolut avvik
@@ -131,6 +124,9 @@ data.joyPotMeter = []        # måling av potensionmeter styrestikke
 data.joyPOVForward = []      # måling av foroverbevegelse toppledd
 data.joyPOVSide = []         # måling av sidebevegelse toppledd
 
+data.joy1 = []               # måling av knapp 1 (skyteknapp)
+data.joy2 = []               # måling av knapp 2 (ved tommel)
+data.joy3 = []               # måling av knapp 3
 data.joy4 = []               # måling av knapp 4 
 data.joy5 = []               # måling av knapp 5 
 data.joy6 = []               # måling av knapp 6 
@@ -252,11 +248,8 @@ def MathCalculations(data,k,init):
 		data.IAEList.append(0)
 		data.MAEList.append(0)
 		
-		data.PowerA_abs.append(0)
-		data.PowerD_abs.append(0)
-		
 		data.TvA.append(abs(data.PowerA[0]))
-		data.TvD.append(abs(data.PowerB[0]))
+		data.TvD.append(abs(data.PowerD[0]))
 	
 	else:
 		# Beregninger av Ts og variable som avhenger av initialverdi
@@ -266,11 +259,8 @@ def MathCalculations(data,k,init):
 		data.IAEList.append(EulerForward(data.IAEList[-1], abs(data.avvik[-1]), data.Ts[k]))
 		data.MAEList.append(FIR_Filter(data.avvik[0:k]), k)
 
-		data.PowerA_abs.append(abs(data.PowerA[k] - data.PowerA[k-1]))
-		data.PowerD_abs.append(abs(data.PowerD[k] - data.PowerD[k-1]))
-
-		data.TvA.append(sum(data.PowerA_abs[0:k]))
-		data.TvB.append(sum(data.PowerB_abs[0:k]))
+		data.TvA.append(abs(data.PowerA[k] - data.PowerA[k-1]))
+		data.TvD.append(abs(data.PowerD[k] - data.PowerD[k-1]))
 
 	# Andre beregninger uavhengig av initialverdi
 
