@@ -235,13 +235,11 @@ def MathCalculations(data,k,init):
 				# bruk i offline.
 
 	# Parametre
-	alfa = 0.25
+	alfa = 0.02
 
-	MAEsum = 0
-
-	K_p = 2
-	K_i = 0.5
-	K_d = 0
+	K_p = 400
+	K_i = 500
+	K_d = 500
     
     # Initialverdier og beregninger 
 	if k == 0:
@@ -272,7 +270,7 @@ def MathCalculations(data,k,init):
 		data.abs_Avvik.append(abs(data.Avvik[k]))
 
 		data.IAElist.append(EulerForward(data.IAElist[k-1], data.Avvik[k], data.Ts[k]))
-		data.MAElist.append((1/(len(data.Tid)+1)) * MAEsum)(FIR_Filter(data.Avvik[0:k], k))
+		data.MAElist.append(FIR_Filter(data.Avvik[0:k], k))
 
 		data.Integrert_Avvik.append(EulerForward(data.Integrert_Avvik[k-1], (K_i * data.Avvik[k-1]), data.Ts[k]))
 		data.Filtrert_Avvik.append(IIR_Filter(data.Filtrert_Avvik[k-1], data.Avvik[k], alfa))
