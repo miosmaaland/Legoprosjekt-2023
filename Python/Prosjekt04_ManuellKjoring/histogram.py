@@ -72,6 +72,28 @@ for line in lines:
             # Append the value of Lys to the list of Lys values
             Lys_R.append(Lys)
 
+with open('Data\Offline_P04_ManuellKjøring_Sanjai.txt', 'r') as f:
+    # Skip the first line (header)
+    next(f)
+    # Read the remaining contents of the file into a string
+    data = f.read()
+
+# Split the data into a list of lines
+lines = data.split('\n')
+
+# Extract the values of Lys into a list
+Lys_S = []
+for line in lines:
+    # Skip any empty lines
+    if line:
+        # Split each line into a list of values
+        values = line.split(',')
+        # Check that the list of values has at least 9 elements (including Lys)
+        if len(values) >= 9:
+            # Extract the value of Lys from the list
+            Lys = float(values[8])
+            # Append the value of Lys to the list of Lys values
+            Lys_S.append(Lys)
 
 # Create a histogram of the Lys values
 import matplotlib.pyplot as plt
@@ -97,8 +119,11 @@ axs[1, 0].set_title(f'Rich, Mean={statistics.median(Lys_R)}, std={statistics.std
 axs[1, 0].set_xlabel('Lysverdier')
 axs[1, 0].set_ylabel('Antall målinger')
 
-# Remove the unused subplot
-axs[1, 1].axis('off')
+# Lys_R histogram
+axs[1, 1].hist(Lys_S, bins=50, color='yellow', alpha=0.7)
+axs[1, 1].set_title(f'Sanjai, Mean={statistics.median(Lys_S)}, std={statistics.stdev(Lys_S): .2f}')
+axs[1, 1].set_xlabel('Lysverdier')
+axs[1, 1].set_ylabel('Antall målinger')
 
 plt.tight_layout()
 plt.show()
