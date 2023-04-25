@@ -43,7 +43,7 @@ timer = clock()				# timerobjekt med tic toc funksjoner
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #                            1) KONFIGURASJON
 #
-Configs.EV3_IP = "169.254.119.184"	# Avles IP-adressen på EV3-skjermen
+Configs.EV3_IP = "169.254.94.1"	# Avles IP-adressen på EV3-skjermen
 Configs.Online = True	# Online = True  --> programmet kjører på robot  
 						# Online = False --> programmet kjører på datamaskin
 Configs.livePlot = False 	# livePlot = True  --> Live plot, typisk stor Ts
@@ -93,6 +93,7 @@ data.HastighetMotorD = []    # måling av vinkelhastighet motor D
 data.Ts = []			  	# beregning av tidsskritt
 data.refferanse = []
 
+data.U_k = []
 data.PowerA = []         # berenging av motorpådrag A
 data.PowerD = []         # berenging av motorpådrag D
 
@@ -170,7 +171,8 @@ def addMeasurements(data,robot,init,k):
 	if k==0:
 		# Definer initielle lmålinger inn i init variabelen.
         # Initialverdiene kan brukes i MathCalculations()
-		init.Lys0 = robot.ColorSensor.reflection() 	# lagrer første lysmåling
+
+		# init.Lys0 = robot.ColorSensor.reflection() 	# lagrer første lysmåling
 
 		data.Tid.append(timer.tic())		# starter "stoppeklokken" på 0
 	else:
@@ -179,7 +181,7 @@ def addMeasurements(data,robot,init,k):
 		data.Tid.append(timer.toc())
 	
 	# lagrer målinger av lys
-	data.Lys.append(robot.ColorSensor.reflection())
+	# data.Lys.append(robot.ColorSensor.reflection())
 
 	data.Avstand.append(robot.UltrasonicSensor.distance())
 
@@ -246,15 +248,18 @@ def MathCalculations(data,k,init):
 		# Initialverdier
 		data.Ts.append(0.005)  	# nominell verdi
 		data.refferanse.append(data.Avstand[0])
+
 		data.Avvik.append(0)
 		data.abs_Avvik.append(0)
+
 		data.Integrert_Avvik.append(0)
-		data.Filtrert_Avvik.append(data.Avvik[0])
+		data.Filtrert_Avvik.append(0)
 		data.Filtrert_Avvik_Derivert.append(0)
 
 		data.IAElist.append(0)
 		data.MAElist.append(0) 
 
+		data.U_k.append(0)
 		data.PowerA.append(0)
 		data.PowerD.append(0)
 
@@ -269,12 +274,12 @@ def MathCalculations(data,k,init):
 		data.Avvik.append(data.refferanse[k] - data.Avstand[k])
 		data.abs_Avvik.append(abs(data.Avvik[k]))
 
+		data.Filtrert_Avvik.append(IIR_Filter(data.Filtrert_Avvik[k-1], data.Avvik[k], alfa))
+		data.Integrert_Avvik.append(EulerForward(data.Integrert_Avvik[k-1], (K_i * data.Avvik[k-1]), data.Ts[k]))
+		data.Filtrert_Avvik_Derivert.append(K_d * Derivation((data.Filtrert_Avvik[k] - data.Filtrert_Avvik[k-1]), data.Ts[k]))
+
 		data.IAElist.append(EulerForward(data.IAElist[k-1], data.Avvik[k], data.Ts[k]))
 		data.MAElist.append(FIR_Filter(data.Avvik[0:k], k))
-
-		data.Integrert_Avvik.append(EulerForward(data.Integrert_Avvik[k-1], (K_i * data.Avvik[k-1]), data.Ts[k]))
-		data.Filtrert_Avvik.append(IIR_Filter(data.Filtrert_Avvik[k-1], data.Avvik[k], alfa))
-		data.Filtrert_Avvik_Derivert.append(Derivation(K_d * (data.Filtrert_Avvik[k] - data.Filtrert_Avvik[k-1]), data.Ts[k]))
 
 		# if data.Integrert_Avvik[k] > 50:
 		# 	data.Integrert_Avvik[k] = 50
@@ -285,10 +290,10 @@ def MathCalculations(data,k,init):
 		# PowerA_k = -K_p*data.Avvik[k] - K_i*data.Integrert_Avvik[k] - K_d*data.Filtrert_Avvik_Derivert[k]
 		# PowerD_k = +K_p*data.Avvik[k] + K_i*data.Integrert_Avvik[k] + K_d*data.Filtrert_Avvik_Derivert[k]
 
-		U_k = K_p*data.Avvik[k] + data.Integrert_Avvik[k] + data.Filtrert_Avvik_Derivert[k]
+		data.U_k.append(K_p*data.Avvik[k] + data.Integrert_Avvik[k] + data.Filtrert_Avvik_Derivert[k])
 
-		data.PowerA.append(data.refferanse[k] - U_k * 200)
-		data.PowerD.append(data.refferanse[k] - U_k * 200)
+		data.PowerA.append(data.refferanse[k] - data.U_k[k])
+		data.PowerD.append(data.refferanse[k] - data.U_k[k])
 
 		data.TvA.append(data.TvA[k-1] + abs(data.PowerA[k] - data.PowerA[k-1]))
 		data.TvD.append(data.TvD[k-1] + abs(data.PowerD[k] - data.PowerD[k-1]))
