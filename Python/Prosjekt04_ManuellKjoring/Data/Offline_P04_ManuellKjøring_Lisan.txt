@@ -1,4 +1,4 @@
-abs_avik=calc,avvik=calc,PowerD=calc,joySide=meas,Ts=calc,Tid=meas,joyForward=meas,TvD=calc,Lys=meas,refferanse=calc,TvA=calc,MAEList=calc,IAEList=calc,PowerA=calc
+abs_avik=calc,avvik=calc,PowerD=calc,joySide=meas,Ts=calc,Tid=meas,joyForward=meas,TvD=calc,Lys=meas,Referanse=calc,TvA=calc,MAEList=calc,IAEList=calc,PowerA=calc
 Lys0=36
 ,0,0.234375,-2.34375,0.005,0,-1.171875,0,36,36,0,0,0,-1.40625
 ,0,2.9296875,0,0.02099800109863281,0.02099800109863281,5.859375,2.6953125,36,36,4.3359375,0,0,2.9296875

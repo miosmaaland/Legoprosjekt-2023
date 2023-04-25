@@ -51,10 +51,10 @@ Configs.livePlot = False 	# livePlot = True  --> Live plot, typisk stor Ts
 Configs.avgTs = 0.005	# livePlot = False --> spesifiser ønsket Ts
 						# Lav avgTs -> høy samplingsfrekvens og mye data.
 						# --> Du må vente veldig lenge for å lagre filen.
-Configs.filename = "P04_ManuellKjøring_Rich.txt"	
+Configs.filename = "P04_ManuellKjøring_Lisan.txt"	
 						# Målinger/beregninger i Online lagres til denne 
 						# .txt-filen. Upload til Data-mappen.
-Configs.filenameOffline = "Offline_P04_ManuellKjøring_Rich.txt"	
+Configs.filenameOffline = "Offline_P04_ManuellKjøring_Lisan.txt"	
 						# I Offline brukes den opplastede datafilen 
 						# og alt lagres til denne .txt-filen.
 Configs.plotMethod = 2	# verdier: 1 eller 2, hvor hver plottemetode 
@@ -100,7 +100,7 @@ data.MAEList = []			# beregning av MAE
 data.TvA = []				# beregning av totalt motorpådrag A
 data.TvD = []				# beregning av totalt motorpådrag B
 
-data.refferanse = []
+data.Referanse = []
 
 """
 # Utvalg av målinger
@@ -241,7 +241,7 @@ def MathCalculations(data,k,init):
 	if k == 0:
 		# Initialverdier
 		data.Ts.append(0.005)  	# nominell verdi
-		data.refferanse.append(data.Lys[0])
+		data.Referanse.append(data.Lys[0])
 		data.avvik.append(0)
 		
 		data.IAEList.append(0)
@@ -253,8 +253,8 @@ def MathCalculations(data,k,init):
 	else:
 		# Beregninger av Ts og variable som avhenger av initialverdi
 		data.Ts.append(data.Tid[k]-data.Tid[k-1])
-		data.refferanse.append(data.Lys[0])
-		data.avvik.append(data.refferanse[k] - data.Lys[k])
+		data.Referanse.append(data.Lys[0])
+		data.avvik.append(data.Referanse[k] - data.Lys[k])
 		
 		data.IAEList.append(EulerForward(data.IAEList[-1], abs(data.avvik[-1]), data.Ts[k]))
 		data.MAEList.append(FIR_Filter(data.avvik[0:k], k))
@@ -300,8 +300,8 @@ def stopMotors(robot):
 # Dersom enten nrows = 1 eller ncols = 1, så benyttes "ax[0]", "ax[1]", osv.
 # Dersom både nrows > 1 og ncols > 1, så benyttes "ax[0,0]", "ax[1,0]", osv
 def lagPlot(plt):
-	nrows = 3
-	ncols = 2
+	nrows = 1
+	ncols = 1
 	sharex = True
 	plt.create(nrows,ncols,sharex)
 	ax,fig = plt.ax, plt.fig
@@ -311,140 +311,140 @@ def lagPlot(plt):
 	# Ved flere subplot over hverandre så er det lurt å legge 
 	# informasjon om x-label på de nederste subplotene (sharex = True)
 
-	fig.suptitle('')
+	# fig.suptitle('')
 
-	# plotting av lys
-	ax[0,0].set_title('Referanse (r) og Lys (b)')  
-	ax[0,0].set_xlabel("Tid [sek]")	 
-	ax[0,0].set_ylabel("")
-	plt.plot(
-		subplot = ax[0,0],  	# Definer hvilken delfigur som skal plottes
-		x = "Tid", 			# navn på x-verdien (fra data-objektet)
-		y = "Lys",			# navn på y-verdien (fra data-objektet)
+	# # plotting av lys
+	# ax[0,0].set_title('Referanse (r) og Lys (b)')  
+	# ax[0,0].set_xlabel("Tid [sek]")	 
+	# ax[0,0].set_ylabel("")
+	# plt.plot(
+	# 	subplot = ax[0,0],  	# Definer hvilken delfigur som skal plottes
+	# 	x = "Tid", 			# navn på x-verdien (fra data-objektet)
+	# 	y = "Lys",			# navn på y-verdien (fra data-objektet)
 
-		# VALGFRITT
-		color = "b",		# fargen på kurven som plottes (default: blå)
-		linestyle = "solid",  # "solid" / "dashed" / "dotted"
-		linewidth = 1,		# tykkelse på linjen
-		marker = "",       	# legg til markør på hvert punkt
-	)
+	# 	# VALGFRITT
+	# 	color = "b",		# fargen på kurven som plottes (default: blå)
+	# 	linestyle = "solid",  # "solid" / "dashed" / "dotted"
+	# 	linewidth = 1,		# tykkelse på linjen
+	# 	marker = "",       	# legg til markør på hvert punkt
+	# )
 
-	# plotting av refferanse
-	plt.plot(
-		subplot = ax[0,0],  	# Definer hvilken delfigur som skal plottes
-		x = "Tid", 			# navn på x-verdien (fra data-objektet)
-		y = "refferanse",			# navn på y-verdien (fra data-objektet)
+	# # plotting av refferanse
+	# plt.plot(
+	# 	subplot = ax[0,0],  	# Definer hvilken delfigur som skal plottes
+	# 	x = "Tid", 			# navn på x-verdien (fra data-objektet)
+	# 	y = "Referanse",			# navn på y-verdien (fra data-objektet)
 
-		# VALGFRITT
-		color = "r",		# fargen på kurven som plottes (default: blå)
-		linestyle = "solid",  # "solid" / "dashed" / "dotted"
-		linewidth = 1,		# tykkelse på linjen
-		marker = "",       	# legg til markør på hvert punkt
-	)
+	# 	# VALGFRITT
+	# 	color = "r",		# fargen på kurven som plottes (default: blå)
+	# 	linestyle = "solid",  # "solid" / "dashed" / "dotted"
+	# 	linewidth = 1,		# tykkelse på linjen
+	# 	marker = "",       	# legg til markør på hvert punkt
+	# )
 
-	# plotting av PowerA
-	ax[1,0].set_title('PowerA (b) og PowerD (r)')  
-	ax[1,0].set_xlabel("Tid [sek]")	 
-	ax[1,0].set_ylabel("")
-	plt.plot(
-		subplot = ax[1,0],  	# Definer hvilken delfigur som skal plottes
-		x = "Tid", 			# navn på x-verdien (fra data-objektet)
-		y = "PowerA",			# navn på y-verdien (fra data-objektet)
+	# # plotting av PowerA
+	# ax[1,0].set_title('PowerA (b) og PowerD (r)')  
+	# ax[1,0].set_xlabel("Tid [sek]")	 
+	# ax[1,0].set_ylabel("")
+	# plt.plot(
+	# 	subplot = ax[1,0],  	# Definer hvilken delfigur som skal plottes
+	# 	x = "Tid", 			# navn på x-verdien (fra data-objektet)
+	# 	y = "PowerA",			# navn på y-verdien (fra data-objektet)
 
-		# VALGFRITT
-		color = "b",		# fargen på kurven som plottes (default: blå)
-		linestyle = "solid",  # "solid" / "dashed" / "dotted"
-		linewidth = 1,		# tykkelse på linjen
-		marker = "",       	# legg til markør på hvert punkt
-	)
+	# 	# VALGFRITT
+	# 	color = "b",		# fargen på kurven som plottes (default: blå)
+	# 	linestyle = "solid",  # "solid" / "dashed" / "dotted"
+	# 	linewidth = 1,		# tykkelse på linjen
+	# 	marker = "",       	# legg til markør på hvert punkt
+	# )
 
-	# plotting av PowerD
-	plt.plot(
-		subplot = ax[1,0],  	# Definer hvilken delfigur som skal plottes
-		x = "Tid", 			# navn på x-verdien (fra data-objektet)
-		y = "PowerD",			# navn på y-verdien (fra data-objektet)
+	# # plotting av PowerD
+	# plt.plot(
+	# 	subplot = ax[1,0],  	# Definer hvilken delfigur som skal plottes
+	# 	x = "Tid", 			# navn på x-verdien (fra data-objektet)
+	# 	y = "PowerD",			# navn på y-verdien (fra data-objektet)
 
-		# VALGFRITT
-		color = "r",		# fargen på kurven som plottes (default: blå)
-		linestyle = "solid",  # "solid" / "dashed" / "dotted"
-		linewidth = 1,		# tykkelse på linjen
-		marker = "",       	# legg til markør på hvert punkt
-	)
+	# 	# VALGFRITT
+	# 	color = "r",		# fargen på kurven som plottes (default: blå)
+	# 	linestyle = "solid",  # "solid" / "dashed" / "dotted"
+	# 	linewidth = 1,		# tykkelse på linjen
+	# 	marker = "",       	# legg til markør på hvert punkt
+	# )
 
-	# plotting av Tv_A
-	ax[2,0].set_title('Tv_A (b) og Tv_D (r)')  
-	ax[2,0].set_xlabel("Tid [sek]")	 
-	ax[2,0].set_ylabel("")
-	plt.plot(
-		subplot = ax[2,0],  	# Definer hvilken delfigur som skal plottes
-		x = "Tid", 			# navn på x-verdien (fra data-objektet)
-		y = "TvA",			# navn på y-verdien (fra data-objektet)
+	# # plotting av Tv_A
+	# ax[2,0].set_title('Tv_A (b) og Tv_D (r)')  
+	# ax[2,0].set_xlabel("Tid [sek]")	 
+	# ax[2,0].set_ylabel("")
+	# plt.plot(
+	# 	subplot = ax[2,0],  	# Definer hvilken delfigur som skal plottes
+	# 	x = "Tid", 			# navn på x-verdien (fra data-objektet)
+	# 	y = "TvA",			# navn på y-verdien (fra data-objektet)
 
-		# VALGFRITT
-		color = "b",		# fargen på kurven som plottes (default: blå)
-		linestyle = "solid",  # "solid" / "dashed" / "dotted"
-		linewidth = 1,		# tykkelse på linjen
-		marker = "",       	# legg til markør på hvert punkt
-	)
+	# 	# VALGFRITT
+	# 	color = "b",		# fargen på kurven som plottes (default: blå)
+	# 	linestyle = "solid",  # "solid" / "dashed" / "dotted"
+	# 	linewidth = 1,		# tykkelse på linjen
+	# 	marker = "",       	# legg til markør på hvert punkt
+	# )
 
-	# plotting av Tv_D
-	plt.plot(
-		subplot = ax[2,0],  	# Definer hvilken delfigur som skal plottes
-		x = "Tid", 			# navn på x-verdien (fra data-objektet)
-		y = "TvD",			# navn på y-verdien (fra data-objektet)
+	# # plotting av Tv_D
+	# plt.plot(
+	# 	subplot = ax[2,0],  	# Definer hvilken delfigur som skal plottes
+	# 	x = "Tid", 			# navn på x-verdien (fra data-objektet)
+	# 	y = "TvD",			# navn på y-verdien (fra data-objektet)
 
-		# VALGFRITT
-		color = "r",		# fargen på kurven som plottes (default: blå)
-		linestyle = "solid",  # "solid" / "dashed" / "dotted"
-		linewidth = 1,		# tykkelse på linjen
-		marker = "",       	# legg til markør på hvert punkt
-	)
+	# 	# VALGFRITT
+	# 	color = "r",		# fargen på kurven som plottes (default: blå)
+	# 	linestyle = "solid",  # "solid" / "dashed" / "dotted"
+	# 	linewidth = 1,		# tykkelse på linjen
+	# 	marker = "",       	# legg til markør på hvert punkt
+	# )
 
-	# plotting av Avvik e(k)
-	ax[0,1].set_title('Avvik e(k)')  
-	ax[0,1].set_xlabel("Tid [sek]")	 
-	ax[0,1].set_ylabel("")
-	plt.plot(
-		subplot = ax[0,1],  	# Definer hvilken delfigur som skal plottes
-		x = "Tid", 			# navn på x-verdien (fra data-objektet)
-		y = "avvik",			# navn på y-verdien (fra data-objektet)
+	# # plotting av Avvik e(k)
+	# ax[0,1].set_title('Avvik e(k)')  
+	# ax[0,1].set_xlabel("Tid [sek]")	 
+	# ax[0,1].set_ylabel("")
+	# plt.plot(
+	# 	subplot = ax[0,1],  	# Definer hvilken delfigur som skal plottes
+	# 	x = "Tid", 			# navn på x-verdien (fra data-objektet)
+	# 	y = "avvik",			# navn på y-verdien (fra data-objektet)
 
-		# VALGFRITT
-		color = "b",		# fargen på kurven som plottes (default: blå)
-		linestyle = "solid",  # "solid" / "dashed" / "dotted"
-		linewidth = 1,		# tykkelse på linjen
-		marker = "",       	# legg til markør på hvert punkt
-	)
+	# 	# VALGFRITT
+	# 	color = "b",		# fargen på kurven som plottes (default: blå)
+	# 	linestyle = "solid",  # "solid" / "dashed" / "dotted"
+	# 	linewidth = 1,		# tykkelse på linjen
+	# 	marker = "",       	# legg til markør på hvert punkt
+	# )
 
-	# plotting av IEA(k)
-	ax[1,1].set_title('IEA(k)')  
-	ax[1,1].set_xlabel("Tid [sek]")	 
-	ax[1,1].set_ylabel("")
-	plt.plot(
-		subplot = ax[1,1],  	# Definer hvilken delfigur som skal plottes
-		x = "Tid", 			# navn på x-verdien (fra data-objektet)
-		y = "IAEList",			# navn på y-verdien (fra data-objektet)
+	# # plotting av IEA(k)
+	# ax[1,1].set_title('IEA(k)')  
+	# ax[1,1].set_xlabel("Tid [sek]")	 
+	# ax[1,1].set_ylabel("")
+	# plt.plot(
+	# 	subplot = ax[1,1],  	# Definer hvilken delfigur som skal plottes
+	# 	x = "Tid", 			# navn på x-verdien (fra data-objektet)
+	# 	y = "IAEList",			# navn på y-verdien (fra data-objektet)
 
-		# VALGFRITT
-		color = "b",		# fargen på kurven som plottes (default: blå)
-		linestyle = "solid",  # "solid" / "dashed" / "dotted"
-		linewidth = 1,		# tykkelse på linjen
-		marker = "",       	# legg til markør på hvert punkt
-	)
+	# 	# VALGFRITT
+	# 	color = "b",		# fargen på kurven som plottes (default: blå)
+	# 	linestyle = "solid",  # "solid" / "dashed" / "dotted"
+	# 	linewidth = 1,		# tykkelse på linjen
+	# 	marker = "",       	# legg til markør på hvert punkt
+	# )
 
-	# plotting av IEA(k)
-	ax[2,1].set_title('MEA(k)')  
-	ax[2,1].set_xlabel("Tid [sek]")	 
-	ax[2,1].set_ylabel("")
-	plt.plot(
-		subplot = ax[2,1],  	# Definer hvilken delfigur som skal plottes
-		x = "Tid", 			# navn på x-verdien (fra data-objektet)
-		y = "MAEList",			# navn på y-verdien (fra data-objektet)
+	# # plotting av IEA(k)
+	# ax[2,1].set_title('MEA(k)')  
+	# ax[2,1].set_xlabel("Tid [sek]")	 
+	# ax[2,1].set_ylabel("")
+	# plt.plot(
+	# 	subplot = ax[2,1],  	# Definer hvilken delfigur som skal plottes
+	# 	x = "Tid", 			# navn på x-verdien (fra data-objektet)
+	# 	y = "MAEList",			# navn på y-verdien (fra data-objektet)
 
-		# VALGFRITT
-		color = "b",		# fargen på kurven som plottes (default: blå)
-		linestyle = "solid",  # "solid" / "dashed" / "dotted"
-		linewidth = 1,		# tykkelse på linjen
-		marker = "",       	# legg til markør på hvert punkt
-	)
+	# 	# VALGFRITT
+	# 	color = "b",		# fargen på kurven som plottes (default: blå)
+	# 	linestyle = "solid",  # "solid" / "dashed" / "dotted"
+	# 	linewidth = 1,		# tykkelse på linjen
+	# 	marker = "",       	# legg til markør på hvert punkt
+	# )
 #____________________________________________________________________________
