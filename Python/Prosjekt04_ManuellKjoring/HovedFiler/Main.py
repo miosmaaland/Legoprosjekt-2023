@@ -43,18 +43,18 @@ timer = clock()				# timerobjekt med tic toc funksjoner
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #                            1) KONFIGURASJON
 #
-Configs.EV3_IP = "169.254.197.50"	# Avles IP-adressen på EV3-skjermen
+Configs.EV3_IP = "169.254.81.112"	# Avles IP-adressen på EV3-skjermen
 Configs.Online = False	# Online = True  --> programmet kjører på robot  
 						# Online = False --> programmet kjører på datamaskin
-Configs.livePlot = False 	# livePlot = True  --> Live plot, typisk stor Ts
+Configs.livePlot = True 	# livePlot = True  --> Live plot, typisk stor Ts
 							# livePlot = False --> Ingen plot, liten Ts
 Configs.avgTs = 0.005	# livePlot = False --> spesifiser ønsket Ts
 						# Lav avgTs -> høy samplingsfrekvens og mye data.
 						# --> Du må vente veldig lenge for å lagre filen.
-Configs.filename = "P04_ManuellKjøring_Rich.txt"	
+Configs.filename = "P04_ManuellKjøring_Sanjai.txt"	
 						# Målinger/beregninger i Online lagres til denne 
 						# .txt-filen. Upload til Data-mappen.
-Configs.filenameOffline = "Offline_P04_ManuellKjøring_Rich.txt"	
+Configs.filenameOffline = "Offline_P04_ManuellKjøring_Sanjai.txt"	
 						# I Offline brukes den opplastede datafilen 
 						# og alt lagres til denne .txt-filen.
 Configs.plotMethod = 2	# verdier: 1 eller 2, hvor hver plottemetode 
@@ -63,7 +63,7 @@ Configs.plotBackend = ""	# Ønsker du å bruke en spesifikk backend, last ned
 							# og skriv her. Eks.: qt5agg, qtagg, tkagg, macosx. 
 Configs.limitMeasurements = False	# Mulighet å kjøre programmet lenge 
 									# uten at roboten kræsjer pga minnet
-Configs.ConnectJoystickToPC = False	# True  --> joystick direkte på datamaskin
+Configs.ConnectJoystickToPC = True	# True  --> joystick direkte på datamaskin
 									# False	--> koble joystick på EV3-robot
 									# False	--> også når joystick ikke brukes
 #____________________________________________________________________________
@@ -100,7 +100,7 @@ data.MAEList = []			# beregning av MAE
 data.TvA = []				# beregning av totalt motorpådrag A
 data.TvD = []				# beregning av totalt motorpådrag B
 
-data.refferanse = []
+data.Referanse = []
 
 """
 # Utvalg av målinger
@@ -241,7 +241,7 @@ def MathCalculations(data,k,init):
 	if k == 0:
 		# Initialverdier
 		data.Ts.append(0.005)  	# nominell verdi
-		data.refferanse.append(data.Lys[0])
+		data.Referanse.append(data.Lys[0])
 		data.avvik.append(0)
 		
 		data.IAEList.append(0)
@@ -253,8 +253,8 @@ def MathCalculations(data,k,init):
 	else:
 		# Beregninger av Ts og variable som avhenger av initialverdi
 		data.Ts.append(data.Tid[k]-data.Tid[k-1])
-		data.refferanse.append(data.Lys[0])
-		data.avvik.append(data.refferanse[k] - data.Lys[k])
+		data.Referanse.append(data.Lys[0])
+		data.avvik.append(data.Referanse[k] - data.Lys[k])
 		
 		data.IAEList.append(EulerForward(data.IAEList[-1], abs(data.avvik[-1]), data.Ts[k]))
 		data.MAEList.append(FIR_Filter(data.avvik[0:k], k))
@@ -333,7 +333,7 @@ def lagPlot(plt):
 	plt.plot(
 		subplot = ax[0,0],  	# Definer hvilken delfigur som skal plottes
 		x = "Tid", 			# navn på x-verdien (fra data-objektet)
-		y = "refferanse",			# navn på y-verdien (fra data-objektet)
+		y = "Referanse",			# navn på y-verdien (fra data-objektet)
 
 		# VALGFRITT
 		color = "r",		# fargen på kurven som plottes (default: blå)
