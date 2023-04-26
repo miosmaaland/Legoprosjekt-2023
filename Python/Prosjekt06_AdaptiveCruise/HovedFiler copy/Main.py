@@ -31,8 +31,6 @@ if sys.implementation.name.lower().find("micropython") != -1:
 	from EV3AndJoystick import *
 from MineFunksjoner import *
 from funksjoner import *
-import random
-import time
 data = Bunch()				# dataobjektet ditt (punktum notasjon)
 Configs = Bunch()			# konfiguarsjonene dine
 init = Bunch()				# initalverdier (brukes i addmeasurement og mathcalculations)
@@ -45,18 +43,18 @@ timer = clock()				# timerobjekt med tic toc funksjoner
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #                            1) KONFIGURASJON
 #
-Configs.EV3_IP = "169.254.39.39"	# Avles IP-adressen på EV3-skjermen
-Configs.Online = False	# Online = True  --> programmet kjører på robot  
+Configs.EV3_IP = "169.254.119.184"	# Avles IP-adressen på EV3-skjermen
+Configs.Online = True	# Online = True  --> programmet kjører på robot  
 						# Online = False --> programmet kjører på datamaskin
 Configs.livePlot = False 	# livePlot = True  --> Live plot, typisk stor Ts
 							# livePlot = False --> Ingen plot, liten Ts
 Configs.avgTs = 0.005	# livePlot = False --> spesifiser ønsket Ts
 						# Lav avgTs -> høy samplingsfrekvens og mye data.
 						# --> Du må vente veldig lenge for å lagre filen.
-Configs.filename = "P02_Filtrering_Verifisering.txt"	
+Configs.filename = "Prosjekt06_AdaptiveCruise.txt"	
 						# Målinger/beregninger i Online lagres til denne 
 						# .txt-filen. Upload til Data-mappen.
-Configs.filenameOffline = "P02_Filtrering_Verifisering_.txt"	
+Configs.filenameOffline = "Offline_Prosjekt06_AdaptiveCruise.txt"	
 						# I Offline brukes den opplastede datafilen 
 						# og alt lagres til denne .txt-filen.
 Configs.plotMethod = 2	# verdier: 1 eller 2, hvor hver plottemetode 
@@ -72,7 +70,6 @@ Configs.ConnectJoystickToPC = False # True  --> joystick direkte på datamaskin
 
 
 
-
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #                           2) VELG MÅLINGER OG DEFINER VARIABLE
 #
@@ -83,17 +80,33 @@ Configs.ConnectJoystickToPC = False # True  --> joystick direkte på datamaskin
 # målinger
 data.Tid = []            	# måling av tidspunkt
 data.Lys = []            	# måling av reflektert lys fra ColorSensor
-data.Temp = []				# måling av temperatur
+
+data.Avstand = []
+
+data.VinkelPosMotorA = []    # måling av vinkelposisjon motor A
+data.HastighetMotorA = []    # måling av vinkelhastighet motor A
+
+data.VinkelPosMotorD = []    # måling av vinkelposisjon motor D
+data.HastighetMotorD = []    # måling av vinkelhastighet motor D
 
 # beregninger
 data.Ts = []			  	# beregning av tidsskritt
-data.Temp_FIR = []			# beregning av temperatur gjennom et Finite Impulse Response filter
-data.Temp_FIR_02 = []
-data.Temp_FIR_03 = []
+data.refferanse = []
 
-data.Temp_IIR = []			# beregning av temperatur	gjennom et Infinite Impulse Response filter
-data.Temp_IIR_02 = []
-data.Temp_IIR_03 = []
+data.PowerA = []         # berenging av motorpådrag A
+data.PowerD = []         # berenging av motorpådrag D
+
+data.Avvik = []
+data.abs_Avvik = []
+data.Integrert_Avvik = []
+data.Filtrert_Avvik = []
+data.Filtrert_Avvik_Derivert = []
+
+data.IAElist = []
+data.MAElist = []
+
+data.TvA = []
+data.TvD = []
 
 """
 # Utvalg av målinger
@@ -103,14 +116,10 @@ data.Avstand = []            # måling av avstand fra UltrasonicSensor
 data.GyroAngle = []          # måling av gyrovinkel fra GyroSensor
 data.GyroRate = []           # måling av gyrovinkelfart fra GyroSensor
 
-data.VinkelPosMotorA = []    # måling av vinkelposisjon motor A
-data.HastighetMotorA = []    # måling av vinkelhastighet motor A
 data.VinkelPosMotorB = []    # måling av vinkelposisjon motor B 
 data.HastighetMotorB = []    # måling av vinkelhastighet motor B
 data.VinkelPosMotorC = []    # måling av vinkelposisjon motor C
 data.HastighetMotorC = []    # måling av vinkelhastighet motor C
-data.VinkelPosMotorD = []    # måling av vinkelposisjon motor D
-data.HastighetMotorD = []    # måling av vinkelhastighet motor D
 
 data.joyForward = []         # måling av foroverbevegelse styrestikke
 data.joySide = []            # måling av sidebevegelse styrestikke
@@ -133,10 +142,8 @@ data.joy11 = []              # måling av knapp 11
 data.joy12 = []              # måling av knapp 12
 
 # Utvalg av beregninger
-data.PowerA = []         # berenging av motorpådrag A
 data.PowerB = []         # berenging av motorpådrag B
 data.PowerC = []         # berenging av motorpådrag C
-data.PowerD = []         # berenging av motorpådrag D
 """
 #____________________________________________________________________________________________
 
@@ -162,7 +169,7 @@ data.PowerD = []         # berenging av motorpådrag D
 def addMeasurements(data,robot,init,k):
 	if k==0:
 		# Definer initielle lmålinger inn i init variabelen.
-		# Initialverdiene kan brukes i MathCalculations()
+        # Initialverdiene kan brukes i MathCalculations()
 		init.Lys0 = robot.ColorSensor.reflection() 	# lagrer første lysmåling
 
 		data.Tid.append(timer.tic())		# starter "stoppeklokken" på 0
@@ -174,21 +181,24 @@ def addMeasurements(data,robot,init,k):
 	# lagrer målinger av lys
 	data.Lys.append(robot.ColorSensor.reflection())
 
-	"""
-	data.LysDirekte.append(robot.ColorSensor.ambient())
-	data.Bryter.append(robot.TouchSensor.pressed())
 	data.Avstand.append(robot.UltrasonicSensor.distance())
-	data.GyroAngle.append(robot.GyroSensor.angle())
-	data.GyroRate.append(robot.GyroSensor.speed())
 
 	data.VinkelPosMotorA.append(robot.motorA.angle())
 	data.HastighetMotorA.append(robot.motorA.speed())
+	data.VinkelPosMotorD.append(robot.motorD.angle())
+	data.HastighetMotorD.append(robot.motorD.speed())
+
+
+	"""
+	data.LysDirekte.append(robot.ColorSensor.ambient())
+	data.Bryter.append(robot.TouchSensor.pressed())
+	data.GyroAngle.append(robot.GyroSensor.angle())
+	data.GyroRate.append(robot.GyroSensor.speed())
+
 	data.VinkelPosMotorB.append(robot.motorB.angle())
 	data.HastighetMotorB.append(robot.motorB.speed())
 	data.VinkelPosMotorC.append(robot.motorC.angle())
 	data.HastighetMotorC.append(robot.motorC.speed())
-	data.VinkelPosMotorD.append(robot.motorD.angle())
-	data.HastighetMotorD.append(robot.motorD.speed())
 
 	data.joyForward.append(config.joyForwardInstance)
 	data.joySide.append(config.joySideInstance)
@@ -225,44 +235,67 @@ def MathCalculations(data,k,init):
 				# bruk i offline.
 
 	# Parametre
-	alfa = 0.6
-	alfa_2 = 1-alfa
-	alfa_3 = alfa
-	M = 3
-	M_2 = 10
-	M_3 = 50
-	
-	num_points = k + 1 if k < M else M
-	num_points_2 = k + 1 if k < M_2 else M_2
-	num_points_3 = k + 1 if k < M_3 else M_3
-	
-	# Tilordne målinger til variable
-	data.Temp.append(data.Lys[k] + random.random())
-	
-	# Initialverdier og beregninger 
+	alfa = 0.02
+
+	K_p = 400
+	K_i = 500
+	K_d = 500
+    
+    # Initialverdier og beregninger 
 	if k == 0:
 		# Initialverdier
-		data.Ts.append(0.005)
+		data.Ts.append(0.005)  	# nominell verdi
+		data.refferanse.append(data.Avstand[0])
+		data.Avvik.append(0)
+		data.abs_Avvik.append(0)
+		data.Integrert_Avvik.append(0)
+		data.Filtrert_Avvik.append(data.Avvik[0])
+		data.Filtrert_Avvik_Derivert.append(0)
 
-		data.Temp_FIR.append(data.Temp[0])
-		data.Temp_FIR_02.append(data.Temp[0])
-		data.Temp_FIR_03.append(data.Temp[0])
+		data.IAElist.append(0)
+		data.MAElist.append(0) 
 
-		data.Temp_IIR.append(data.Temp[0])
-		data.Temp_IIR_02.append(data.Temp[0])
-		data.Temp_IIR_03.append(data.Temp[0])
-	
+		data.PowerA.append(0)
+		data.PowerD.append(0)
+
+		data.TvA.append(0)
+		data.TvD.append(0)
+
 	else:
-		# Beregninger av Ts og variable som avhenger av initialverdi
+        # Beregninger av Ts og variable som avhenger av initialverdi
 		data.Ts.append(data.Tid[k]-data.Tid[k-1])
+		data.refferanse.append(data.Avstand[0])
 
-		data.Temp_FIR.append(sum(data.Temp[k - num_points + 1 : k + 1]) / num_points)
-		data.Temp_FIR_02.append(sum(data.Temp[k - num_points_2 + 1 : k + 1]) / num_points_2)
-		data.Temp_FIR_03.append(sum(data.Temp[k - num_points_3 + 1 : k + 1]) / num_points_3)
+		data.Avvik.append(data.refferanse[k] - data.Avstand[k])
+		data.abs_Avvik.append(abs(data.Avvik[k]))
 
-		data.Temp_IIR.append((1-alfa)*data.Temp_IIR[k-1] + alfa*data.Temp[k])
-		data.Temp_IIR_02.append((1-alfa_2)*data.Temp_IIR_02[k-1] + alfa_2*data.Temp[k])
-		data.Temp_IIR_03.append((1-alfa_3)*data.Temp_IIR_03[k-1] + alfa_3*data.Temp[k])
+		data.IAElist.append(EulerForward(data.IAElist[k-1], data.Avvik[k], data.Ts[k]))
+		data.MAElist.append(FIR_Filter(data.Avvik[0:k], k))
+
+		data.Integrert_Avvik.append(EulerForward(data.Integrert_Avvik[k-1], (K_i * data.Avvik[k-1]), data.Ts[k]))
+		data.Filtrert_Avvik.append(IIR_Filter(data.Filtrert_Avvik[k-1], data.Avvik[k], alfa))
+		data.Filtrert_Avvik_Derivert.append(Derivation(K_d * (data.Filtrert_Avvik[k] - data.Filtrert_Avvik[k-1]), data.Ts[k]))
+
+		# if data.Integrert_Avvik[k] > 50:
+		# 	data.Integrert_Avvik[k] = 50
+
+		# elif data.Integrert_Avvik[k] < -50:
+		# 	data.Integrert_Avvik[k] = -50
+
+		# PowerA_k = -K_p*data.Avvik[k] - K_i*data.Integrert_Avvik[k] - K_d*data.Filtrert_Avvik_Derivert[k]
+		# PowerD_k = +K_p*data.Avvik[k] + K_i*data.Integrert_Avvik[k] + K_d*data.Filtrert_Avvik_Derivert[k]
+
+		U_k = K_p*data.Avvik[k] + data.Integrert_Avvik[k] + data.Filtrert_Avvik_Derivert[k]
+
+		data.PowerA.append(data.refferanse[k] - U_k * 200)
+		data.PowerD.append(data.refferanse[k] - U_k * 200)
+
+		data.TvA.append(data.TvA[k-1] + abs(data.PowerA[k] - data.PowerA[k-1]))
+		data.TvD.append(data.TvD[k-1] + abs(data.PowerD[k] - data.PowerD[k-1]))
+
+    # Andre beregninger uavhengig av initialverdi
+
+    # Pådragsberegninger
 #_____________________________________________________________________________
 
 
@@ -275,10 +308,7 @@ def MathCalculations(data,k,init):
 # Motorene oppdateres for hver iterasjon etter mathcalculations
 #
 def setMotorPower(data,robot):
-	return # fjern denne om motor(er) brukes
 	robot.motorA.dc(data.PowerA[-1])
-	robot.motorB.dc(data.PowerB[-1])
-	robot.motorC.dc(data.PowerC[-1])
 	robot.motorD.dc(data.PowerD[-1])
 
 # Når programmet slutter, spesifiser hvordan du vil at motoren(e) skal stoppe.
@@ -287,11 +317,8 @@ def setMotorPower(data,robot):
 # - brake() ruller videre, men bruker strømmen generert av rotasjonen til brems
 # - hold() bråstopper umiddelbart og holder posisjonen
 def stopMotors(robot):
-	return # fjern denne om motor(er) brukes
 	robot.motorA.stop()
-	robot.motorB.brake()
-	robot.motorC.hold()
-	robot.motorD.hold()
+	robot.motorD.stop()
 #______________________________________________________________________________
 
 
@@ -304,30 +331,27 @@ def stopMotors(robot):
 # Dersom enten nrows = 1 eller ncols = 1, så benyttes "ax[0]", "ax[1]", osv.
 # Dersom både nrows > 1 og ncols > 1, så benyttes "ax[0,0]", "ax[1,0]", osv
 def lagPlot(plt):
-	nrows = 1
-	ncols = 2
+	nrows = 3
+	ncols = 1
 	sharex = True
-	plt.create(nrows,ncols, sharex)
+	plt.create(nrows,ncols,sharex)
 	ax,fig = plt.ax, plt.fig
 
 	# Legger inn titler og aksenavn (valgfritt) for hvert subplot,  
-	# sammen med argumenter til plt.plot() funksjonen. 
-	# Ved flere subplot over hverandre så er det lurt å legge 
-	# informasjon om x-label på de nederste subplotene (sharex = True)
+    # sammen med argumenter til plt.plot() funksjonen. 
+    # Ved flere subplot over hverandre så er det lurt å legge 
+    # informasjon om x-label på de nederste subplotene (sharex = True)
 
-	fig.suptitle('Temperaturen til en kaffekopp')
+	fig.suptitle('Her kan du bruke en tittel for hele figuren')
 
-
-	# plotting av Temperatur
-	ax[0].set_title('Temperatur')  
+	# plotting av lys
+	ax[0].set_title('Reflektert lys')  
 	ax[0].set_xlabel("Tid [sek]")	 
-	ax[0].set_ylabel("Temperatur [C]")
-	
-
+	ax[0].set_ylabel("Lys")
 	plt.plot(
 		subplot = ax[0],  	# Definer hvilken delfigur som skal plottes
 		x = "Tid", 			# navn på x-verdien (fra data-objektet)
-		y = "Temp",			# navn på y-verdien (fra data-objektet)
+		y = "Lys",			# navn på y-verdien (fra data-objektet)
 
 		# VALGFRITT
 		color = "b",		# fargen på kurven som plottes (default: blå)
@@ -336,52 +360,25 @@ def lagPlot(plt):
 		marker = "",       	# legg til markør på hvert punkt
 	)
 
-	#plt.plot(
-	#	subplot = ax[0],    
-	#	x = "Tid",	# navn på x-verdien (fra data-objektet)  
-	#	y = "Temp_IIR_03",	# navn på y-verdien (fra data-objektet)  
-
-	#	color = "m"
-	#)
-
-	#plt.plot(
-	 #	subplot = ax[0],    
-	 #	x = "Tid",	# navn på x-verdien (fra data-objektet)  
-	 #	y = "Temp_IIR_02",	# navn på y-verdien (fra data-objektet)  
-
-	 #	color = "g"
-	 #)
-
-	#plt.plot(
-	 #	subplot = ax[0],    
-	 #	x = "Tid",	# navn på x-verdien (fra data-objektet)  
-	 #	y = "Temp_IIR_03",	# navn på y-verdien (fra data-objektet)  
-
-	 #	color = "g"
-	 #)
-
+	# plotting av lys (minimumsversjon)
+	ax[1].set_title('Lys')  
+	ax[1].set_xlabel("Tid [sek]")
+	ax[1].set_ylabel("Lys")
 	plt.plot(
 		subplot = ax[1],    
 		x = "Tid",	# navn på x-verdien (fra data-objektet)  
-		y = "Temp_IIR_03",	# navn på y-verdien (fra data-objektet)  
-
-		color = "r"
+		y = "Lys",	# navn på y-verdien (fra data-objektet)  
 	)
 
-	# plt.plot(
-	# 	subplot = ax[1],    
-	# 	x = "Tid",	# navn på x-verdien (fra data-objektet)  
-	# 	y = "Temp_FIR_02",	# navn på y-verdien (fra data-objektet)  
-
-	# 	color = "r"
-	# )
-
-	# plt.plot(
-	# 	subplot = ax[1],    
-	# 	x = "Tid",	# navn på x-verdien (fra data-objektet)  
-	# 	y = "Temp_FIR_03",	# navn på y-verdien (fra data-objektet)  
-
-	# 	color = "r"
-	# )
-
+	# plotting av Ts (benytter utvalg av listene)
+	ax[2].set_title('Beregning av Ts')  
+	ax[2].set_xlabel("Tid [sek]")
+	ax[2].set_ylabel("tidsskritt")
+	plt.plot(
+		subplot = ax[2],    
+		x = "Tid[:-1]",       
+		y = "Ts[:-1]",
+		color = "b",
+		linestyle = "dashed",
+	)
 #____________________________________________________________________________
