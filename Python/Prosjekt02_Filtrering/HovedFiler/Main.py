@@ -237,7 +237,7 @@ def MathCalculations(data,k,init):
 	num_points_3 = k + 1 if k < M_3 else M_3
 	
 	# Tilordne målinger til variable
-	data.Temp.append(data.Lys[k] + random.random())
+	data.Temp.append(data.Lys[k])
 	
 	# Initialverdier og beregninger 
 	if k == 0:
@@ -305,8 +305,9 @@ def stopMotors(robot):
 # Dersom både nrows > 1 og ncols > 1, så benyttes "ax[0,0]", "ax[1,0]", osv
 def lagPlot(plt):
 	nrows = 1
-	ncols = 2
+	ncols = 1
 	sharex = True
+	sharey = True
 	plt.create(nrows,ncols, sharex)
 	ax,fig = plt.ax, plt.fig
 
@@ -315,17 +316,17 @@ def lagPlot(plt):
 	# Ved flere subplot over hverandre så er det lurt å legge 
 	# informasjon om x-label på de nederste subplotene (sharex = True)
 
-	fig.suptitle('Temperaturen til en kaffekopp')
+	fig.suptitle('Filter verifisering')
 
 
 	# plotting av Temperatur
-	ax[0].set_title('Temperatur')  
-	ax[0].set_xlabel("Tid [sek]")	 
-	ax[0].set_ylabel("Temperatur [C]")
+	ax.set_title('')  
+	ax.set_xlabel("Tid [sek]")	 
+	ax.set_ylabel("Temperatur [C]")
 	
 
 	plt.plot(
-		subplot = ax[0],  	# Definer hvilken delfigur som skal plottes
+		subplot = ax,  	# Definer hvilken delfigur som skal plottes
 		x = "Tid", 			# navn på x-verdien (fra data-objektet)
 		y = "Temp",			# navn på y-verdien (fra data-objektet)
 
@@ -361,9 +362,9 @@ def lagPlot(plt):
 	 #)
 
 	plt.plot(
-		subplot = ax[1],    
+		subplot = ax,    
 		x = "Tid",	# navn på x-verdien (fra data-objektet)  
-		y = "Temp_IIR_03",	# navn på y-verdien (fra data-objektet)  
+		y = "Temp_FIR",	# navn på y-verdien (fra data-objektet)  
 
 		color = "r"
 	)
