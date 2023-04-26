@@ -305,7 +305,7 @@ def stopMotors(robot):
 # Dersom både nrows > 1 og ncols > 1, så benyttes "ax[0,0]", "ax[1,0]", osv
 def lagPlot(plt):
 	nrows = 1
-	ncols = 1
+	ncols = 2
 	sharex = True
 	sharey = True
 	plt.create(nrows,ncols, sharex)
@@ -320,13 +320,11 @@ def lagPlot(plt):
 
 
 	# plotting av Temperatur
-	ax.set_title('')  
-	ax.set_xlabel("Tid [sek]")	 
-	ax.set_ylabel("Temperatur [C]")
-	
-
+	ax[0].set_title('')  
+	ax[0].set_xlabel("Tid [sek]")	 
+	ax[0].set_ylabel("Temperatur [C]")
 	plt.plot(
-		subplot = ax,  	# Definer hvilken delfigur som skal plottes
+		subplot = ax[0],  	# Definer hvilken delfigur som skal plottes
 		x = "Tid", 			# navn på x-verdien (fra data-objektet)
 		y = "Temp",			# navn på y-verdien (fra data-objektet)
 
@@ -361,10 +359,13 @@ def lagPlot(plt):
 	 #	color = "g"
 	 #)
 
+	ax[1].set_title('')  
+	ax[1].set_xlabel("Tid [sek]")	 
+	ax[1].set_ylabel("Temperatur [C]")
 	plt.plot(
-		subplot = ax,    
+		subplot = ax[1],    
 		x = "Tid",	# navn på x-verdien (fra data-objektet)  
-		y = "Temp_FIR",	# navn på y-verdien (fra data-objektet)  
+		y = "Temp_IIR",	# navn på y-verdien (fra data-objektet)  
 
 		color = "r"
 	)

@@ -51,10 +51,10 @@ Configs.livePlot = False 	# livePlot = True  --> Live plot, typisk stor Ts
 Configs.avgTs = 0.005	# livePlot = False --> spesifiser ønsket Ts
 						# Lav avgTs -> høy samplingsfrekvens og mye data.
 						# --> Du må vente veldig lenge for å lagre filen.
-Configs.filename = "Prosjekt06_AdaptiveCruise_PID.txt"	
+Configs.filename = "Prosjekt06_AdaptiveCruise_PID_02.txt"	
 						# Målinger/beregninger i Online lagres til denne 
 						# .txt-filen. Upload til Data-mappen.
-Configs.filenameOffline = "Offline_Prosjekt06_AdaptiveCruise_PID.txt"	
+Configs.filenameOffline = "Offline_Prosjekt06_AdaptiveCruise_PID_02.txt"	
 						# I Offline brukes den opplastede datafilen 
 						# og alt lagres til denne .txt-filen.
 Configs.plotMethod = 2	# verdier: 1 eller 2, hvor hver plottemetode 
@@ -63,7 +63,7 @@ Configs.plotBackend = ""	# Ønsker du å bruke en spesifikk backend, last ned
 							# og skriv her. Eks.: qt5agg, qtagg, tkagg, macosx. 
 Configs.limitMeasurements = False	# Mulighet å kjøre programmet lenge 
 									# uten at roboten kræsjer pga minnet
-Configs.ConnectJoystickToPC = True # True  --> joystick direkte på datamaskin
+Configs.ConnectJoystickToPC = False # True  --> joystick direkte på datamaskin
 									# False	--> koble joystick på EV3-robot
 									# False	--> også når joystick ikke brukes
 #____________________________________________________________________________
@@ -79,7 +79,7 @@ Configs.ConnectJoystickToPC = True # True  --> joystick direkte på datamaskin
 
 # målinger
 data.Tid = []            	# måling av tidspunkt
-data.Lys = []            	# måling av reflektert lys fra ColorSensor
+# data.Lys = []            	# måling av reflektert lys fra ColorSensor
 
 data.Avstand = []
 
@@ -98,16 +98,15 @@ data.PowerA = []         # berenging av motorpådrag A
 data.PowerD = []         # berenging av motorpådrag D
 
 data.Avvik = []
-data.abs_Avvik = []
 data.Avvik_Integrert = []
 data.Avvik_IIR = []
 data.Avvik_IIR_Derivert = []
 
-data.IAElist = []
-data.MAElist = []
+# data.IAElist = []
+# data.MAElist = []
 
-data.TvA = []
-data.TvD = []
+# data.TvA = []
+# data.TvD = []
 
 """
 # Utvalg av målinger
@@ -239,7 +238,7 @@ def MathCalculations(data,k,init):
 	# Parametre
 	alfa = 0.02
 
-	K_p = 2.5
+	K_p = 2
 	K_i = 0.5
 	K_d = 0.2
 
@@ -252,14 +251,10 @@ def MathCalculations(data,k,init):
 		data.Referanse.append(data.Avstand[0])
 
 		data.Avvik.append(0)
-		data.abs_Avvik.append(0)
 
 		data.Avvik_Integrert.append(0)
 		data.Avvik_IIR.append(0)
 		data.Avvik_IIR_Derivert.append(0)
-
-		data.IAElist.append(0)
-		data.MAElist.append(0) 
 
 		data.Power.append(0)
 		data.PowerA.append(0)
@@ -280,8 +275,8 @@ def MathCalculations(data,k,init):
 		data.Avvik_Integrert.append(EulerForward(data.Avvik_Integrert[k-1], (K_i * data.Avvik[k-1]), data.Ts[k]))
 		data.Avvik_IIR_Derivert.append(K_d * Derivation((data.Avvik_IIR[k] - data.Avvik_IIR[k-1]), data.Ts[k]))
 
-		data.IAElist.append(EulerForward(data.IAElist[k-1], data.Avvik[k], data.Ts[k]))
-		data.MAElist.append(FIR_Filter(data.Avvik[0:k], k))
+		# data.IAElist.append(EulerForward(data.IAElist[k-1], data.Avvik[k], data.Ts[k]))
+		# data.MAElist.append(FIR_Filter(data.Avvik[0:k], k))
 
 		if data.Avvik_Integrert[k] > 50:
 			data.Avvik_Integrert[k] = 50
