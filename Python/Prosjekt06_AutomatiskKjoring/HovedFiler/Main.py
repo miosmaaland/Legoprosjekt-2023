@@ -31,7 +31,6 @@ if sys.implementation.name.lower().find("micropython") != -1:
 	from EV3AndJoystick import *
 from MineFunksjoner import *
 from funksjoner import *
-
 data = Bunch()				# dataobjektet ditt (punktum notasjon)
 Configs = Bunch()			# konfiguarsjonene dine
 init = Bunch()				# initalverdier (brukes i addmeasurement og mathcalculations)
@@ -44,18 +43,18 @@ timer = clock()				# timerobjekt med tic toc funksjoner
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #                            1) KONFIGURASJON
 #
-Configs.EV3_IP = "169.254.119.231"	# Avles IP-adressen på EV3-skjermen
+Configs.EV3_IP = "169.254.7.251"	# Avles IP-adressen på EV3-skjermen
 Configs.Online = True	# Online = True  --> programmet kjører på robot  
 						# Online = False --> programmet kjører på datamaskin
-Configs.livePlot = False 	# livePlot = True  --> Live plot, typisk stor Ts
+Configs.livePlot = True 	# livePlot = True  --> Live plot, typisk stor Ts
 							# livePlot = False --> Ingen plot, liten Ts
 Configs.avgTs = 0.005	# livePlot = False --> spesifiser ønsket Ts
 						# Lav avgTs -> høy samplingsfrekvens og mye data.
 						# --> Du må vente veldig lenge for å lagre filen.
-Configs.filename = "Prosjekt05_AutomatiskKjoring.txt"	
+Configs.filename = "P06_AutomatiskKjoring.txt"	
 						# Målinger/beregninger i Online lagres til denne 
 						# .txt-filen. Upload til Data-mappen.
-Configs.filenameOffline = "Offline_Prosjekt05_AutomatiskKjoring.txt"	
+Configs.filenameOffline = "Offline_P06_AutomatiskKjoring.txt"	
 						# I Offline brukes den opplastede datafilen 
 						# og alt lagres til denne .txt-filen.
 Configs.plotMethod = 2	# verdier: 1 eller 2, hvor hver plottemetode 
@@ -64,10 +63,11 @@ Configs.plotBackend = ""	# Ønsker du å bruke en spesifikk backend, last ned
 							# og skriv her. Eks.: qt5agg, qtagg, tkagg, macosx. 
 Configs.limitMeasurements = False	# Mulighet å kjøre programmet lenge 
 									# uten at roboten kræsjer pga minnet
-Configs.ConnectJoystickToPC = True # True  --> joystick direkte på datamaskin
+Configs.ConnectJoystickToPC = False # True  --> joystick direkte på datamaskin
 									# False	--> koble joystick på EV3-robot
 									# False	--> også når joystick ikke brukes
 #____________________________________________________________________________
+
 
 
 
@@ -81,8 +81,6 @@ Configs.ConnectJoystickToPC = True # True  --> joystick direkte på datamaskin
 # målinger
 data.Tid = []            	# måling av tidspunkt
 data.Lys = []            	# måling av reflektert lys fra ColorSensor
-
-
 
 data.VinkelPosMotorA = []    # måling av vinkelposisjon motor A
 data.HastighetMotorA = []    # måling av vinkelhastighet motor A
@@ -182,24 +180,26 @@ def addMeasurements(data,robot,init,k):
 	# lagrer målinger av lys
 	data.Lys.append(robot.ColorSensor.reflection())
 
-	
-
 	data.VinkelPosMotorA.append(robot.motorA.angle())
 	data.HastighetMotorA.append(robot.motorA.speed())
 	data.VinkelPosMotorD.append(robot.motorD.angle())
 	data.HastighetMotorD.append(robot.motorD.speed())
 
-
 	"""
 	data.LysDirekte.append(robot.ColorSensor.ambient())
 	data.Bryter.append(robot.TouchSensor.pressed())
+	data.Avstand.append(robot.UltrasonicSensor.distance())
 	data.GyroAngle.append(robot.GyroSensor.angle())
 	data.GyroRate.append(robot.GyroSensor.speed())
 
+	data.VinkelPosMotorA.append(robot.motorA.angle())
+	data.HastighetMotorA.append(robot.motorA.speed())
 	data.VinkelPosMotorB.append(robot.motorB.angle())
 	data.HastighetMotorB.append(robot.motorB.speed())
 	data.VinkelPosMotorC.append(robot.motorC.angle())
 	data.HastighetMotorC.append(robot.motorC.speed())
+	data.VinkelPosMotorD.append(robot.motorD.angle())
+	data.HastighetMotorD.append(robot.motorD.speed())
 
 	data.joyForward.append(config.joyForwardInstance)
 	data.joySide.append(config.joySideInstance)
@@ -320,7 +320,10 @@ def MathCalculations(data,k,init):
 # Motorene oppdateres for hver iterasjon etter mathcalculations
 #
 def setMotorPower(data,robot):
+	return # fjern denne om motor(er) brukes
 	robot.motorA.dc(data.PowerA[-1])
+	robot.motorB.dc(data.PowerB[-1])
+	robot.motorC.dc(data.PowerC[-1])
 	robot.motorD.dc(data.PowerD[-1])
 
 # Når programmet slutter, spesifiser hvordan du vil at motoren(e) skal stoppe.
@@ -329,8 +332,11 @@ def setMotorPower(data,robot):
 # - brake() ruller videre, men bruker strømmen generert av rotasjonen til brems
 # - hold() bråstopper umiddelbart og holder posisjonen
 def stopMotors(robot):
+	return # fjern denne om motor(er) brukes
 	robot.motorA.stop()
-	robot.motorD.stop()
+	robot.motorB.brake()
+	robot.motorC.hold()
+	robot.motorD.hold()
 #______________________________________________________________________________
 
 
