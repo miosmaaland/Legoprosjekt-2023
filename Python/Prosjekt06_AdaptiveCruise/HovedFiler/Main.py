@@ -99,9 +99,9 @@ data.PowerD = []         # berenging av motorpådrag D
 
 data.Avvik = []
 data.abs_Avvik = []
-data.Integrert_Avvik = []
-data.Filtrert_Avvik = []
-data.Filtrert_Avvik_Derivert = []
+data.Avvik_Integrert = []
+data.Avvik_IIR = []
+data.Avvik_IIR_Derivert = []
 
 data.IAElist = []
 data.MAElist = []
@@ -254,9 +254,9 @@ def MathCalculations(data,k,init):
 		data.Avvik.append(0)
 		data.abs_Avvik.append(0)
 
-		data.Integrert_Avvik.append(0)
-		data.Filtrert_Avvik.append(0)
-		data.Filtrert_Avvik_Derivert.append(0)
+		data.Avvik_Integrert.append(0)
+		data.Avvik_IIR.append(0)
+		data.Avvik_IIR_Derivert.append(0)
 
 		data.IAElist.append(0)
 		data.MAElist.append(0) 
@@ -276,23 +276,20 @@ def MathCalculations(data,k,init):
 		data.Avvik.append(data.Referanse[k] - data.Avstand[k])
 		data.abs_Avvik.append(abs(data.Avvik[k]))
 
-		data.Filtrert_Avvik.append(IIR_Filter(data.Filtrert_Avvik[k-1], data.Avvik[k], alfa))
-		data.Integrert_Avvik.append(EulerForward(data.Integrert_Avvik[k-1], (K_i * data.Avvik[k-1]), data.Ts[k]))
-		data.Filtrert_Avvik_Derivert.append(K_d * Derivation((data.Filtrert_Avvik[k] - data.Filtrert_Avvik[k-1]), data.Ts[k]))
+		data.Avvik_IIR.append(IIR_Filter(data.Avvik_IIR[k-1], data.Avvik[k], alfa))
+		data.Avvik_Integrert.append(EulerForward(data.Avvik_Integrert[k-1], (K_i * data.Avvik[k-1]), data.Ts[k]))
+		data.Avvik_IIR_Derivert.append(K_d * Derivation((data.Avvik_IIR[k] - data.Avvik_IIR[k-1]), data.Ts[k]))
 
 		data.IAElist.append(EulerForward(data.IAElist[k-1], data.Avvik[k], data.Ts[k]))
 		data.MAElist.append(FIR_Filter(data.Avvik[0:k], k))
 
-		if data.Integrert_Avvik[k] > 50:
-			data.Integrert_Avvik[k] = 50
+		if data.Avvik_Integrert[k] > 50:
+			data.Avvik_Integrert[k] = 50
 
-		elif data.Integrert_Avvik[k] < -50:
-			data.Integrert_Avvik[k] = -50
+		elif data.Avvik_Integrert[k] < -50:
+			data.Avvik_Integrert[k] = -50
 
-		# PowerA_k = -K_p*data.Avvik[k] - K_i*data.Integrert_Avvik[k] - K_d*data.Filtrert_Avvik_Derivert[k]
-		# PowerD_k = +K_p*data.Avvik[k] + K_i*data.Integrert_Avvik[k] + K_d*data.Filtrert_Avvik_Derivert[k]
-
-		data.Power.append(K_p*data.Avvik[k] + data.Integrert_Avvik[k] + data.Filtrert_Avvik_Derivert[k])
+		data.Power.append(K_p*data.Avvik[k] + data.Avvik_Integrert[k] + data.Avvik_IIR_Derivert[k])
 
 		data.PowerA.append(NullPower -  data.Power[k])
 		data.PowerD.append(NullPower -  data.Power[k])
