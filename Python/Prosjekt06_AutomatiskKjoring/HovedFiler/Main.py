@@ -43,12 +43,12 @@ timer = clock()				# timerobjekt med tic toc funksjoner
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #                            1) KONFIGURASJON
 #
-Configs.EV3_IP = "169.254.52.79" # Avles IP-adressen på EV3-skjermen
+Configs.EV3_IP = "169.254.233.2"	# Avles IP-adressen på EV3-skjermen
 Configs.Online = True	# Online = True  --> programmet kjører på robot  
 						# Online = False --> programmet kjører på datamaskin
 Configs.livePlot = False 	# livePlot = True  --> Live plot, typisk stor Ts
 							# livePlot = False --> Ingen plot, liten Ts
-Configs.avgTs = 0.001	# livePlot = False --> spesifiser ønsket Ts
+Configs.avgTs = 0.005	# livePlot = False --> spesifiser ønsket Ts
 						# Lav avgTs -> høy samplingsfrekvens og mye data.
 						# --> Du må vente veldig lenge for å lagre filen.
 Configs.filename = "P06_AutomatiskKjoring.txt"	
@@ -63,7 +63,7 @@ Configs.plotBackend = ""	# Ønsker du å bruke en spesifikk backend, last ned
 							# og skriv her. Eks.: qt5agg, qtagg, tkagg, macosx. 
 Configs.limitMeasurements = False	# Mulighet å kjøre programmet lenge 
 									# uten at roboten kræsjer pga minnet
-Configs.ConnectJoystickToPC = False # True  --> joystick direkte på datamaskin
+Configs.ConnectJoystickToPC = True # True  --> joystick direkte på datamaskin
 									# False	--> koble joystick på EV3-robot
 									# False	--> også når joystick ikke brukes
 #____________________________________________________________________________
@@ -97,9 +97,9 @@ data.PowerD = []         # berenging av motorpådrag D
 
 data.Avvik = []
 data.abs_Avvik = []
-data.Avvik_Integrert = []
-data.Avvik_IIR = []
-data.Derivert_Avvik_IIR = []
+data.Integrert_Avvik = []
+data.Filtrert_Avvik = []
+data.Filtrert_Avvik_Derivert = []
 
 data.IAElist = []
 data.MAElist = []
@@ -241,7 +241,7 @@ def MathCalculations(data,k,init):
 	K_p = 2
 	K_i = 0.5
 	K_d = 0.2
-	null_fart = 20
+	null_fart = 0
 
 
 	
@@ -250,12 +250,12 @@ def MathCalculations(data,k,init):
 	if k == 0:
 		# Initialverdier
 		data.Ts.append(0.005)  	# nominell verdi
-		data.Referanse.append(data.Lys[0])
+		data.Referanse.append(data.Avstand[0])
 		data.Avvik.append(0)
 		data.abs_Avvik.append(0)
-		data.Avvik_Integrert.append(0)
-		data.Avvik_IIR.append(0)
-		data.Derivert_Avvik_IIR.append(0)
+		data.Integrert_Avvik.append(0)
+		data.Filtrert_Avvik.append(data.Avvik[0])
+		data.Filtrert_Avvik_Derivert.append(0)
 
 		data.IAElist.append(0)
 		data.MAElist.append(0) 
@@ -277,24 +277,34 @@ def MathCalculations(data,k,init):
 		data.IAElist.append(EulerForward(data.IAElist[k-1], data.Avvik[k], data.Ts[k]))
 		data.MAElist.append(FIR_Filter(data.Avvik[0:k], k))
 
-		data.Avvik_Integrert.append(EulerForward(data.Avvik_Integrert[k-1], (K_i * data.Avvik[k-1]), data.Ts[k]))
-		data.Avvik_IIR.append(IIR_Filter(data.Avvik_IIR[k-1], data.Avvik[k], alfa))
-		data.Derivert_Avvik_IIR.append(Derivation(K_d * (data.Avvik_IIR[k] - data.Avvik_IIR[k-1]), data.Ts[k]))
+		data.Integrert_Avvik.append(EulerForward(data.Integrert_Avvik[k-1], (K_i * data.Avvik[k-1]), data.Ts[k]))
+		data.Filtrert_Avvik.append(IIR_Filter(data.Filtrert_Avvik[k-1], data.Avvik[k], alfa))
+		data.Filtrert_Avvik_Derivert.append(Derivation(K_d * (data.Filtrert_Avvik[k] - data.Filtrert_Avvik[k-1]), data.Ts[k]))
 
-		pid = K_p*data.Avvik[k] + K_i*data.Avvik_Integrert[k] + K_d*data.Derivert_Avvik_IIR[k]
-		PowerA_k = (null_fart - pid)
-		PowerD_k = (null_fart + pid)
+		# if data.Integrert_Avvik[k] > 50:
+		# 	data.Integrert_Avvik[k] = 50
+
+		# elif data.Integrert_Avvik[k] < -50:
+		# 	data.Integrert_Avvik[k] = -50
+
+		PowerA_k = -K_p*data.Avvik[k] - K_i*data.Integrert_Avvik[k] - K_d*data.Filtrert_Avvik_Derivert[k]
+		PowerD_k = +K_p*data.Avvik[k] + K_i*data.Integrert_Avvik[k] + K_d*data.Filtrert_Avvik_Derivert[k]
+
+		if data.Lys[k] > 70:
+			data.PowerA.append(PowerA_k)
+			data.PowerD.append(PowerD_k)
+
+		else:
+			data.PowerA.append(0)
+			data.PowerD.append(0)
 
 		
-		data.PowerA.append(PowerA_k)
-		data.PowerD.append(PowerD_k)
 
+		
 
 		data.TvA.append(data.TvA[k-1] + abs(data.PowerA[k] - data.PowerA[k-1]))
 		data.TvD.append(data.TvD[k-1] + abs(data.PowerD[k] - data.PowerD[k-1]))
 
-		if data.Lys[k] > 70 and Configs.Online:
-			raise Exception("roboten kjørte av banen")
     # Andre beregninger uavhengig av initialverdi
 
     # Pådragsberegninger
@@ -310,7 +320,10 @@ def MathCalculations(data,k,init):
 # Motorene oppdateres for hver iterasjon etter mathcalculations
 #
 def setMotorPower(data,robot):
+	return # fjern denne om motor(er) brukes
 	robot.motorA.dc(data.PowerA[-1])
+	robot.motorB.dc(data.PowerB[-1])
+	robot.motorC.dc(data.PowerC[-1])
 	robot.motorD.dc(data.PowerD[-1])
 
 # Når programmet slutter, spesifiser hvordan du vil at motoren(e) skal stoppe.
@@ -319,9 +332,11 @@ def setMotorPower(data,robot):
 # - brake() ruller videre, men bruker strømmen generert av rotasjonen til brems
 # - hold() bråstopper umiddelbart og holder posisjonen
 def stopMotors(robot):
+	return # fjern denne om motor(er) brukes
 	robot.motorA.stop()
-	robot.motorD.stop()
-
+	robot.motorB.brake()
+	robot.motorC.hold()
+	robot.motorD.hold()
 #______________________________________________________________________________
 
 
@@ -334,7 +349,7 @@ def stopMotors(robot):
 # Dersom enten nrows = 1 eller ncols = 1, så benyttes "ax[0]", "ax[1]", osv.
 # Dersom både nrows > 1 og ncols > 1, så benyttes "ax[0,0]", "ax[1,0]", osv
 def lagPlot(plt):
-	nrows = 4
+	nrows = 3
 	ncols = 1
 	sharex = True
 	plt.create(nrows,ncols,sharex)
@@ -363,26 +378,14 @@ def lagPlot(plt):
 		marker = "",       	# legg til markør på hvert punkt
 	)
 
-	plt.plot(
-		subplot = ax[0],  	# Definer hvilken delfigur som skal plottes
-		x = "Tid", 			# navn på x-verdien (fra data-objektet)
-		y = "Referanse",			# navn på y-verdien (fra data-objektet)
-
-		# VALGFRITT
-		color = "r",		# fargen på kurven som plottes (default: blå)
-		linestyle = "solid",  # "solid" / "dashed" / "dotted"
-		linewidth = 1,		# tykkelse på linjen
-		marker = "",       	# legg til markør på hvert punkt
-	)
-
 	# plotting av lys (minimumsversjon)
-	ax[1].set_title('Avvik e(k)')  
+	ax[1].set_title('Lys')  
 	ax[1].set_xlabel("Tid [sek]")
-	ax[1].set_ylabel("Avvik")
+	ax[1].set_ylabel("Lys")
 	plt.plot(
 		subplot = ax[1],    
 		x = "Tid",	# navn på x-verdien (fra data-objektet)  
-		y = "Avvik",	# navn på y-verdien (fra data-objektet)  
+		y = "Lys",	# navn på y-verdien (fra data-objektet)  
 	)
 
 	# plotting av Ts (benytter utvalg av listene)
@@ -396,32 +399,4 @@ def lagPlot(plt):
 		color = "b",
 		linestyle = "dashed",
 	)
-
-		# plotting av Power
-	ax[3].set_title('Pådraget[Power] i begge motorene')  
-	ax[3].set_xlabel("Tid [sek]")	 
-	ax[3].set_ylabel("")
-	plt.plot(
-		subplot = ax[3],  	# Definer hvilken delfigur som skal plottes
-		x = "Tid", 			# navn på x-verdien (fra data-objektet)
-		y = "PowerA",			# navn på y-verdien (fra data-objektet)
-
-		# VALGFRITT
-		color = "r",		# fargen på kurven som plottes (default: blå)
-		linestyle = "solid",  # "solid" / "dashed" / "dotted"
-		linewidth = 1,		# tykkelse på linjen
-		marker = "",       	# legg til markør på hvert punkt
-	)	
-
-	plt.plot(
-		subplot = ax[3],  	# Definer hvilken delfigur som skal plottes
-		x = "Tid", 			# navn på x-verdien (fra data-objektet)
-		y = "PowerD",			# navn på y-verdien (fra data-objektet)
-
-		# VALGFRITT
-		color = "b",		# fargen på kurven som plottes (default: blå)
-		linestyle = "dashed",  # "solid" / "dashed" / "dotted"
-		linewidth = 1,		# tykkelse på linjen
-		marker = "",       	# legg til markør på hvert punkt
-	)	
 #____________________________________________________________________________
