@@ -51,10 +51,10 @@ Configs.livePlot = False 	# livePlot = True  --> Live plot, typisk stor Ts
 Configs.avgTs = 0.005	# livePlot = False --> spesifiser ønsket Ts
 						# Lav avgTs -> høy samplingsfrekvens og mye data.
 						# --> Du må vente veldig lenge for å lagre filen.
-Configs.filename = "Prosjekt06_AdaptiveCruise_PID_02.txt"	
+Configs.filename = "Prosjekt06_AdaptiveCruise_P.txt"	
 						# Målinger/beregninger i Online lagres til denne 
 						# .txt-filen. Upload til Data-mappen.
-Configs.filenameOffline = "Offline_Prosjekt06_AdaptiveCruise_PID_02.txt"	
+Configs.filenameOffline = "Offline_Prosjekt06_AdaptiveCruise_P.txt"	
 						# I Offline brukes den opplastede datafilen 
 						# og alt lagres til denne .txt-filen.
 Configs.plotMethod = 2	# verdier: 1 eller 2, hvor hver plottemetode 
@@ -83,11 +83,11 @@ data.Tid = []            	# måling av tidspunkt
 
 data.Avstand = []
 
-data.VinkelPosMotorA = []    # måling av vinkelposisjon motor A
-data.HastighetMotorA = []    # måling av vinkelhastighet motor A
+# data.VinkelPosMotorA = []    # måling av vinkelposisjon motor A
+# data.HastighetMotorA = []    # måling av vinkelhastighet motor A
 
-data.VinkelPosMotorD = []    # måling av vinkelposisjon motor D
-data.HastighetMotorD = []    # måling av vinkelhastighet motor D
+# data.VinkelPosMotorD = []    # måling av vinkelposisjon motor D
+# data.HastighetMotorD = []    # måling av vinkelhastighet motor D
 
 # beregninger
 data.Ts = []			  	# beregning av tidsskritt
@@ -184,10 +184,10 @@ def addMeasurements(data,robot,init,k):
 
 	data.Avstand.append(robot.UltrasonicSensor.distance())
 
-	data.VinkelPosMotorA.append(robot.motorA.angle())
-	data.HastighetMotorA.append(robot.motorA.speed())
-	data.VinkelPosMotorD.append(robot.motorD.angle())
-	data.HastighetMotorD.append(robot.motorD.speed())
+	# data.VinkelPosMotorA.append(robot.motorA.angle())
+	# data.HastighetMotorA.append(robot.motorA.speed())
+	# data.VinkelPosMotorD.append(robot.motorD.angle())
+	# data.HastighetMotorD.append(robot.motorD.speed())
 
 
 	"""
@@ -239,8 +239,8 @@ def MathCalculations(data,k,init):
 	alfa = 0.02
 
 	K_p = 2
-	K_i = 0.5
-	K_d = 0.2
+	K_i = 0
+	K_d = 0
 
 	NullPower = 0
     
@@ -260,16 +260,12 @@ def MathCalculations(data,k,init):
 		data.PowerA.append(0)
 		data.PowerD.append(0)
 
-		data.TvA.append(0)
-		data.TvD.append(0)
-
 	else:
         # Beregninger av Ts og variable som avhenger av initialverdi
 		data.Ts.append(data.Tid[k]-data.Tid[k-1])
 		data.Referanse.append(data.Avstand[0])
 
 		data.Avvik.append(data.Referanse[k] - data.Avstand[k])
-		data.abs_Avvik.append(abs(data.Avvik[k]))
 
 		data.Avvik_IIR.append(IIR_Filter(data.Avvik_IIR[k-1], data.Avvik[k], alfa))
 		data.Avvik_Integrert.append(EulerForward(data.Avvik_Integrert[k-1], (K_i * data.Avvik[k-1]), data.Ts[k]))
@@ -288,9 +284,6 @@ def MathCalculations(data,k,init):
 
 		data.PowerA.append(NullPower -  data.Power[k])
 		data.PowerD.append(NullPower -  data.Power[k])
-
-		# data.TvA.append(data.TvA[k-1] + abs(data.PowerA[k] - data.PowerA[k-1]))
-		# data.TvD.append(data.TvD[k-1] + abs(data.PowerD[k] - data.PowerD[k-1]))
 
     # Andre beregninger uavhengig av initialverdi
 
@@ -343,10 +336,23 @@ def lagPlot(plt):
 
 	fig.suptitle('')
 
-	# plotting av lys
 	ax[0].set_title('Referanse (r) og Avstand (b)')  
 	ax[0].set_xlabel("Tid [sek]")	 
-	ax[0].set_ylabel("")
+	ax[0].set_ylabel("Avstand [mm]")
+	# plotting av refferanse
+	plt.plot(
+		subplot = ax[0],  	# Definer hvilken delfigur som skal plottes
+		x = "Tid", 			# navn på x-verdien (fra data-objektet)
+		y = "Referanse",			# navn på y-verdien (fra data-objektet)
+
+		# VALGFRITT
+		color = "r",		# fargen på kurven som plottes (default: blå)
+		linestyle = "dashed",  # "solid" / "dashed" / "dotted"
+		linewidth = 1,		# tykkelse på linjen
+		marker = "",       	# legg til markør på hvert punkt
+	)
+
+	# plotting av avstan
 	plt.plot(
 		subplot = ax[0],  	# Definer hvilken delfigur som skal plottes
 		x = "Tid", 			# navn på x-verdien (fra data-objektet)
@@ -359,23 +365,10 @@ def lagPlot(plt):
 		marker = "",       	# legg til markør på hvert punkt
 	)
 
-	# plotting av refferanse
-	plt.plot(
-		subplot = ax[0],  	# Definer hvilken delfigur som skal plottes
-		x = "Tid", 			# navn på x-verdien (fra data-objektet)
-		y = "Referanse",			# navn på y-verdien (fra data-objektet)
-
-		# VALGFRITT
-		color = "r",		# fargen på kurven som plottes (default: blå)
-		linestyle = "solid",  # "solid" / "dashed" / "dotted"
-		linewidth = 1,		# tykkelse på linjen
-		marker = "",       	# legg til markør på hvert punkt
-	)
-
 	# plotting av Power
 	ax[1].set_title('Avvik e(k)')  
 	ax[1].set_xlabel("Tid [sek]")	 
-	ax[1].set_ylabel("")
+	ax[1].set_ylabel("Avstand [mm]")
 	plt.plot(
 		subplot = ax[1],  	# Definer hvilken delfigur som skal plottes
 		x = "Tid", 			# navn på x-verdien (fra data-objektet)
@@ -391,7 +384,7 @@ def lagPlot(plt):
 	# plotting av Power
 	ax[2].set_title('Pådraget[Power] i begge motorene')  
 	ax[2].set_xlabel("Tid [sek]")	 
-	ax[2].set_ylabel("")
+	ax[2].set_ylabel("Avstand [mm]")
 	plt.plot(
 		subplot = ax[2],  	# Definer hvilken delfigur som skal plottes
 		x = "Tid", 			# navn på x-verdien (fra data-objektet)
