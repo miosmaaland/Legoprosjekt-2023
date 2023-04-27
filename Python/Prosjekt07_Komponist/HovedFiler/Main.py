@@ -43,18 +43,18 @@ timer = clock()				# timerobjekt med tic toc funksjoner
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #                            1) KONFIGURASJON
 #
-Configs.EV3_IP = "169.254.81.112"	# Avles IP-adressen på EV3-skjermen
-Configs.Online = False	# Online = True  --> programmet kjører på robot  
+Configs.EV3_IP = "169.254.7.251"	# Avles IP-adressen på EV3-skjermen
+Configs.Online = True	# Online = True  --> programmet kjører på robot  
 						# Online = False --> programmet kjører på datamaskin
 Configs.livePlot = True 	# livePlot = True  --> Live plot, typisk stor Ts
 							# livePlot = False --> Ingen plot, liten Ts
 Configs.avgTs = 0.005	# livePlot = False --> spesifiser ønsket Ts
 						# Lav avgTs -> høy samplingsfrekvens og mye data.
 						# --> Du må vente veldig lenge for å lagre filen.
-Configs.filename = "P04_ManuellKjøring_Sanjai.txt"	
+Configs.filename = "P0X_BeskrivendeTekst_Y.txt"	
 						# Målinger/beregninger i Online lagres til denne 
 						# .txt-filen. Upload til Data-mappen.
-Configs.filenameOffline = "Offline_P04_ManuellKjøring_Sanjai.txt"	
+Configs.filenameOffline = "Offline_P0X_BeskrivendeTekst_Y.txt"	
 						# I Offline brukes den opplastede datafilen 
 						# og alt lagres til denne .txt-filen.
 Configs.plotMethod = 2	# verdier: 1 eller 2, hvor hver plottemetode 
@@ -63,7 +63,7 @@ Configs.plotBackend = ""	# Ønsker du å bruke en spesifikk backend, last ned
 							# og skriv her. Eks.: qt5agg, qtagg, tkagg, macosx. 
 Configs.limitMeasurements = False	# Mulighet å kjøre programmet lenge 
 									# uten at roboten kræsjer pga minnet
-Configs.ConnectJoystickToPC = True	# True  --> joystick direkte på datamaskin
+Configs.ConnectJoystickToPC = False # True  --> joystick direkte på datamaskin
 									# False	--> koble joystick på EV3-robot
 									# False	--> også når joystick ikke brukes
 #____________________________________________________________________________
@@ -82,25 +82,8 @@ Configs.ConnectJoystickToPC = True	# True  --> joystick direkte på datamaskin
 data.Tid = []            	# måling av tidspunkt
 data.Lys = []            	# måling av reflektert lys fra ColorSensor
 
-data.joyForward = []         # måling av foroverbevegelse styrestikke
-data.joySide = []            # måling av sidebevegelse styrestikke 
-
 # beregninger
 data.Ts = []			  	# beregning av tidsskritt
-
-data.PowerA = []         	# berenging av motorpådrag A
-data.PowerD = []         	# berenging av motorpådrag D
-
-data.avvik = []				# beregning av avvik	
-data.abs_avik = []			# beregning av absolut avvik
-
-data.IAEList = []			# beregning av IAE
-data.MAEList = []			# beregning av MAE
-
-data.TvA = []				# beregning av totalt motorpådrag A
-data.TvD = []				# beregning av totalt motorpådrag B
-
-data.Referanse = []
 
 """
 # Utvalg av målinger
@@ -119,6 +102,8 @@ data.HastighetMotorC = []    # måling av vinkelhastighet motor C
 data.VinkelPosMotorD = []    # måling av vinkelposisjon motor D
 data.HastighetMotorD = []    # måling av vinkelhastighet motor D
 
+data.joyForward = []         # måling av foroverbevegelse styrestikke
+data.joySide = []            # måling av sidebevegelse styrestikke
 data.joyTwist = []           # måling av vribevegelse styrestikke
 data.joyPotMeter = []        # måling av potensionmeter styrestikke
 data.joyPOVForward = []      # måling av foroverbevegelse toppledd
@@ -126,7 +111,7 @@ data.joyPOVSide = []         # måling av sidebevegelse toppledd
 
 data.joy1 = []               # måling av knapp 1 (skyteknapp)
 data.joy2 = []               # måling av knapp 2 (ved tommel)
-data.joy3 = []               # måling av knapp 3
+data.joy3 = []               # måling av knapp 3 
 data.joy4 = []               # måling av knapp 4 
 data.joy5 = []               # måling av knapp 5 
 data.joy6 = []               # måling av knapp 6 
@@ -138,8 +123,10 @@ data.joy11 = []              # måling av knapp 11
 data.joy12 = []              # måling av knapp 12
 
 # Utvalg av beregninger
+data.PowerA = []         # berenging av motorpådrag A
 data.PowerB = []         # berenging av motorpådrag B
 data.PowerC = []         # berenging av motorpådrag C
+data.PowerD = []         # berenging av motorpådrag D
 """
 #____________________________________________________________________________________________
 
@@ -165,7 +152,7 @@ data.PowerC = []         # berenging av motorpådrag C
 def addMeasurements(data,robot,init,k):
 	if k==0:
 		# Definer initielle lmålinger inn i init variabelen.
-		#A Initialverdiene kan brukes i MathCalculations()
+        # Initialverdiene kan brukes i MathCalculations()
 		init.Lys0 = robot.ColorSensor.reflection() 	# lagrer første lysmåling
 
 		data.Tid.append(timer.tic())		# starter "stoppeklokken" på 0
@@ -176,9 +163,6 @@ def addMeasurements(data,robot,init,k):
 	
 	# lagrer målinger av lys
 	data.Lys.append(robot.ColorSensor.reflection())
-
-	data.joyForward.append(config.joyForwardInstance)
-	data.joySide.append(config.joySideInstance)
 
 	"""
 	data.LysDirekte.append(robot.ColorSensor.ambient())
@@ -195,7 +179,9 @@ def addMeasurements(data,robot,init,k):
 	data.HastighetMotorC.append(robot.motorC.speed())
 	data.VinkelPosMotorD.append(robot.motorD.angle())
 	data.HastighetMotorD.append(robot.motorD.speed())
-	
+
+	data.joyForward.append(config.joyForwardInstance)
+	data.joySide.append(config.joySideInstance)
 	data.joyTwist.append(config.joyTwistInstance)
 	data.joyPotMeter.append(config.joyPotMeterInstance)
 	data.joyPOVForward.append(config.joyPOVForwardInstance)
@@ -229,42 +215,22 @@ def MathCalculations(data,k,init):
 				# bruk i offline.
 
 	# Parametre
-	a = 0.5
-	b = 0.35
-	c = -0.35
+	a = 0.7
 
-	# Tilordne målinger til variable
-	data.PowerA.append(a*data.joyForward[k] + b*data.joySide[k])
-	data.PowerD.append(a*data.joyForward[k] + c*data.joySide[k])
-	
-	# Initialverdier og beregninger 
+    # Tilordne målinger til variable
+    
+    # Initialverdier og beregninger 
 	if k == 0:
 		# Initialverdier
 		data.Ts.append(0.005)  	# nominell verdi
-		data.Referanse.append(data.Lys[0])
-		data.avvik.append(0)
-		
-		data.IAEList.append(0)
-		data.MAEList.append(0)
-		
-		data.TvA.append(0)
-		data.TvD.append(0)
 	
 	else:
-		# Beregninger av Ts og variable som avhenger av initialverdi
+        # Beregninger av Ts og variable som avhenger av initialverdi
 		data.Ts.append(data.Tid[k]-data.Tid[k-1])
-		data.Referanse.append(data.Lys[0])
-		data.avvik.append(data.Referanse[k] - data.Lys[k])
-		
-		data.IAEList.append(EulerForward(data.IAEList[-1], abs(data.avvik[-1]), data.Ts[k]))
-		data.MAEList.append(FIR_Filter(data.avvik[0:k], k))
 
-		data.TvA.append(data.TvA[k-1] + abs(data.PowerA[k] - data.PowerA[k-1]))
-		data.TvD.append(data.TvD[k-1] + abs(data.PowerD[k] - data.PowerD[k-1]))
+    # Andre beregninger uavhengig av initialverdi
 
-	# Andre beregninger uavhengig av initialverdi
-
-	# Pådragsberegninger
+    # Pådragsberegninger
 #_____________________________________________________________________________
 
 
@@ -277,7 +243,10 @@ def MathCalculations(data,k,init):
 # Motorene oppdateres for hver iterasjon etter mathcalculations
 #
 def setMotorPower(data,robot):
+	return # fjern denne om motor(er) brukes
 	robot.motorA.dc(data.PowerA[-1])
+	robot.motorB.dc(data.PowerB[-1])
+	robot.motorC.dc(data.PowerC[-1])
 	robot.motorD.dc(data.PowerD[-1])
 
 # Når programmet slutter, spesifiser hvordan du vil at motoren(e) skal stoppe.
@@ -286,7 +255,10 @@ def setMotorPower(data,robot):
 # - brake() ruller videre, men bruker strømmen generert av rotasjonen til brems
 # - hold() bråstopper umiddelbart og holder posisjonen
 def stopMotors(robot):
-	robot.motorA.hold()
+	return # fjern denne om motor(er) brukes
+	robot.motorA.stop()
+	robot.motorB.brake()
+	robot.motorC.hold()
 	robot.motorD.hold()
 #______________________________________________________________________________
 
@@ -301,24 +273,24 @@ def stopMotors(robot):
 # Dersom både nrows > 1 og ncols > 1, så benyttes "ax[0,0]", "ax[1,0]", osv
 def lagPlot(plt):
 	nrows = 3
-	ncols = 2
+	ncols = 1
 	sharex = True
 	plt.create(nrows,ncols,sharex)
 	ax,fig = plt.ax, plt.fig
 
 	# Legger inn titler og aksenavn (valgfritt) for hvert subplot,  
-	# sammen med argumenter til plt.plot() funksjonen. 
-	# Ved flere subplot over hverandre så er det lurt å legge 
-	# informasjon om x-label på de nederste subplotene (sharex = True)
+    # sammen med argumenter til plt.plot() funksjonen. 
+    # Ved flere subplot over hverandre så er det lurt å legge 
+    # informasjon om x-label på de nederste subplotene (sharex = True)
 
-	fig.suptitle('')
+	fig.suptitle('Her kan du bruke en tittel for hele figuren')
 
 	# plotting av lys
-	ax[0,0].set_title('Referanse (r) og Lys (b)')  
-	ax[0,0].set_xlabel("Tid [sek]")	 
-	ax[0,0].set_ylabel("")
+	ax[0].set_title('Reflektert lys')  
+	ax[0].set_xlabel("Tid [sek]")	 
+	ax[0].set_ylabel("Lys")
 	plt.plot(
-		subplot = ax[0,0],  	# Definer hvilken delfigur som skal plottes
+		subplot = ax[0],  	# Definer hvilken delfigur som skal plottes
 		x = "Tid", 			# navn på x-verdien (fra data-objektet)
 		y = "Lys",			# navn på y-verdien (fra data-objektet)
 
@@ -329,122 +301,25 @@ def lagPlot(plt):
 		marker = "",       	# legg til markør på hvert punkt
 	)
 
-	# plotting av refferanse
+	# plotting av lys (minimumsversjon)
+	ax[1].set_title('Lys')  
+	ax[1].set_xlabel("Tid [sek]")
+	ax[1].set_ylabel("Lys")
 	plt.plot(
-		subplot = ax[0,0],  	# Definer hvilken delfigur som skal plottes
-		x = "Tid", 			# navn på x-verdien (fra data-objektet)
-		y = "Referanse",			# navn på y-verdien (fra data-objektet)
-
-		# VALGFRITT
-		color = "r",		# fargen på kurven som plottes (default: blå)
-		linestyle = "solid",  # "solid" / "dashed" / "dotted"
-		linewidth = 1,		# tykkelse på linjen
-		marker = "",       	# legg til markør på hvert punkt
+		subplot = ax[1],    
+		x = "Tid",	# navn på x-verdien (fra data-objektet)  
+		y = "Lys",	# navn på y-verdien (fra data-objektet)  
 	)
 
-	# plotting av PowerA
-	ax[1,0].set_title('PowerA (b) og PowerD (r)')  
-	ax[1,0].set_xlabel("Tid [sek]")	 
-	ax[1,0].set_ylabel("")
+	# plotting av Ts (benytter utvalg av listene)
+	ax[2].set_title('Beregning av Ts')  
+	ax[2].set_xlabel("Tid [sek]")
+	ax[2].set_ylabel("tidsskritt")
 	plt.plot(
-		subplot = ax[1,0],  	# Definer hvilken delfigur som skal plottes
-		x = "Tid", 			# navn på x-verdien (fra data-objektet)
-		y = "PowerA",			# navn på y-verdien (fra data-objektet)
-
-		# VALGFRITT
-		color = "b",		# fargen på kurven som plottes (default: blå)
-		linestyle = "solid",  # "solid" / "dashed" / "dotted"
-		linewidth = 1,		# tykkelse på linjen
-		marker = "",       	# legg til markør på hvert punkt
-	)
-
-	# plotting av PowerD
-	plt.plot(
-		subplot = ax[1,0],  	# Definer hvilken delfigur som skal plottes
-		x = "Tid", 			# navn på x-verdien (fra data-objektet)
-		y = "PowerD",			# navn på y-verdien (fra data-objektet)
-
-		# VALGFRITT
-		color = "r",		# fargen på kurven som plottes (default: blå)
-		linestyle = "solid",  # "solid" / "dashed" / "dotted"
-		linewidth = 1,		# tykkelse på linjen
-		marker = "",       	# legg til markør på hvert punkt
-	)
-
-	# plotting av Tv_A
-	ax[2,0].set_title('Tv_A (b) og Tv_D (r)')  
-	ax[2,0].set_xlabel("Tid [sek]")	 
-	ax[2,0].set_ylabel("")
-	plt.plot(
-		subplot = ax[2,0],  	# Definer hvilken delfigur som skal plottes
-		x = "Tid", 			# navn på x-verdien (fra data-objektet)
-		y = "TvA",			# navn på y-verdien (fra data-objektet)
-
-		# VALGFRITT
-		color = "b",		# fargen på kurven som plottes (default: blå)
-		linestyle = "solid",  # "solid" / "dashed" / "dotted"
-		linewidth = 1,		# tykkelse på linjen
-		marker = "",       	# legg til markør på hvert punkt
-	)
-
-	# plotting av Tv_D
-	plt.plot(
-		subplot = ax[2,0],  	# Definer hvilken delfigur som skal plottes
-		x = "Tid", 			# navn på x-verdien (fra data-objektet)
-		y = "TvD",			# navn på y-verdien (fra data-objektet)
-
-		# VALGFRITT
-		color = "r",		# fargen på kurven som plottes (default: blå)
-		linestyle = "solid",  # "solid" / "dashed" / "dotted"
-		linewidth = 1,		# tykkelse på linjen
-		marker = "",       	# legg til markør på hvert punkt
-	)
-
-	# plotting av Avvik e(k)
-	ax[0,1].set_title('Avvik e(k)')  
-	ax[0,1].set_xlabel("Tid [sek]")	 
-	ax[0,1].set_ylabel("")
-	plt.plot(
-		subplot = ax[0,1],  	# Definer hvilken delfigur som skal plottes
-		x = "Tid", 			# navn på x-verdien (fra data-objektet)
-		y = "avvik",			# navn på y-verdien (fra data-objektet)
-
-		# VALGFRITT
-		color = "b",		# fargen på kurven som plottes (default: blå)
-		linestyle = "solid",  # "solid" / "dashed" / "dotted"
-		linewidth = 1,		# tykkelse på linjen
-		marker = "",       	# legg til markør på hvert punkt
-	)
-
-	# plotting av IEA(k)
-	ax[1,1].set_title('IEA(k)')  
-	ax[1,1].set_xlabel("Tid [sek]")	 
-	ax[1,1].set_ylabel("")
-	plt.plot(
-		subplot = ax[1,1],  	# Definer hvilken delfigur som skal plottes
-		x = "Tid", 			# navn på x-verdien (fra data-objektet)
-		y = "IAEList",			# navn på y-verdien (fra data-objektet)
-
-		# VALGFRITT
-		color = "b",		# fargen på kurven som plottes (default: blå)
-		linestyle = "solid",  # "solid" / "dashed" / "dotted"
-		linewidth = 1,		# tykkelse på linjen
-		marker = "",       	# legg til markør på hvert punkt
-	)
-
-	# plotting av IEA(k)
-	ax[2,1].set_title('MEA(k)')  
-	ax[2,1].set_xlabel("Tid [sek]")	 
-	ax[2,1].set_ylabel("")
-	plt.plot(
-		subplot = ax[2,1],  	# Definer hvilken delfigur som skal plottes
-		x = "Tid", 			# navn på x-verdien (fra data-objektet)
-		y = "MAEList",			# navn på y-verdien (fra data-objektet)
-
-		# VALGFRITT
-		color = "b",		# fargen på kurven som plottes (default: blå)
-		linestyle = "solid",  # "solid" / "dashed" / "dotted"
-		linewidth = 1,		# tykkelse på linjen
-		marker = "",       	# legg til markør på hvert punkt
+		subplot = ax[2],    
+		x = "Tid[:-1]",       
+		y = "Ts[:-1]",
+		color = "b",
+		linestyle = "dashed",
 	)
 #____________________________________________________________________________
