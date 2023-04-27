@@ -165,7 +165,7 @@ data.PowerC = []         # berenging av motorpådrag C
 def addMeasurements(data,robot,init,k):
 	if k==0:
 		# Definer initielle lmålinger inn i init variabelen.
-		# Initialverdiene kan brukes i MathCalculations()
+		#A Initialverdiene kan brukes i MathCalculations()
 		init.Lys0 = robot.ColorSensor.reflection() 	# lagrer første lysmåling
 
 		data.Tid.append(timer.tic())		# starter "stoppeklokken" på 0
