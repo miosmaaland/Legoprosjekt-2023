@@ -31,7 +31,6 @@ if sys.implementation.name.lower().find("micropython") != -1:
 	from EV3AndJoystick import *
 from MineFunksjoner import *
 from funksjoner import *
-import random
 data = Bunch()				# dataobjektet ditt (punktum notasjon)
 Configs = Bunch()			# konfiguarsjonene dine
 init = Bunch()				# initalverdier (brukes i addmeasurement og mathcalculations)
@@ -44,18 +43,18 @@ timer = clock()				# timerobjekt med tic toc funksjoner
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #                            1) KONFIGURASJON
 #
-Configs.EV3_IP = "169.254.242.163"	# Avles IP-adressen på EV3-skjermen
+Configs.EV3_IP = "169.254.7.251"	# Avles IP-adressen på EV3-skjermen
 Configs.Online = True	# Online = True  --> programmet kjører på robot  
 						# Online = False --> programmet kjører på datamaskin
-Configs.livePlot = False 	# livePlot = True  --> Live plot, typisk stor Ts
+Configs.livePlot = True 	# livePlot = True  --> Live plot, typisk stor Ts
 							# livePlot = False --> Ingen plot, liten Ts
 Configs.avgTs = 0.005	# livePlot = False --> spesifiser ønsket Ts
 						# Lav avgTs -> høy samplingsfrekvens og mye data.
 						# --> Du må vente veldig lenge for å lagre filen.
-Configs.filename = "P03_NumeriskDerivasjon.txt"	
+Configs.filename = "P0X_BeskrivendeTekst_Y.txt"	
 						# Målinger/beregninger i Online lagres til denne 
 						# .txt-filen. Upload til Data-mappen.
-Configs.filenameOffline = "Offline_P03_NumeriskDerivasjon.txt"	
+Configs.filenameOffline = "Offline_P0X_BeskrivendeTekst_Y.txt"	
 						# I Offline brukes den opplastede datafilen 
 						# og alt lagres til denne .txt-filen.
 Configs.plotMethod = 2	# verdier: 1 eller 2, hvor hver plottemetode 
@@ -81,16 +80,15 @@ Configs.ConnectJoystickToPC = False # True  --> joystick direkte på datamaskin
 
 # målinger
 data.Tid = []            	# måling av tidspunkt
-data.Lys = []            	# måling av reflektert lys fra ColorSensor		
+data.Lys = []            	# måling av reflektert lys fra ColorSensor
+data.Avstand
 
 # beregninger
 data.Ts = []			  	# beregning av tidsskritt
-data.Avstand = []
 data.Avstand_IIR = []
-data.Fart = []
 data.Fart_IIR = []
+data.Fart = []
 data.IIRFart = []
-
 
 """
 # Utvalg av målinger
@@ -225,25 +223,28 @@ def MathCalculations(data,k,init):
 	alfa = 0.6
 
     # Tilordne målinger til variable
-	data.Avstand.append(data.Lys[k] + random.random())
+	data.Avstand.append(data.Lys[k])
     
     # Initialverdier og beregninger 
 	if k == 0:
 		# Initialverdier
 		data.Ts.append(0.005)  	# nominell verdi
-		data.Avstand_IIR.append(data.Lys[0])
+		data.Avstand.append(data.Avstand[0])
 		data.Fart.append(0)
 		data.Fart_IIR.append(0)
 		data.IIRFart.append(0)
 	
 	else:
         # Beregninger av Ts og variable som avhenger av initialverdi
-		data.Ts.append(data.Tid[k] - data.Tid[k-1])
-		data.Fart.append((data.Avstand[k] - data.Avstand[k-1])/ data.Ts[k])
-		data.Avstand_IIR.append(IIR_Filter(data.Avstand_IIR[k-1], data.Avstand[k], alfa))
-		data.IIRFart.append((data.Avstand_IIR[k] - data.Avstand_IIR[k-1]) / data.Ts[k])
+		data.Ts.append(data.Tid[k]-data.Tid[k-1])
+		data.Fart.append(Derivation((data.Avstand[k] - data.Avstand[k-1]), data.Ts[k]))
 		data.Fart_IIR.append(IIR_Filter(data.Fart_IIR[k-1], data.Fart[k], alfa))
+		data.Avstand_IIR.append(IIR_Filter(data.Avstand_IIR[k-1], data.Avstand[k], alfa))
+		data.IIRFart.append(Derivation((data.IIRFart[k-1] - data.IIRFart[k]), data.Ts[k]))
 
+    # Andre beregninger uavhengig av initialverdi
+
+    # Pådragsberegninger
 #_____________________________________________________________________________
 
 
@@ -285,43 +286,52 @@ def stopMotors(robot):
 # Dersom enten nrows = 1 eller ncols = 1, så benyttes "ax[0]", "ax[1]", osv.
 # Dersom både nrows > 1 og ncols > 1, så benyttes "ax[0,0]", "ax[1,0]", osv
 def lagPlot(plt):
-	nrows = 2
-	ncols = 1
+	nrows = 1
+	ncols = 2
 	sharex = True
-	plt.create(nrows,ncols)
+	plt.create(nrows,ncols,sharex)
 	ax,fig = plt.ax, plt.fig
 
 	# Legger inn titler og aksenavn (valgfritt) for hvert subplot,  
-	# sammen med argumenter til plt.plot() funksjonen. 
-	# Ved flere subplot over hverandre så er det lurt å legge 
-	# informasjon om x-label på de nederste subplotene (sharex = True)
+    # sammen med argumenter til plt.plot() funksjonen. 
+    # Ved flere subplot over hverandre så er det lurt å legge 
+    # informasjon om x-label på de nederste subplotene (sharex = True)
 
 	fig.suptitle('')
 
-	# plotting av Avstand og Avstand_IIR
-	ax[0].set_title('Fart derivert før filtrering')  
+	# plotting av lys
+	ax[0].set_title('Avstand med støy')  
 	ax[0].set_xlabel("Tid [sek]")	 
-	ax[0].set_ylabel("Avstand [m]")
+	ax[0].set_ylabel("Lys")
 	plt.plot(
 		subplot = ax[0],  	# Definer hvilken delfigur som skal plottes
 		x = "Tid", 			# navn på x-verdien (fra data-objektet)
-		y = "Fart_IIR",			# navn på y-verdien (fra data-objektet)
+		y = "Lys",			# navn på y-verdien (fra data-objektet)
 
 		# VALGFRITT
-		color = "r",		# fargen på kurven som plottes (default: blå)
+		color = "b",		# fargen på kurven som plottes (default: blå)
 		linestyle = "solid",  # "solid" / "dashed" / "dotted"
 		linewidth = 1,		# tykkelse på linjen
 		marker = "",       	# legg til markør på hvert punkt
 	)
 
-	ax[1].set_title('Fart filtrert s¨derivert')  
+	# plotting av Ts (benytter utvalg av listene)
+	ax[1].set_title('Beregning av Ts')  
 	ax[1].set_xlabel("Tid [sek]")
 	ax[1].set_ylabel("Hastighet [m/s]")
 	plt.plot(
 		subplot = ax[1],    
-		x = "Tid",       
-		y = "IIRFart",
-		color = "r",
+		x = "Fart_IIR",       
+		y = "Tid",
+		color = "b",
+		linestyle = "solid",
 	)
-	
+
+	plt.plot(
+		subplot = ax[1],    
+		x = "IIRFart",       
+		y = "Tid",
+		color = "y",
+		linestyle = "solid",
+	)
 #____________________________________________________________________________

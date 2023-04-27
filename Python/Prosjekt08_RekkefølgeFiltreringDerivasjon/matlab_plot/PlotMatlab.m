@@ -5,7 +5,7 @@ close all
 %% Navn: datafil (offline eller online)
 % Du kan laste inn flere .txt-filer og sammenligne.
 % Bruk i så fall filename1, filename2 og data1, data2
-filename = 'Offline_P03_NumeriskDerivasjon.txt';
+filename = 'P00_matplotlib.txt';
 data = ParseData(filename);
 
 
