@@ -43,7 +43,7 @@ timer = clock()				# timerobjekt med tic toc funksjoner
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #                            1) KONFIGURASJON
 #
-Configs.EV3_IP = "169.254.7.251"	# Avles IP-adressen på EV3-skjermen
+Configs.EV3_IP = "169.254.179.66"	# Avles IP-adressen på EV3-skjermen
 Configs.Online = True	# Online = True  --> programmet kjører på robot  
 						# Online = False --> programmet kjører på datamaskin
 Configs.livePlot = True 	# livePlot = True  --> Live plot, typisk stor Ts
@@ -51,10 +51,10 @@ Configs.livePlot = True 	# livePlot = True  --> Live plot, typisk stor Ts
 Configs.avgTs = 0.005	# livePlot = False --> spesifiser ønsket Ts
 						# Lav avgTs -> høy samplingsfrekvens og mye data.
 						# --> Du må vente veldig lenge for å lagre filen.
-Configs.filename = "P0X_BeskrivendeTekst_Y.txt"	
+Configs.filename = "P05_AdaptiveCruise_P.txt"	
 						# Målinger/beregninger i Online lagres til denne 
 						# .txt-filen. Upload til Data-mappen.
-Configs.filenameOffline = "Offline_P0X_BeskrivendeTekst_Y.txt"	
+Configs.filenameOffline = "Offline_P05_AdaptiveCruise_P.txt"	
 						# I Offline brukes den opplastede datafilen 
 						# og alt lagres til denne .txt-filen.
 Configs.plotMethod = 2	# verdier: 1 eller 2, hvor hver plottemetode 
@@ -94,14 +94,14 @@ data.Avstand = []
 data.Ts = []			  	# beregning av tidsskritt
 data.DesiredDistance = []
 
-data.Power = []
+data.u_k = []
 data.PowerA = []         # berenging av motorpådrag A
 data.PowerD = []         # berenging av motorpådrag D
 
 data.e_k = []
-data.e_i = []
+data.I_k = []
 data.e_f = []
-data.e_d = []
+data.D_k = []
 
 # data.IAElist = []
 # data.MAElist = []
@@ -253,11 +253,11 @@ def MathCalculations(data,k,init):
 
 		data.e_k.append(0)
 
-		data.e_i.append(0)
+		data.I_k.append(0)
 		data.e_f.append(0)
-		data.e_d.append(0)
+		data.D_k.append(0)
 
-		data.Power.append(0)
+		data.u_k.append(0)
 		data.PowerA.append(0)
 		data.PowerD.append(0)
 
@@ -269,13 +269,15 @@ def MathCalculations(data,k,init):
 		data.e_k.append(data.DesiredDistance[k] - data.Avstand[k])
 
 		data.e_f.append(IIR_Filter(data.e_f[k-1], data.e_k[k], alfa))
-		data.e_i.append(EulerForward(data.e_i[k-1], (K_i * data.e_k[k-1]), data.Ts[k]))
-		data.e_d.append(K_d * Derivation((data.e_f[k] - data.e_f[k-1]), data.Ts[k]))
+		data.I_k.append(EulerForward(data.I_k[k-1], (K_i * data.e_k[k-1]), data.Ts[k]))
+		data.D_k.append(K_d * Derivation((data.e_f[k] - data.e_f[k-1]), data.Ts[k]))
 
-		data.Power.append(K_p*data.e_k[k] + data.e_i[k] + data.e_d[k])
+		P_k = K_p*data.e_k[k]
 
-		data.PowerA.append(u_0 -  data.Power[k])
-		data.PowerD.append(u_0 -  data.Power[k])
+		data.u_k.append(P_k + data.I_k[k] + data.D_k[k])
+
+		data.PowerA.append(u_0 -  data.u_k[k])
+		data.PowerD.append(u_0 -  data.u_k[k])
 
     # Andre beregninger uavhengig av initialverdi
 
@@ -357,7 +359,7 @@ def lagPlot(plt):
 		marker = "",       	# legg til markør på hvert punkt
 	)
 
-	# plotting av Power
+	# plotting av u_k
 	ax[1].set_title('Avvik e(k)')  
 	ax[1].set_xlabel("Tid [sek]")	 
 	ax[1].set_ylabel("Avstand [mm]")
@@ -373,14 +375,14 @@ def lagPlot(plt):
 		marker = "",       	# legg til markør på hvert punkt
 	)
 
-	# plotting av Power
-	ax[2].set_title('Pådraget[Power] i begge motorene')  
+	# plotting av u_k
+	ax[2].set_title('Pådraget[u_k] i begge motorene')  
 	ax[2].set_xlabel("Tid [sek]")	 
 	ax[2].set_ylabel("Avstand [mm]")
 	plt.plot(
 		subplot = ax[2],  	# Definer hvilken delfigur som skal plottes
 		x = "Tid", 			# navn på x-verdien (fra data-objektet)
-		y = "Power",			# navn på y-verdien (fra data-objektet)
+		y = "u_k",			# navn på y-verdien (fra data-objektet)
 
 		# VALGFRITT
 		color = "r",		# fargen på kurven som plottes (default: blå)
