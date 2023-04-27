@@ -88,6 +88,7 @@ data.Avstand = []
 data.Avstand_IIR = []
 data.Fart = []
 data.Fart_IIR = []
+data.IIRFart = []
 
 
 """
@@ -220,7 +221,7 @@ def MathCalculations(data,k,init):
 				# bruk i offline.
 
 	# Parametre
-	alfa = 0.2
+	alfa = 0.6
 
     # Tilordne målinger til variable
 	data.Avstand.append(data.Lys[k])
@@ -232,13 +233,16 @@ def MathCalculations(data,k,init):
 		data.Avstand_IIR.append(data.Lys[0])
 		data.Fart.append(0)
 		data.Fart_IIR.append(0)
+		data.IIRFart.append(0)
 	
 	else:
         # Beregninger av Ts og variable som avhenger av initialverdi
 		data.Ts.append(data.Tid[k] - data.Tid[k-1])
 		data.Fart.append((data.Avstand[k] - data.Avstand[k-1])/ data.Ts[k])
 		data.Avstand_IIR.append(IIR_Filter(data.Avstand_IIR[k-1], data.Avstand[k], alfa))
-		data.Fart_IIR.append((data.Avstand_IIR[k] - data.Avstand_IIR[k-1]) / data.Ts[k])
+		data.IIRFart.append((data.Avstand_IIR[k] - data.Avstand_IIR[k-1]) / data.Ts[k])
+		data.Fart_IIR.append(IIR_Filter(data.Fart_IIR[k-1], data.Fart[k], alfa))
+
 #_____________________________________________________________________________
 
 
@@ -291,16 +295,16 @@ def lagPlot(plt):
 	# Ved flere subplot over hverandre så er det lurt å legge 
 	# informasjon om x-label på de nederste subplotene (sharex = True)
 
-	fig.suptitle('Sinussignal med chirp-signal')
+	fig.suptitle('')
 
 	# plotting av Avstand og Avstand_IIR
-	ax[0].set_title('IIR-filtrert avstand fra bakken opp til vogna på “Stupet”, alfa=0.2 ')  
+	ax[0].set_title('Fart derivert før filtrering')  
 	ax[0].set_xlabel("Tid [sek]")	 
 	ax[0].set_ylabel("Avstand [m]")
 	plt.plot(
 		subplot = ax[0],  	# Definer hvilken delfigur som skal plottes
 		x = "Tid", 			# navn på x-verdien (fra data-objektet)
-		y = "Avstand_IIR",			# navn på y-verdien (fra data-objektet)
+		y = "Fart_IIR",			# navn på y-verdien (fra data-objektet)
 
 		# VALGFRITT
 		color = "r",		# fargen på kurven som plottes (default: blå)
@@ -315,7 +319,7 @@ def lagPlot(plt):
 	plt.plot(
 		subplot = ax[1],    
 		x = "Tid",       
-		y = "Fart_IIR",
+		y = "IIRFart",
 		color = "r",
 	)
 	
