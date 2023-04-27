@@ -323,7 +323,7 @@ def lagPlot(plt):
 		subplot = ax[1],    
 		x = "Fart_IIR",       
 		y = "Tid",
-		color = "b",
+		color = "r",
 		linestyle = "solid",
 	)
 
