@@ -63,7 +63,7 @@ Configs.plotBackend = ""	# Ønsker du å bruke en spesifikk backend, last ned
 							# og skriv her. Eks.: qt5agg, qtagg, tkagg, macosx. 
 Configs.limitMeasurements = False	# Mulighet å kjøre programmet lenge 
 									# uten at roboten kræsjer pga minnet
-Configs.ConnectJoystickToPC = True # True  --> joystick direkte på datamaskin
+Configs.ConnectJoystickToPC = False # True  --> joystick direkte på datamaskin
 									# False	--> koble joystick på EV3-robot
 									# False	--> også når joystick ikke brukes
 #____________________________________________________________________________
@@ -241,7 +241,7 @@ def MathCalculations(data,k,init):
 	K_p = 2
 	K_i = 0.5
 	K_d = 0.2
-	null_fart = 0
+	null_fart = 20
 
 
 	
@@ -250,7 +250,7 @@ def MathCalculations(data,k,init):
 	if k == 0:
 		# Initialverdier
 		data.Ts.append(0.005)  	# nominell verdi
-		data.Referanse.append(data.Avstand[0])
+		data.Referanse.append(data.Lys[0])
 		data.Avvik.append(0)
 		data.abs_Avvik.append(0)
 		data.Integrert_Avvik.append(0)
@@ -281,30 +281,15 @@ def MathCalculations(data,k,init):
 		data.Filtrert_Avvik.append(IIR_Filter(data.Filtrert_Avvik[k-1], data.Avvik[k], alfa))
 		data.Filtrert_Avvik_Derivert.append(Derivation(K_d * (data.Filtrert_Avvik[k] - data.Filtrert_Avvik[k-1]), data.Ts[k]))
 
-		# if data.Integrert_Avvik[k] > 50:
-		# 	data.Integrert_Avvik[k] = 50
-
-		# elif data.Integrert_Avvik[k] < -50:
-		# 	data.Integrert_Avvik[k] = -50
-
-		PowerA_k = -K_p*data.Avvik[k] - K_i*data.Integrert_Avvik[k] - K_d*data.Filtrert_Avvik_Derivert[k]
-		PowerD_k = +K_p*data.Avvik[k] + K_i*data.Integrert_Avvik[k] + K_d*data.Filtrert_Avvik_Derivert[k]
-
-		if data.Lys[k] > 70:
-			data.PowerA.append(PowerA_k)
-			data.PowerD.append(PowerD_k)
-
-		else:
-			data.PowerA.append(0)
-			data.PowerD.append(0)
-
-		
-
-		
+		pid = (K_p*data.Avvik[k] + K_i*data.Integrert_Avvik[k] + K_d*data.Filtrert_Avvik_Derivert[k])
+		data.PowerA.append(null_fart - pid)
+		data.PowerD.append(null_fart + pid)
 
 		data.TvA.append(data.TvA[k-1] + abs(data.PowerA[k] - data.PowerA[k-1]))
 		data.TvD.append(data.TvD[k-1] + abs(data.PowerD[k] - data.PowerD[k-1]))
 
+		if data.Lys[k] > 70:
+			raise Exception("Robot hit the white part of the track") 
     # Andre beregninger uavhengig av initialverdi
 
     # Pådragsberegninger
@@ -320,10 +305,7 @@ def MathCalculations(data,k,init):
 # Motorene oppdateres for hver iterasjon etter mathcalculations
 #
 def setMotorPower(data,robot):
-	return # fjern denne om motor(er) brukes
 	robot.motorA.dc(data.PowerA[-1])
-	robot.motorB.dc(data.PowerB[-1])
-	robot.motorC.dc(data.PowerC[-1])
 	robot.motorD.dc(data.PowerD[-1])
 
 # Når programmet slutter, spesifiser hvordan du vil at motoren(e) skal stoppe.
@@ -332,10 +314,7 @@ def setMotorPower(data,robot):
 # - brake() ruller videre, men bruker strømmen generert av rotasjonen til brems
 # - hold() bråstopper umiddelbart og holder posisjonen
 def stopMotors(robot):
-	return # fjern denne om motor(er) brukes
-	robot.motorA.stop()
-	robot.motorB.brake()
-	robot.motorC.hold()
+	robot.motorA.hold()
 	robot.motorD.hold()
 #______________________________________________________________________________
 

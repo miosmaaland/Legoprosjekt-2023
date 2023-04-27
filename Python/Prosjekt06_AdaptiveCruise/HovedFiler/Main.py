@@ -51,10 +51,10 @@ Configs.livePlot = False 	# livePlot = True  --> Live plot, typisk stor Ts
 Configs.avgTs = 0.005	# livePlot = False --> spesifiser ønsket Ts
 						# Lav avgTs -> høy samplingsfrekvens og mye data.
 						# --> Du må vente veldig lenge for å lagre filen.
-Configs.filename = "Prosjekt06_AdaptiveCruise_P.txt"	
+Configs.filename = "P06_AdaptiveCruise_P.txt"	
 						# Målinger/beregninger i Online lagres til denne 
 						# .txt-filen. Upload til Data-mappen.
-Configs.filenameOffline = "Offline_Prosjekt06_AdaptiveCruise_P.txt"	
+Configs.filenameOffline = "Offline_P06_AdaptiveCruise_P.txt"	
 						# I Offline brukes den opplastede datafilen 
 						# og alt lagres til denne .txt-filen.
 Configs.plotMethod = 2	# verdier: 1 eller 2, hvor hver plottemetode 
@@ -91,16 +91,16 @@ data.Avstand = []
 
 # beregninger
 data.Ts = []			  	# beregning av tidsskritt
-data.Referanse = []
+data.DesiredDistance = []
 
 data.Power = []
 data.PowerA = []         # berenging av motorpådrag A
 data.PowerD = []         # berenging av motorpådrag D
 
-data.Avvik = []
-data.Avvik_Integrert = []
-data.Avvik_IIR = []
-data.Avvik_IIR_Derivert = []
+data.e_k = []
+data.e_i = []
+data.e_f = []
+data.e_d = []
 
 # data.IAElist = []
 # data.MAElist = []
@@ -242,19 +242,19 @@ def MathCalculations(data,k,init):
 	K_i = 0
 	K_d = 0
 
-	NullPower = 0
+	u_0 = 0
     
     # Initialverdier og beregninger 
 	if k == 0:
 		# Initialverdier
 		data.Ts.append(0.005)  	# nominell verdi
-		data.Referanse.append(data.Avstand[0])
+		data.DesiredDistance.append(data.Avstand[0])
 
-		data.Avvik.append(0)
+		data.e_k.append(0)
 
-		data.Avvik_Integrert.append(0)
-		data.Avvik_IIR.append(0)
-		data.Avvik_IIR_Derivert.append(0)
+		data.e_i.append(0)
+		data.e_f.append(0)
+		data.e_d.append(0)
 
 		data.Power.append(0)
 		data.PowerA.append(0)
@@ -263,27 +263,18 @@ def MathCalculations(data,k,init):
 	else:
         # Beregninger av Ts og variable som avhenger av initialverdi
 		data.Ts.append(data.Tid[k]-data.Tid[k-1])
-		data.Referanse.append(data.Avstand[0])
+		data.DesiredDistance.append(data.Avstand[0])
 
-		data.Avvik.append(data.Referanse[k] - data.Avstand[k])
+		data.e_k.append(data.DesiredDistance[k] - data.Avstand[k])
 
-		data.Avvik_IIR.append(IIR_Filter(data.Avvik_IIR[k-1], data.Avvik[k], alfa))
-		data.Avvik_Integrert.append(EulerForward(data.Avvik_Integrert[k-1], (K_i * data.Avvik[k-1]), data.Ts[k]))
-		data.Avvik_IIR_Derivert.append(K_d * Derivation((data.Avvik_IIR[k] - data.Avvik_IIR[k-1]), data.Ts[k]))
+		data.e_f.append(IIR_Filter(data.e_f[k-1], data.e_k[k], alfa))
+		data.e_i.append(EulerForward(data.e_i[k-1], (K_i * data.e_k[k-1]), data.Ts[k]))
+		data.e_d.append(K_d * Derivation((data.e_f[k] - data.e_f[k-1]), data.Ts[k]))
 
-		# data.IAElist.append(EulerForward(data.IAElist[k-1], data.Avvik[k], data.Ts[k]))
-		# data.MAElist.append(FIR_Filter(data.Avvik[0:k], k))
+		data.Power.append(K_p*data.e_k[k] + data.e_i[k] + data.e_d[k])
 
-		if data.Avvik_Integrert[k] > 50:
-			data.Avvik_Integrert[k] = 50
-
-		elif data.Avvik_Integrert[k] < -50:
-			data.Avvik_Integrert[k] = -50
-
-		data.Power.append(K_p*data.Avvik[k] + data.Avvik_Integrert[k] + data.Avvik_IIR_Derivert[k])
-
-		data.PowerA.append(NullPower -  data.Power[k])
-		data.PowerD.append(NullPower -  data.Power[k])
+		data.PowerA.append(u_0 -  data.Power[k])
+		data.PowerD.append(u_0 -  data.Power[k])
 
     # Andre beregninger uavhengig av initialverdi
 
@@ -336,14 +327,14 @@ def lagPlot(plt):
 
 	fig.suptitle('')
 
-	ax[0].set_title('Referanse (r) og Avstand (b)')  
+	ax[0].set_title('DesiredDistance (r) og Avstand (b)')  
 	ax[0].set_xlabel("Tid [sek]")	 
 	ax[0].set_ylabel("Avstand [mm]")
 	# plotting av refferanse
 	plt.plot(
 		subplot = ax[0],  	# Definer hvilken delfigur som skal plottes
 		x = "Tid", 			# navn på x-verdien (fra data-objektet)
-		y = "Referanse",			# navn på y-verdien (fra data-objektet)
+		y = "DesiredDistance",			# navn på y-verdien (fra data-objektet)
 
 		# VALGFRITT
 		color = "r",		# fargen på kurven som plottes (default: blå)
@@ -372,7 +363,7 @@ def lagPlot(plt):
 	plt.plot(
 		subplot = ax[1],  	# Definer hvilken delfigur som skal plottes
 		x = "Tid", 			# navn på x-verdien (fra data-objektet)
-		y = "Avvik",			# navn på y-verdien (fra data-objektet)
+		y = "e_k",			# navn på y-verdien (fra data-objektet)
 
 		# VALGFRITT
 		color = "b",		# fargen på kurven som plottes (default: blå)
