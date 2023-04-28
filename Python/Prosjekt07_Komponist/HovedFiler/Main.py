@@ -43,18 +43,18 @@ timer = clock()				# timerobjekt med tic toc funksjoner
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #                            1) KONFIGURASJON
 #
-Configs.EV3_IP = "169.254.7.251"	# Avles IP-adressen på EV3-skjermen
+Configs.EV3_IP = "169.254.158.92"	# Avles IP-adressen på EV3-skjermen
 Configs.Online = True	# Online = True  --> programmet kjører på robot  
 						# Online = False --> programmet kjører på datamaskin
-Configs.livePlot = True 	# livePlot = True  --> Live plot, typisk stor Ts
+Configs.livePlot = False 	# livePlot = True  --> Live plot, typisk stor Ts
 							# livePlot = False --> Ingen plot, liten Ts
 Configs.avgTs = 0.005	# livePlot = False --> spesifiser ønsket Ts
 						# Lav avgTs -> høy samplingsfrekvens og mye data.
 						# --> Du må vente veldig lenge for å lagre filen.
-Configs.filename = "P0X_BeskrivendeTekst_Y.txt"	
+Configs.filename = "P07_Komponist.txt"	
 						# Målinger/beregninger i Online lagres til denne 
 						# .txt-filen. Upload til Data-mappen.
-Configs.filenameOffline = "Offline_P0X_BeskrivendeTekst_Y.txt"	
+Configs.filenameOffline = "Offline_P07_Komponist.txt"	
 						# I Offline brukes den opplastede datafilen 
 						# og alt lagres til denne .txt-filen.
 Configs.plotMethod = 2	# verdier: 1 eller 2, hvor hver plottemetode 
@@ -81,9 +81,11 @@ Configs.ConnectJoystickToPC = False # True  --> joystick direkte på datamaskin
 # målinger
 data.Tid = []            	# måling av tidspunkt
 data.Lys = []            	# måling av reflektert lys fra ColorSensor
+data.tone_lengde = []
 
 # beregninger
 data.Ts = []			  	# beregning av tidsskritt
+data.lyd = []
 
 """
 # Utvalg av målinger
@@ -148,23 +150,20 @@ data.PowerD = []         # berenging av motorpådrag D
 # k: indeks som starter på 0 og øker [0,--> uendelig]
 # config: inneholder joystick målinger
 
-
 def addMeasurements(data,robot,init,k):
-	if k==0:
-		# Definer initielle lmålinger inn i init variabelen.
-        # Initialverdiene kan brukes i MathCalculations()
-		init.Lys0 = robot.ColorSensor.reflection() 	# lagrer første lysmåling
-
-		data.Tid.append(timer.tic())		# starter "stoppeklokken" på 0
+	if k == 0:
+		init.Lys0 = robot.ColorSensor.reflection()
+		data.Tid.append(timer.tic())
 	else:
-
-		# lagrer "målinger" av tid
 		data.Tid.append(timer.toc())
-	
-	# lagrer målinger av lys
-	data.Lys.append(robot.ColorSensor.reflection())
 
-	"""
+	data.Lys.append(robot.ColorSensor.reflection())
+	data.joyForward.append(config.joyForwardInstance)
+	data.joySide.append(config.joySideInstance)
+
+	varighet =  robot.ColorSensor.reflection()/ 100 * 1000  # Scale the duration between 0 and 1000 ms
+	data.tone_lengde.append(varighet)
+"""
 	data.LysDirekte.append(robot.ColorSensor.ambient())
 	data.Bryter.append(robot.TouchSensor.pressed())
 	data.Avstand.append(robot.UltrasonicSensor.distance())
@@ -209,28 +208,56 @@ def addMeasurements(data,robot,init,k):
 # på forhånd må være definert i seksjon 2).
 # Funksjonen brukes både i online og offline.
 #
-def MathCalculations(data,k,init):
+def MathCalculations(data,k, init, robot):
 	# return  	# Bruk denne dersom ingen beregninger gjøres,
 				# som for eksempel ved innhentning av kun data for 
 				# bruk i offline.
 
 	# Parametre
-	a = 0.7
+	a = 0.5
+	b = 0.35
+	c = -0.35
 
-    # Tilordne målinger til variable
-    
-    # Initialverdier og beregninger 
+	# Tilordne målinger til variable
+	data.PowerA.append(a*data.joyForward[k] + b*data.joySide[k])
+	data.PowerD.append(a*data.joyForward[k] + c*data.joySide[k])
+	
+	# Initialverdier og beregninger 
 	if k == 0:
 		# Initialverdier
 		data.Ts.append(0.005)  	# nominell verdi
+		data.Referanse.append(data.Lys[0])
+		data.avvik.append(0)
+		
+		data.IAEList.append(0)
+		data.MAEList.append(0)
+		
+		data.TvA.append(0)
+		data.TvD.append(0)
 	
 	else:
-        # Beregninger av Ts og variable som avhenger av initialverdi
+		# Beregninger av Ts og variable som avhenger av initialverdi
 		data.Ts.append(data.Tid[k]-data.Tid[k-1])
+		data.Referanse.append(data.Lys[0])
+		data.avvik.append(data.Referanse[k] - data.Lys[k])
+		
+		data.IAEList.append(EulerForward(data.IAEList[-1], abs(data.avvik[-1]), data.Ts[k]))
+		data.MAEList.append(FIR_Filter(data.avvik[0:k], k))
 
-    # Andre beregninger uavhengig av initialverdi
+		data.TvA.append(data.TvA[k-1] + abs(data.PowerA[k] - data.PowerA[k-1]))
+		data.TvD.append(data.TvD[k-1] + abs(data.PowerD[k] - data.PowerD[k-1]))
 
-    # Pådragsberegninger
+		for varighet in data.tone_lengde:
+			robot.brick.speaker.play_notes([(data.Lys[k]*10, varighet)])
+
+		# Play sound based on light value
+		#light_value = data.Lys[k]
+		#play_tune(light_value)  
+
+
+	# Andre beregninger uavhengig av initialverdi
+
+	# Pådragsberegninger
 #_____________________________________________________________________________
 
 
@@ -279,9 +306,9 @@ def lagPlot(plt):
 	ax,fig = plt.ax, plt.fig
 
 	# Legger inn titler og aksenavn (valgfritt) for hvert subplot,  
-    # sammen med argumenter til plt.plot() funksjonen. 
-    # Ved flere subplot over hverandre så er det lurt å legge 
-    # informasjon om x-label på de nederste subplotene (sharex = True)
+	# sammen med argumenter til plt.plot() funksjonen. 
+	# Ved flere subplot over hverandre så er det lurt å legge 
+	# informasjon om x-label på de nederste subplotene (sharex = True)
 
 	fig.suptitle('Her kan du bruke en tittel for hele figuren')
 
