@@ -31,6 +31,7 @@ if sys.implementation.name.lower().find("micropython") != -1:
 	from EV3AndJoystick import *
 from MineFunksjoner import *
 from funksjoner import *
+import random
 data = Bunch()				# dataobjektet ditt (punktum notasjon)
 Configs = Bunch()			# konfiguarsjonene dine
 init = Bunch()				# initalverdier (brukes i addmeasurement og mathcalculations)
@@ -51,10 +52,10 @@ Configs.livePlot = True 	# livePlot = True  --> Live plot, typisk stor Ts
 Configs.avgTs = 0.005	# livePlot = False --> spesifiser ønsket Ts
 						# Lav avgTs -> høy samplingsfrekvens og mye data.
 						# --> Du må vente veldig lenge for å lagre filen.
-Configs.filename = "P08_RekkefølgeFiltreringDerivasjon.txt"	
+Configs.filename = "P08_RekkefolgeFiltreringDerivasjon.txt"	
 						# Målinger/beregninger i Online lagres til denne 
 						# .txt-filen. Upload til Data-mappen.
-Configs.filenameOffline = "Offline_P08_RekkefølgeFiltreringDerivasjon.txt"	
+Configs.filenameOffline = "Offline_P08_RekkefolgeFiltreringDerivasjon.txt"	
 						# I Offline brukes den opplastede datafilen 
 						# og alt lagres til denne .txt-filen.
 Configs.plotMethod = 2	# verdier: 1 eller 2, hvor hver plottemetode 
@@ -223,13 +224,14 @@ def MathCalculations(data,k,init):
 	alfa = 0.6
 
     # Tilordne målinger til variable
-	data.Avstand.append(data.Lys[k])
     
     # Initialverdier og beregninger 
 	if k == 0:
 		# Initialverdier
 		data.Ts.append(0.005)  	# nominell verdi
+		data.Avstand.append(data.Lys[0] + random.random())
 		data.Avstand.append(data.Avstand[0])
+		data.Avstand_IIR.append(data.Avstand[0])
 		data.Fart.append(0)
 		data.Fart_IIR.append(0)
 		data.IIRFart.append(0)
@@ -237,10 +239,11 @@ def MathCalculations(data,k,init):
 	else:
         # Beregninger av Ts og variable som avhenger av initialverdi
 		data.Ts.append(data.Tid[k]-data.Tid[k-1])
+		data.Avstand.append(data.Lys[k] + random.random())
 		data.Fart.append(Derivation((data.Avstand[k] - data.Avstand[k-1]), data.Ts[k]))
 		data.Fart_IIR.append(IIR_Filter(data.Fart_IIR[k-1], data.Fart[k], alfa))
 		data.Avstand_IIR.append(IIR_Filter(data.Avstand_IIR[k-1], data.Avstand[k], alfa))
-		data.IIRFart.append(Derivation((data.IIRFart[k-1] - data.IIRFart[k]), data.Ts[k]))
+		data.IIRFart.append(Derivation((data.Avstand_IIR[k] - data.Avstand_IIR[k-1]), data.Ts[k]))
 
     # Andre beregninger uavhengig av initialverdi
 
@@ -286,8 +289,8 @@ def stopMotors(robot):
 # Dersom enten nrows = 1 eller ncols = 1, så benyttes "ax[0]", "ax[1]", osv.
 # Dersom både nrows > 1 og ncols > 1, så benyttes "ax[0,0]", "ax[1,0]", osv
 def lagPlot(plt):
-	nrows = 1
-	ncols = 2
+	nrows = 2
+	ncols = 1
 	sharex = True
 	plt.create(nrows,ncols)
 	ax,fig = plt.ax, plt.fig
@@ -316,22 +319,22 @@ def lagPlot(plt):
 	)
 
 	# plotting av Ts (benytter utvalg av listene)
-	ax[1].set_title('Beregning av Ts')  
+	ax[1].set_title('Beregning av Fart')  
 	ax[1].set_xlabel("Tid [sek]")
 	ax[1].set_ylabel("Hastighet [m/s]")
 	plt.plot(
 		subplot = ax[1],    
-		x = "Fart_IIR",       
-		y = "Tid",
-		color = "r",
+		x = "Tid",       
+		y = "Fart_IIR",
+		color = "b",
 		linestyle = "solid",
 	)
 
 	plt.plot(
 		subplot = ax[1],    
-		x = "IIRFart",       
-		y = "Tid",
-		color = "y",
-		linestyle = "solid",
+		x = "Tid",       
+		y = "IIRFart",
+		color = "r",
+		linestyle = "dashed",
 	)
 #____________________________________________________________________________
