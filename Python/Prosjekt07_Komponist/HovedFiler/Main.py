@@ -81,6 +81,7 @@ Configs.ConnectJoystickToPC = False # True  --> joystick direkte på datamaskin
 # målinger
 data.Tid = []            	# måling av tidspunkt
 data.Lys = []            	# måling av reflektert lys fra ColorSensor
+data.tone_lengde = []
 
 # beregninger
 data.Ts = []			  	# beregning av tidsskritt
@@ -160,6 +161,8 @@ def addMeasurements(data,robot,init,k):
 	data.joyForward.append(config.joyForwardInstance)
 	data.joySide.append(config.joySideInstance)
 
+	varighet =  robot.ColorSensor.reflection()/ 100 * 1000  # Scale the duration between 0 and 1000 ms
+	data.tone_lengde.append(varighet)
 """
 	data.LysDirekte.append(robot.ColorSensor.ambient())
 	data.Bryter.append(robot.TouchSensor.pressed())
@@ -205,7 +208,7 @@ def addMeasurements(data,robot,init,k):
 # på forhånd må være definert i seksjon 2).
 # Funksjonen brukes både i online og offline.
 #
-def MathCalculations(data,k,init):
+def MathCalculations(data,k, init, robot):
 	# return  	# Bruk denne dersom ingen beregninger gjøres,
 				# som for eksempel ved innhentning av kun data for 
 				# bruk i offline.
@@ -244,10 +247,13 @@ def MathCalculations(data,k,init):
 		data.TvA.append(data.TvA[k-1] + abs(data.PowerA[k] - data.PowerA[k-1]))
 		data.TvD.append(data.TvD[k-1] + abs(data.PowerD[k] - data.PowerD[k-1]))
 
+		for varighet in data.tone_lengde:
+			robot.brick.speaker.play_notes([(data.Lys[k]*10, varighet)])
+
 		# Play sound based on light value
-		light_value = data.Lys[k]
-		play_tune(light_value)  
-	# call your function here to play the tune
+		#light_value = data.Lys[k]
+		#play_tune(light_value)  
+
 
 	# Andre beregninger uavhengig av initialverdi
 
