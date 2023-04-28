@@ -81,7 +81,7 @@ Configs.ConnectJoystickToPC = False # True  --> joystick direkte på datamaskin
 # målinger
 data.Tid = []            	# måling av tidspunkt
 data.Lys = []            	# måling av reflektert lys fra ColorSensor
-data.Avstand
+data.Avstand = []
 
 # beregninger
 data.Ts = []			  	# beregning av tidsskritt
