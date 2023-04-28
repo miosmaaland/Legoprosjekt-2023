@@ -43,10 +43,10 @@ timer = clock()				# timerobjekt med tic toc funksjoner
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #                            1) KONFIGURASJON
 #
-Configs.EV3_IP = "169.254.244.95"	# Avles IP-adressen på EV3-skjermen
-Configs.Online = False	# Online = True  --> programmet kjører på robot
+Configs.EV3_IP = "169.254.249.79"	# Avles IP-adressen på EV3-skjermen
+Configs.Online = True	# Online = True  --> programmet kjører på robot
 						# Online = False --> programmet kjører på datamaskin
-Configs.livePlot = False 	# livePlot = True  --> Live plot, typisk stor Ts
+Configs.livePlot = True 	# livePlot = True  --> Live plot, typisk stor Ts
 							# livePlot = False --> Ingen plot, liten Ts
 Configs.avgTs = 0.005	# livePlot = False --> spesifiser ønsket Ts
 						# Lav avgTs -> høy samplingsfrekvens og mye data.
@@ -214,7 +214,7 @@ def addMeasurements(data,robot,init,k):
 #
 def MathCalculations(data,k,init):
 	# Parametre
-	init.nullflow = data.Lys[0] + 0.5	# Setter nullflow til første verdi i data.Lys
+	init.nullflow = data.Lys[0]	# Setter nullflow til første verdi i data.Lys
 
 		# Initialverdier og beregninger
 	if k == 0:
@@ -281,7 +281,7 @@ def lagPlot(plt):
 	# Ved flere subplot over hverandre så er det lurt å legge
 	# informasjon om x-label på de nederste subplotene (sharex = True)
 
-	fig.suptitle('Bergning av Flow og Volum med varierende Vinkrlfrekvens')
+	fig.suptitle('')
 
 	# plotting av Flow
 	ax[0].set_title('Flow')

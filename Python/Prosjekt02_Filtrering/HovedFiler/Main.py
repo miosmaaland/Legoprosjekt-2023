@@ -45,10 +45,10 @@ timer = clock()				# timerobjekt med tic toc funksjoner
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #                            1) KONFIGURASJON
 #
-Configs.EV3_IP = "169.254.39.39"	# Avles IP-adressen på EV3-skjermen
-Configs.Online = False	# Online = True  --> programmet kjører på robot  
+Configs.EV3_IP = "169.254.249.79"	# Avles IP-adressen på EV3-skjermen
+Configs.Online = True	# Online = True  --> programmet kjører på robot  
 						# Online = False --> programmet kjører på datamaskin
-Configs.livePlot = False 	# livePlot = True  --> Live plot, typisk stor Ts
+Configs.livePlot = True 	# livePlot = True  --> Live plot, typisk stor Ts
 							# livePlot = False --> Ingen plot, liten Ts
 Configs.avgTs = 0.005	# livePlot = False --> spesifiser ønsket Ts
 						# Lav avgTs -> høy samplingsfrekvens og mye data.
@@ -226,18 +226,11 @@ def MathCalculations(data,k,init):
 
 	# Parametre
 	alfa = 0.6
-	alfa_2 = 1-alfa
-	alfa_3 = alfa
-	M = 3
-	M_2 = 10
-	M_3 = 50
-	
+	M = 3	
 	num_points = k + 1 if k < M else M
-	num_points_2 = k + 1 if k < M_2 else M_2
-	num_points_3 = k + 1 if k < M_3 else M_3
 	
 	# Tilordne målinger til variable
-	data.Temp.append(data.Lys[k])
+	data.Temp.append(data.Lys[k]+random.random())
 	
 	# Initialverdier og beregninger 
 	if k == 0:
@@ -245,24 +238,13 @@ def MathCalculations(data,k,init):
 		data.Ts.append(0.005)
 
 		data.Temp_FIR.append(data.Temp[0])
-		data.Temp_FIR_02.append(data.Temp[0])
-		data.Temp_FIR_03.append(data.Temp[0])
-
 		data.Temp_IIR.append(data.Temp[0])
-		data.Temp_IIR_02.append(data.Temp[0])
-		data.Temp_IIR_03.append(data.Temp[0])
 	
 	else:
 		# Beregninger av Ts og variable som avhenger av initialverdi
 		data.Ts.append(data.Tid[k]-data.Tid[k-1])
-
 		data.Temp_FIR.append(sum(data.Temp[k - num_points + 1 : k + 1]) / num_points)
-		data.Temp_FIR_02.append(sum(data.Temp[k - num_points_2 + 1 : k + 1]) / num_points_2)
-		data.Temp_FIR_03.append(sum(data.Temp[k - num_points_3 + 1 : k + 1]) / num_points_3)
-
 		data.Temp_IIR.append((1-alfa)*data.Temp_IIR[k-1] + alfa*data.Temp[k])
-		data.Temp_IIR_02.append((1-alfa_2)*data.Temp_IIR_02[k-1] + alfa_2*data.Temp[k])
-		data.Temp_IIR_03.append((1-alfa_3)*data.Temp_IIR_03[k-1] + alfa_3*data.Temp[k])
 #_____________________________________________________________________________
 
 
@@ -368,6 +350,14 @@ def lagPlot(plt):
 		y = "Temp_IIR",	# navn på y-verdien (fra data-objektet)  
 
 		color = "r"
+	)
+
+	plt.plot(
+		subplot = ax[1],    
+		x = "Tid",	# navn på x-verdien (fra data-objektet)  
+		y = "Temp_FIR",	# navn på y-verdien (fra data-objektet)  
+
+		color = "g"
 	)
 
 	# plt.plot(

@@ -43,10 +43,10 @@ timer = clock()				# timerobjekt med tic toc funksjoner
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #                            1) KONFIGURASJON
 #
-Configs.EV3_IP = "169.254.242.163"	# Avles IP-adressen på EV3-skjermen
-Configs.Online = False	# Online = True  --> programmet kjører på robot  
+Configs.EV3_IP = "169.254.77.181"	# Avles IP-adressen på EV3-skjermen
+Configs.Online = True	# Online = True  --> programmet kjører på robot  
 						# Online = False --> programmet kjører på datamaskin
-Configs.livePlot = False 	# livePlot = True  --> Live plot, typisk stor Ts
+Configs.livePlot = True 	# livePlot = True  --> Live plot, typisk stor Ts
 							# livePlot = False --> Ingen plot, liten Ts
 Configs.avgTs = 0.005	# livePlot = False --> spesifiser ønsket Ts
 						# Lav avgTs -> høy samplingsfrekvens og mye data.
@@ -280,7 +280,7 @@ def stopMotors(robot):
 # Dersom enten nrows = 1 eller ncols = 1, så benyttes "ax[0]", "ax[1]", osv.
 # Dersom både nrows > 1 og ncols > 1, så benyttes "ax[0,0]", "ax[1,0]", osv
 def lagPlot(plt):
-	nrows = 2
+	nrows = 3
 	ncols = 1
 	sharex = True
 	plt.create(nrows,ncols)
@@ -291,12 +291,24 @@ def lagPlot(plt):
 	# Ved flere subplot over hverandre så er det lurt å legge 
 	# informasjon om x-label på de nederste subplotene (sharex = True)
 
-	fig.suptitle('Sinussignal med chirp-signal')
+	fig.suptitle('')
 
 	# plotting av Avstand og Avstand_IIR
-	ax[0].set_title('IIR-filtrert avstand fra bakken opp til vogna på “Stupet”, alfa=0.2 ')  
+	ax[0].set_title('Avstandsmåling rådata (b) og IIR-filtrert avstandsmåling, alfa=0.03 (r)')  
 	ax[0].set_xlabel("Tid [sek]")	 
 	ax[0].set_ylabel("Avstand [m]")
+	plt.plot(
+		subplot = ax[0],  	# Definer hvilken delfigur som skal plottes
+		x = "Tid", 			# navn på x-verdien (fra data-objektet)
+		y = "Avstand",			# navn på y-verdien (fra data-objektet)
+
+		# VALGFRITT
+		color = "b",		# fargen på kurven som plottes (default: blå)
+		linestyle = "solid",  # "solid" / "dashed" / "dotted"
+		linewidth = 1,		# tykkelse på linjen
+		marker = "",       	# legg til markør på hvert punkt
+	)
+
 	plt.plot(
 		subplot = ax[0],  	# Definer hvilken delfigur som skal plottes
 		x = "Tid", 			# navn på x-verdien (fra data-objektet)
@@ -309,14 +321,23 @@ def lagPlot(plt):
 		marker = "",       	# legg til markør på hvert punkt
 	)
 
-	ax[1].set_title('Opplevd fart i vogna på “Stupet”')  
+	ax[1].set_title('Beregnet hastighet av rådata (ubrukelige)')  
 	ax[1].set_xlabel("Tid [sek]")
 	ax[1].set_ylabel("Hastighet [m/s]")
 	plt.plot(
 		subplot = ax[1],    
 		x = "Tid",       
+		y = "Fart",
+		color = "b",
+	)
+	
+	ax[2].set_title('Beregnet hastighet av filtrert avstandsmålinger')  
+	ax[2].set_xlabel("Tid [sek]")
+	ax[2].set_ylabel("Hastighet [m/s]")
+	plt.plot(
+		subplot = ax[2],    
+		x = "Tid",       
 		y = "Fart_IIR",
 		color = "r",
 	)
-	
 #____________________________________________________________________________
