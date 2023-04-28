@@ -43,8 +43,8 @@ timer = clock()				# timerobjekt med tic toc funksjoner
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #                            1) KONFIGURASJON
 #
-Configs.EV3_IP = "169.254.158.92"	# Avles IP-adressen på EV3-skjermen
-Configs.Online = True	# Online = True  --> programmet kjører på robot  
+Configs.EV3_IP = "169.254.4.195"	# Avles IP-adressen på EV3-skjermen
+Configs.Online = False	# Online = True  --> programmet kjører på robot  
 						# Online = False --> programmet kjører på datamaskin
 Configs.livePlot = False 	# livePlot = True  --> Live plot, typisk stor Ts
 							# livePlot = False --> Ingen plot, liten Ts
@@ -86,6 +86,22 @@ data.tone_lengde = []
 # beregninger
 data.Ts = []			  	# beregning av tidsskritt
 data.lyd = []
+data.joyForward = []         # måling av foroverbevegelse styrestikke
+data.joySide = []            # måling av sidebevegelse styrestikke
+data.Referanse = []
+data.avvik = []
+data.lyd = []
+
+data.abs_avik = []			# beregning av absolut avvik
+
+data.IAEList = []			# beregning av IAE
+data.MAEList = []			# beregning av MAE
+
+data.TvA = []				# beregning av totalt motorpådrag A
+data.TvD = []	
+
+data.PowerA = []         # berenging av motorpådrag A
+data.PowerD = []         # berenging av motorpådrag D
 
 """
 # Utvalg av målinger
@@ -104,8 +120,6 @@ data.HastighetMotorC = []    # måling av vinkelhastighet motor C
 data.VinkelPosMotorD = []    # måling av vinkelposisjon motor D
 data.HastighetMotorD = []    # måling av vinkelhastighet motor D
 
-data.joyForward = []         # måling av foroverbevegelse styrestikke
-data.joySide = []            # måling av sidebevegelse styrestikke
 data.joyTwist = []           # måling av vribevegelse styrestikke
 data.joyPotMeter = []        # måling av potensionmeter styrestikke
 data.joyPOVForward = []      # måling av foroverbevegelse toppledd
@@ -150,19 +164,94 @@ data.PowerD = []         # berenging av motorpådrag D
 # k: indeks som starter på 0 og øker [0,--> uendelig]
 # config: inneholder joystick målinger
 
-def addMeasurements(data,robot,init,k):
+def addMeasurements(data, robot, init, k):
 	if k == 0:
 		init.Lys0 = robot.ColorSensor.reflection()
 		data.Tid.append(timer.tic())
 	else:
 		data.Tid.append(timer.toc())
 
-	data.Lys.append(robot.ColorSensor.reflection())
-	data.joyForward.append(config.joyForwardInstance)
-	data.joySide.append(config.joySideInstance)
+	light_value = robot.ColorSensor.reflection()
+	
+	note = None  # Initialize note variable outside if statement
+	
+	while True:
+		light_value = robot.ColorSensor.reflection()
 
-	varighet =  robot.ColorSensor.reflection()/ 100 * 1000  # Scale the duration between 0 and 1000 ms
-	data.tone_lengde.append(varighet)
+
+		if 0 <= light_value and light_value < 11:
+			note = "C4"
+			duration = 0.5 #light_value / 100 * 1000  # Scale the duration between 0 and 1000 ms
+			tempo = int(60/duration)
+			notes = [note + "/"+str(4)]
+			robot.brick.speaker.play_notes(notes,tempo=60)
+		elif 11 <= light_value and light_value < 21:
+			note = "D4"
+			duration = 0.5 #light_value / 100 * 1000  # Scale the duration between 0 and 1000 ms
+			tempo = int(60/duration)
+			notes = [note + "/"+str(4)]
+			robot.brick.speaker.play_notes(notes,tempo=60)
+		elif 21 <= light_value and light_value < 31:
+			note = "E4"
+			duration = 0.5 #light_value / 100 * 1000  # Scale the duration between 0 and 1000 ms
+			tempo = int(60/duration)
+			notes = [note + "/"+str(4)]
+			robot.brick.speaker.play_notes(notes,tempo=60)
+		elif 31 <= light_value and light_value < 41:
+			note = "F4"
+			duration = 0.5 #light_value / 100 * 1000  # Scale the duration between 0 and 1000 ms
+			tempo = int(60/duration)
+			notes = [note + "/"+str(4)]
+			robot.brick.speaker.play_notes(notes,tempo=60)
+		elif 41 <= light_value and light_value < 51:
+			note = "G4"
+			duration = 0.5 #light_value / 100 * 1000  # Scale the duration between 0 and 1000 ms
+			tempo = int(60/duration)
+			notes = [note + "/"+str(4)]
+			robot.brick.speaker.play_notes(notes,tempo=60)
+		elif 51 <= light_value and light_value < 61:
+			note = "A4"
+			duration = 0.5 #light_value / 100 * 1000  # Scale the duration between 0 and 1000 ms
+			tempo = int(60/duration)
+			notes = [note + "/"+str(4)]
+			robot.brick.speaker.play_notes(notes,tempo=60)
+		elif 61 <= light_value and light_value < 71:
+			note = "B4"
+			duration = 0.5 #light_value / 100 * 1000  # Scale the duration between 0 and 1000 ms
+			tempo = int(60/duration)
+			notes = [note + "/"+str(4)]
+			robot.brick.speaker.play_notes(notes,tempo=60)
+		elif 71 <= light_value and light_value < 81:
+			note = "C5"
+			duration = 0.5 #light_value / 100 * 1000  # Scale the duration between 0 and 1000 ms
+			tempo = int(60/duration)
+			notes = [note + "/"+str(4)]
+			robot.brick.speaker.play_notes(notes,tempo=60)
+		elif 81 <= light_value and light_value < 91:
+			note = "D5"
+			duration = 0.5 #light_value / 100 * 1000  # Scale the duration between 0 and 1000 ms
+			tempo = int(60/duration)
+			notes = [note + "/"+str(4)]
+			robot.brick.speaker.play_notes(notes,tempo=60)
+		elif 91 <= light_value and light_value < 101:
+			note = "E5"
+			duration = 0.5 #light_value / 100 * 1000  # Scale the duration between 0 and 1000 ms
+			tempo = int(60/duration)
+			notes = [note + "/"+str(4)]
+			robot.brick.speaker.play_notes(notes,tempo=60)
+		else:
+			duration = None
+
+		# Add the measurements to the data structure
+		data.Tid.append(timer.toc())
+		data.Lys.append(light_value)
+		data.joyForward.append(config.joyForwardInstance)
+		data.joySide.append(config.joySideInstance)
+		data.tone_lengde.append(duration)
+		data.lyd.append(note)  # Append note variable to data.lyd
+
+
+
 """
 	data.LysDirekte.append(robot.ColorSensor.ambient())
 	data.Bryter.append(robot.TouchSensor.pressed())
@@ -208,7 +297,7 @@ def addMeasurements(data,robot,init,k):
 # på forhånd må være definert i seksjon 2).
 # Funksjonen brukes både i online og offline.
 #
-def MathCalculations(data,k, init, robot):
+def MathCalculations(data,k, init):
 	# return  	# Bruk denne dersom ingen beregninger gjøres,
 				# som for eksempel ved innhentning av kun data for 
 				# bruk i offline.
@@ -247,8 +336,8 @@ def MathCalculations(data,k, init, robot):
 		data.TvA.append(data.TvA[k-1] + abs(data.PowerA[k] - data.PowerA[k-1]))
 		data.TvD.append(data.TvD[k-1] + abs(data.PowerD[k] - data.PowerD[k-1]))
 
-		for varighet in data.tone_lengde:
-			robot.brick.speaker.play_notes([(data.Lys[k]*10, varighet)])
+
+
 
 		# Play sound based on light value
 		#light_value = data.Lys[k]
